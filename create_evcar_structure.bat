@@ -25,105 +25,105 @@ echo.
 
 REM - JAVA 패키지 (Domain)
 
-mkdir "src\main\java\com\evcar\domain\user"
-mkdir "src\main\java\com\evcar\domain\vehicle"
-mkdir "src\main\java\com\evcar\domain\wishlist"
-mkdir "src\main\java\com\evcar\domain\consultation"
-mkdir "src\main\java\com\evcar\domain\inquiry"
-mkdir "src\main\java\com\evcar\domain\faq"
-mkdir "src\main\java\com\evcar\domain\chatbot"
-mkdir "src\main\java\com\evcar\domain\charging"
-mkdir "src\main\java\com\evcar\domain\mypage"
+mkdir "src\main\java\com\evcar\domain\user"2>nul
+mkdir "src\main\java\com\evcar\domain\vehicle"2>nul
+mkdir "src\main\java\com\evcar\domain\wishlist"2>nul
+mkdir "src\main\java\com\evcar\domain\consultation"2>nul
+mkdir "src\main\java\com\evcar\domain\inquiry"2>nul
+mkdir "src\main\java\com\evcar\domain\faq"2>nul
+mkdir "src\main\java\com\evcar\domain\chatbot"2>nul
+mkdir "src\main\java\com\evcar\domain\charging"2>nul
+mkdir "src\main\java\com\evcar\domain\mypage"2>nul
 
 REM - JAVA 패키지 (Repository)
 
-mkdir "src\main\java\com\evcar\repository\user"
-mkdir "src\main\java\com\evcar\repository\vehicle"
-mkdir "src\main\java\com\evcar\repository\wishlist"
-mkdir "src\main\java\com\evcar\repository\consultation"
-mkdir "src\main\java\com\evcar\repository\inquiry"
-mkdir "src\main\java\com\evcar\repository\faq"
-mkdir "src\main\java\com\evcar\repository\chatbot"
-mkdir "src\main\java\com\evcar\repository\charging"
+mkdir "src\main\java\com\evcar\repository\user"2>nul
+mkdir "src\main\java\com\evcar\repository\vehicle"2>nul
+mkdir "src\main\java\com\evcar\repository\wishlist"2>nul
+mkdir "src\main\java\com\evcar\repository\consultation"2>nul
+mkdir "src\main\java\com\evcar\repository\inquiry"2>nul
+mkdir "src\main\java\com\evcar\repository\faq"2>nul
+mkdir "src\main\java\com\evcar\repository\chatbot"2>nul
+mkdir "src\main\java\com\evcar\repository\charging"2>nul
 
 REM - JAVA 패키지 (Service)
 
-mkdir "src\main\java\com\evcar\service\user"
-mkdir "src\main\java\com\evcar\service\login"
-mkdir "src\main\java\com\evcar\service\mypage"
-mkdir "src\main\java\com\evcar\service\vehicle"
-mkdir "src\main\java\com\evcar\service\wishlist"
-mkdir "src\main\java\com\evcar\service\consultation"
-mkdir "src\main\java\com\evcar\service\inquiry"
-mkdir "src\main\java\com\evcar\service\faq"
-mkdir "src\main\java\com\evcar\service\chatbot"
-mkdir "src\main\java\com\evcar\service\charging"
-mkdir "src\main\java\com\evcar\service\admin"
+mkdir "src\main\java\com\evcar\service\user"2>nul
+mkdir "src\main\java\com\evcar\service\login"2>nul
+mkdir "src\main\java\com\evcar\service\mypage"2>nul
+mkdir "src\main\java\com\evcar\service\vehicle"2>nul
+mkdir "src\main\java\com\evcar\service\wishlist"2>nul
+mkdir "src\main\java\com\evcar\service\consultation"2>nul
+mkdir "src\main\java\com\evcar\service\inquiry"2>nul
+mkdir "src\main\java\com\evcar\service\faq"2>nul
+mkdir "src\main\java\com\evcar\service\chatbot"2>nul
+mkdir "src\main\java\com\evcar\service\charging"2>nul
+mkdir "src\main\java\com\evcar\service\admin"2>nul
 
 REM - JAVA 패키지 (Controller)
 
-mkdir "src\main\java\com\evcar\controller"
-mkdir "src\main\java\com\evcar\controller\user"
-mkdir "src\main\java\com\evcar\controller\login"
-mkdir "src\main\java\com\evcar\controller\mypage"
-mkdir "src\main\java\com\evcar\controller\vehicle"
-mkdir "src\main\java\com\evcar\controller\wishlist"
-mkdir "src\main\java\com\evcar\controller\consultation"
-mkdir "src\main\java\com\evcar\controller\inquiry"
-mkdir "src\main\java\com\evcar\controller\faq"
-mkdir "src\main\java\com\evcar\controller\chatbot"
-mkdir "src\main\java\com\evcar\controller\charging"
-mkdir "src\main\java\com\evcar\controller\admin"
+mkdir "src\main\java\com\evcar\controller"2>nul
+mkdir "src\main\java\com\evcar\controller\user"2>nul
+mkdir "src\main\java\com\evcar\controller\login"2>nul
+mkdir "src\main\java\com\evcar\controller\mypage"2>nul
+mkdir "src\main\java\com\evcar\controller\vehicle"2>nul
+mkdir "src\main\java\com\evcar\controller\wishlist"2>nul
+mkdir "src\main\java\com\evcar\controller\consultation"2>nul
+mkdir "src\main\java\com\evcar\controller\inquiry"2>nul
+mkdir "src\main\java\com\evcar\controller\faq"2>nul
+mkdir "src\main\java\com\evcar\controller\chatbot"2>nul
+mkdir "src\main\java\com\evcar\controller\charging"2>nul
+mkdir "src\main\java\com\evcar\controller\admin"2>nul
 
 REM - JAVA 패키지 (dto)
 
-mkdir "src\main\java\com\evcar\dto\user"
-mkdir "src\main\java\com\evcar\dto\login"
-mkdir "src\main\java\com\evcar\dto\mypage"
-mkdir "src\main\java\com\evcar\dto\vehicle"
-mkdir "src\main\java\com\evcar\dto\consultation"
-mkdir "src\main\java\com\evcar\dto\inquiry"
-mkdir "src\main\java\com\evcar\dto\chatbot"
-mkdir "src\main\java\com\evcar\dto\charging"
-mkdir "src\main\java\com\evcar\dto\admin"
+mkdir "src\main\java\com\evcar\dto\user"2>nul
+mkdir "src\main\java\com\evcar\dto\login"2>nul
+mkdir "src\main\java\com\evcar\dto\mypage"2>nul
+mkdir "src\main\java\com\evcar\dto\vehicle"2>nul
+mkdir "src\main\java\com\evcar\dto\consultation"2>nul
+mkdir "src\main\java\com\evcar\dto\inquiry"2>nul
+mkdir "src\main\java\com\evcar\dto\chatbot"2>nul
+mkdir "src\main\java\com\evcar\dto\charging"2>nul
+mkdir "src\main\java\com\evcar\dto\admin"2>nul
 
 REM - JAVA 패키지 (공통)
 
-mkdir "src\main\java\com\evcar\config"
-mkdir "src\main\java\com\evcar\config\user"
-mkdir "src\main\java\com\evcar\common\vo"
-mkdir "src\main\java\com\evcar\common\util"
-mkdir "src\main\java\com\evcar\interceptor"
-mkdir "src\main\java\com\evcar\exception"
-mkdir "src\main\java\com\evcar\validator\mypage"
-mkdir "src\main\java\com\evcar\mapper\charging"
-mkdir "src\main\java\com\evcar\api\charging"
+mkdir "src\main\java\com\evcar\config"2>nul
+mkdir "src\main\java\com\evcar\config\user"2>nul
+mkdir "src\main\java\com\evcar\common\vo"2>nul
+mkdir "src\main\java\com\evcar\common\util"2>nul
+mkdir "src\main\java\com\evcar\interceptor"2>nul
+mkdir "src\main\java\com\evcar\exception"2>nul
+mkdir "src\main\java\com\evcar\validator\mypage"2>nul
+mkdir "src\main\java\com\evcar\mapper\charging"2>nul
+mkdir "src\main\java\com\evcar\api\charging"2>nul
 
 REM - templates (resources)
 
-mkdir "src\main\resources\templates\layout"
-mkdir "src\main\resources\templates\fragments"
-mkdir "src\main\resources\templates\error"
-mkdir "src\main\resources\templates\user"
-mkdir "src\main\resources\templates\login"
-mkdir "src\main\resources\templates\mypage"
-mkdir "src\main\resources\templates\vehicle"
-mkdir "src\main\resources\templates\wishlist"
-mkdir "src\main\resources\templates\consultation"
-mkdir "src\main\resources\templates\inquiry"
-mkdir "src\main\resources\templates\faq"
-mkdir "src\main\resources\templates\charging"
-mkdir "src\main\resources\templates\admin\user"
-mkdir "src\main\resources\templates\admin\vehicle"
-mkdir "src\main\resources\templates\admin\consultation"
-mkdir "src\main\resources\templates\admin\inquiry"
-mkdir "src\main\resources\templates\admin\faq"
+mkdir "src\main\resources\templates\layout"2>nul
+mkdir "src\main\resources\templates\fragments"2>nul
+mkdir "src\main\resources\templates\error"2>nul
+mkdir "src\main\resources\templates\user"2>nul
+mkdir "src\main\resources\templates\login"2>nul
+mkdir "src\main\resources\templates\mypage"2>nul
+mkdir "src\main\resources\templates\vehicle"2>nul
+mkdir "src\main\resources\templates\wishlist"2>nul
+mkdir "src\main\resources\templates\consultation"2>nul
+mkdir "src\main\resources\templates\inquiry"2>nul
+mkdir "src\main\resources\templates\faq"2>nul
+mkdir "src\main\resources\templates\charging"2>nul
+mkdir "src\main\resources\templates\admin\user"2>nul
+mkdir "src\main\resources\templates\admin\vehicle"2>nul
+mkdir "src\main\resources\templates\admin\consultation"2>nul
+mkdir "src\main\resources\templates\admin\inquiry"2>nul
+mkdir "src\main\resources\templates\admin\faq"2>nul
 
 REM - static resources (CSS, JS, Image)
 
-mkdir "src\main\resources\static\css"
-mkdir "src\main\resources\static\js"
-mkdir "src\main\resources\static\images"
+mkdir "src\main\resources\static\css"2>nul
+mkdir "src\main\resources\static\js"2>nul
+mkdir "src\main\resources\static\images"2>nul
 
 echo.
 echo ===== 생성 완료 =====
