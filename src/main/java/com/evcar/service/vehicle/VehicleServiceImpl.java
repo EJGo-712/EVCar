@@ -1,55 +1,81 @@
 package com.evcar.service.vehicle;
 
+import org.springframework.stereotype.Service;
 import com.evcar.domain.vehicle.Vehicle;
+import com.evcar.dto.vehicle.VehicleDetailDto;
 import com.evcar.dto.vehicle.VehicleListDto;
 import com.evcar.repository.vehicle.VehicleRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 public class VehicleServiceImpl implements VehicleService {
 
     private final VehicleRepository vehicleRepository;
+    private final WishlistService wishlistService;
 
+    public VehicleServiceImpl(VehicleRepository vehicleRepository,
+                              WishlistService wishlistService) {
+        this.vehicleRepository = vehicleRepository;
+        this.wishlistService = wishlistService;
+    }
+
+    // 차량 리스트
     @Override
     public List<VehicleListDto> getVehicleList(String brand, String vehicleClass) {
 
-        List<Vehicle> vehicles;
+        // 🔥 핵심: Repository 하나로 처리
+        List<Vehicle> vehicles = vehicleRepository.findByFilter(brand, vehicleClass);
 
-        // 🔥 필터 조건
-        if ("전체".equals(brand) && "전체".equals(vehicleClass)) {
-            vehicles = vehicleRepository.findAll();
+        return vehicles.stream().map(v -> {
 
-        } else if (!"전체".equals(brand) && "전체".equals(vehicleClass)) {
-            vehicles = vehicleRepository.findByBrand(brand);
+            VehicleListDto dto = new VehicleListDto(
+                    v.getVehicleId(),
+                    v.getBrand(),
+                    v.getModelName(),
+                    v.getVehicleClass(),
+                    v.getPriceBasic(),
+                    v.getPricePremium(),
+                    v.getDrivingRange(),
+                    v.getImageUrl(),
+                    v.getCatalogUrl()
+            );
 
-        } else if ("전체".equals(brand) && !"전체".equals(vehicleClass)) {
-            vehicles = vehicleRepository.findByVehicleClass(vehicleClass);
+            dto.setWished(wishlistService.isWished(v.getVehicleId()));
 
-        } else {
-            vehicles = vehicleRepository.findByBrandAndVehicleClass(brand, vehicleClass);
-        }
+            return dto;
 
-        // 🔥 DTO 변환 (핵심)
-        return vehicles.stream()
-                .map(v -> {
-                    VehicleListDto dto = new VehicleListDto();
+        }).collect(Collectors.toList());
+    }
 
-                    dto.setVehicleId(v.getVehicleId());
-                    dto.setBrand(v.getBrand());
-                    dto.setModelName(v.getModelName());
-                    dto.setVehicleClass(v.getVehicleClass());
-                    dto.setPriceBasic(v.getPriceBasic());
-                    dto.setPricePremium(v.getPricePremium());
-                    dto.setDrivingRange(v.getDrivingRange());
-                    dto.setImageUrl(v.getImageUrl());
-                    dto.setCatalogUrl(v.getCatalogUrl());
+    // 차량 상세
+    @Override
+    public VehicleDetailDto getDetail(Long vehicleId) {
 
-                    return dto;
-                })
-                .toList();
+        Vehicle v = vehicleRepository.findById(vehicleId)
+                .orElseThrow(() -> new RuntimeException("차량 없음"));
+
+        VehicleDetailDto dto = new VehicleDetailDto();
+
+        dto.setVehicleId(v.getVehicleId());
+        dto.setBrand(v.getBrand());
+        dto.setModelName(v.getModelName());
+        dto.setVehicleClass(v.getVehicleClass());
+        dto.setPriceBasic(v.getPriceBasic());
+        dto.setPricePremium(v.getPricePremium());
+        dto.setDrivingRange(v.getDrivingRange());
+        dto.setFastChargingTime(v.getFastChargingTime());
+        dto.setSlowChargingTime(v.getSlowChargingTime());
+        dto.setChargingMethod(v.getChargingMethod());
+        dto.setBatteryCapacity(v.getBatteryCapacity().doubleValue());
+        dto.setImageUrl(v.getImageUrl());
+        dto.setCatalogUrl(v.getCatalogUrl());
+
+        return dto;
+    }
+
+    public Vehicle getVehicleDetail(Long id) {
+        return vehicleRepository.findById(id).orElse(null);
     }
 }

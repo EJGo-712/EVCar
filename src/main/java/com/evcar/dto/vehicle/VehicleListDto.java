@@ -11,7 +11,8 @@ public class VehicleListDto {
     private Integer drivingRange;
     private String imageUrl;
     private String catalogUrl;
-    private boolean wished;   // 추가됨 (이미 있음)
+    private boolean wished;  
+   
 
     // 생성자
     public VehicleListDto() {}
@@ -59,7 +60,7 @@ public class VehicleListDto {
     public String getCatalogUrl() { return catalogUrl; }
     public void setCatalogUrl(String catalogUrl) { this.catalogUrl = catalogUrl; }
 
-    // 여기 추가 (핵심)
+    // 🔥 여기 추가 (핵심)
     public boolean isWished() {
         return wished;
     }
