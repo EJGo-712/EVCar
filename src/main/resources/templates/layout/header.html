@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<body>
+<header th:fragment="header" class="ev-header">
+    <div class="container">
+        <nav class="ev-navbar">
+			<a th:href="@{/}" class="ev-logo">
+			    <img th:src="@{/images/evcar_logo.png}" alt="EVCar 로고" class="ev-logo-img">
+			</a>
+
+            <ul class="ev-nav-menu">
+                <li><a th:href="@{/vehicle/list}">전기차</a></li>
+                <li><a th:href="@{/charging/map}">충전소</a></li>
+                <li><a th:href="@{/consultation/form}">상담</a></li>
+            </ul>
+
+            <div class="ev-nav-actions">
+                <a th:href="@{/login}" class="ev-btn-text">로그인</a>
+                <a th:href="@{/signup}" class="btn btn-ev-primary">회원가입</a>
+            </div>
+        </nav>
+    </div>
+</header>
+</body>
+</html>
