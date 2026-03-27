@@ -1,9 +1,7 @@
 package com.evcar.dto.mypage;
 
 import java.time.LocalDateTime;
-
 import com.evcar.domain.inquiry.Inquiry;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

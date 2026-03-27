@@ -65,7 +65,7 @@
                                 <input type="text"
                                        id="birthDateDisplay"
                                        class="ev-input ev-myinfo-input ev-myinfo-input--fixed"
-                                       th:value="${myPageInfoUpdateRequestDto.birthDate != null ? #temporals.format(myPageInfoUpdateRequestDto.birthDate, 'yyyy-MM-dd') : ''}"
+                                       th:value="${myPageInfo.birthDate != null ? #temporals.format(myPageInfo.birthDate, 'yyyy-MM-dd') : ''}"
                                        readonly>
 
                                 <input type="date"
@@ -200,7 +200,7 @@
    <input type="text"
        id="vehicleYearDisplay"
        class="ev-input ev-myinfo-input ev-myinfo-input--fixed"
-       th:value="${myPageInfoUpdateRequestDto.vehicleYear != null ? myPageInfoUpdateRequestDto.vehicleYear : ''}"
+       th:value="${myPageInfo.vehicleYear != null ? myPageInfo.vehicleYear : ''}"
        readonly>
 
 <input type="month"

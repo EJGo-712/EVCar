@@ -29,23 +29,19 @@ public class MyPageServiceImpl implements MyPageService {
     private final InquiryRepository inquiryRepository;
 
     @Override
-    public MyPageInfoResponseDto getMyPageInfo(Integer userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("회원정보를 찾을 수 없습니다."));
-
+    public MyPageInfoResponseDto getMyPageInfo(String loginId) {
+        User user = getUserByLoginId(loginId);
         return MyPageInfoResponseDto.from(user);
     }
 
     @Override
     @Transactional
-    public void updateMyPageInfo(Integer userId, MyPageInfoUpdateRequestDto requestDto) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("회원정보를 찾을 수 없습니다."));
+    public void updateMyPageInfo(String loginId, MyPageInfoUpdateRequestDto requestDto) {
+        User user = getUserByLoginId(loginId);
 
         String name = requestDto.getName() != null ? requestDto.getName() : user.getName();
         LocalDate birthDate = requestDto.getBirthDate() != null ? requestDto.getBirthDate() : user.getBirthDate();
         String gender = requestDto.getGender() != null ? requestDto.getGender() : user.getGender();
-
         String phone = requestDto.getPhone() != null ? requestDto.getPhone() : user.getPhone();
         String address = requestDto.getAddress() != null ? requestDto.getAddress() : user.getAddress();
         String addressDetail = requestDto.getAddressDetail() != null ? requestDto.getAddressDetail() : user.getAddressDetail();
@@ -94,19 +90,23 @@ public class MyPageServiceImpl implements MyPageService {
     }
 
     @Override
-    public List<MyConsultationResponseDto> getMyConsultations(Integer userId) {
-        return consultationRepository.findByUserUserIdOrderByCreatedAtDesc(userId).stream()
+    public List<MyConsultationResponseDto> getMyConsultations(String loginId) {
+        User user = getUserByLoginId(loginId);
+
+        return consultationRepository.findByUserUserIdOrderByCreatedAtDesc(user.getUserId()).stream()
                 .map(MyConsultationResponseDto::from)
                 .toList();
     }
 
     @Override
     @Transactional
-    public void cancelMyConsultation(Integer userId, Integer consultId) {
+    public void cancelMyConsultation(String loginId, Integer consultId) {
+        User user = getUserByLoginId(loginId);
+
         Consultation consultation = consultationRepository.findById(consultId)
                 .orElseThrow(() -> new IllegalArgumentException("상담 정보를 찾을 수 없습니다."));
 
-        if (!consultation.getUser().getUserId().equals(userId)) {
+        if (!consultation.getUser().getUserId().equals(user.getUserId())) {
             throw new IllegalArgumentException("본인의 상담만 취소할 수 있습니다.");
         }
 
@@ -114,37 +114,43 @@ public class MyPageServiceImpl implements MyPageService {
     }
 
     @Override
-    public List<MyInquiryResponseDto> getMyInquiries(Integer userId) {
-        return inquiryRepository.findByUserUserIdOrderByCreatedAtDesc(userId).stream()
+    public List<MyInquiryResponseDto> getMyInquiries(String loginId) {
+        User user = getUserByLoginId(loginId);
+
+        return inquiryRepository.findByUserUserIdOrderByCreatedAtDesc(user.getUserId()).stream()
                 .map(MyInquiryResponseDto::from)
                 .toList();
     }
 
     @Override
     @Transactional
-    public void withdraw(Integer userId, WithdrawRequestDto requestDto) {
-        if (requestDto.isInvalid()) {
+    public void withdraw(String loginId, WithdrawRequestDto withdrawRequestDto) {
+        if (withdrawRequestDto.isInvalid()) {
             throw new IllegalArgumentException("회원탈퇴 입력값을 확인해주세요.");
         }
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("회원정보를 찾을 수 없습니다."));
+        User user = getUserByLoginId(loginId);
 
         if (user.getUserStatus() == UserStatus.WITHDRAWN) {
             throw new IllegalArgumentException("이미 탈퇴 처리된 회원입니다.");
         }
 
         boolean hasInProgressConsultation =
-                consultationRepository.existsByUserUserIdAndConsultStatus(userId, CONSULT_STATUS_IN_PROGRESS);
+                consultationRepository.existsByUserUserIdAndConsultStatus(user.getUserId(), CONSULT_STATUS_IN_PROGRESS);
 
         if (hasInProgressConsultation) {
             throw new IllegalArgumentException("현재 진행중인 상담이 있어 탈퇴가 불가능합니다. 상담 완료 또는 취소 후 다시 시도해주세요.");
         }
 
-        if (!user.getPassword().equals(requestDto.getPassword())) {
+        if (!user.getPassword().equals(withdrawRequestDto.getPassword())) {
             throw new IllegalArgumentException("비밀번호를 확인하세요.");
         }
 
         user.withdraw();
+    }
+
+    private User getUserByLoginId(String loginId) {
+        return userRepository.findByLoginId(loginId)
+                .orElseThrow(() -> new IllegalArgumentException("회원정보를 찾을 수 없습니다."));
     }
 }

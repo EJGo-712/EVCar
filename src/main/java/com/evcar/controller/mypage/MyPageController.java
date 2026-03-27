@@ -9,7 +9,6 @@ import com.evcar.service.mypage.MyPageService;
 import jakarta.servlet.http.HttpSession;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,8 +31,8 @@ public class MyPageController {
 
     @GetMapping("/main")
     public String myPageMain(HttpSession session, Model model) {
-        Integer loginUserId = getLoginUserId(session);
-        MyPageInfoResponseDto myPageInfo = myPageService.getMyPageInfo(loginUserId);
+        String loginId = getLoginId(session);
+        MyPageInfoResponseDto myPageInfo = myPageService.getMyPageInfo(loginId);
 
         model.addAttribute("myPageInfo", myPageInfo);
         return "mypage/myPageMain";
@@ -41,8 +40,8 @@ public class MyPageController {
 
     @GetMapping("/info")
     public String myInfo(HttpSession session, Model model) {
-        Integer loginUserId = getLoginUserId(session);
-        MyPageInfoResponseDto myPageInfo = myPageService.getMyPageInfo(loginUserId);
+        String loginId = getLoginId(session);
+        MyPageInfoResponseDto myPageInfo = myPageService.getMyPageInfo(loginId);
 
         model.addAttribute("myPageInfo", myPageInfo);
         model.addAttribute("myPageInfoUpdateRequestDto", toUpdateRequestDto(myPageInfo));
@@ -55,8 +54,8 @@ public class MyPageController {
             HttpSession session,
             @ModelAttribute MyPageInfoUpdateRequestDto myPageInfoUpdateRequestDto
     ) {
-        Integer loginUserId = getLoginUserId(session);
-        myPageService.updateMyPageInfo(loginUserId, myPageInfoUpdateRequestDto);
+        String loginId = getLoginId(session);
+        myPageService.updateMyPageInfo(loginId, myPageInfoUpdateRequestDto);
 
         return "redirect:/mypage/info";
     }
@@ -66,13 +65,10 @@ public class MyPageController {
         return "mypage/myWishlist";
     }
 
-    
-    
-
     @GetMapping("/consultation")
     public String myConsultation(HttpSession session, Model model) {
-        Integer loginUserId = getLoginUserId(session);
-        List<MyConsultationResponseDto> consultations = myPageService.getMyConsultations(loginUserId);
+        String loginId = getLoginId(session);
+        List<MyConsultationResponseDto> consultations = myPageService.getMyConsultations(loginId);
 
         model.addAttribute("consultations", consultations);
         return "mypage/myConsultation";
@@ -83,16 +79,16 @@ public class MyPageController {
             HttpSession session,
             @RequestParam("consultId") Integer consultId
     ) {
-        Integer loginUserId = getLoginUserId(session);
-        myPageService.cancelMyConsultation(loginUserId, consultId);
+        String loginId = getLoginId(session);
+        myPageService.cancelMyConsultation(loginId, consultId);
 
         return "redirect:/mypage/consultation";
     }
 
     @GetMapping("/inquiry")
     public String myInquiry(HttpSession session, Model model) {
-        Integer loginUserId = getLoginUserId(session);
-        List<MyInquiryResponseDto> inquiries = myPageService.getMyInquiries(loginUserId);
+        String loginId = getLoginId(session);
+        List<MyInquiryResponseDto> inquiries = myPageService.getMyInquiries(loginId);
 
         model.addAttribute("inquiries", inquiries);
         return "mypage/myInquiry";
@@ -100,8 +96,8 @@ public class MyPageController {
 
     @GetMapping("/withdraw")
     public String myWithdraw(HttpSession session, Model model) {
-        Integer loginUserId = getLoginUserId(session);
-        MyPageInfoResponseDto myPageInfo = myPageService.getMyPageInfo(loginUserId);
+        String loginId = getLoginId(session);
+        MyPageInfoResponseDto myPageInfo = myPageService.getMyPageInfo(loginId);
 
         model.addAttribute("myPageInfo", myPageInfo);
         model.addAttribute("withdrawRequestDto", WithdrawRequestDto.builder().build());
@@ -114,39 +110,34 @@ public class MyPageController {
             HttpSession session,
             @ModelAttribute WithdrawRequestDto withdrawRequestDto
     ) {
-        Integer loginUserId = getLoginUserId(session);
-        myPageService.withdraw(loginUserId, withdrawRequestDto);
+        String loginId = getLoginId(session);
+        myPageService.withdraw(loginId, withdrawRequestDto);
 
         session.invalidate();
         return "redirect:/";
     }
 
-    private Integer getLoginUserId(HttpSession session) {
+    private String getLoginId(HttpSession session) {
         Object loginUserId = session.getAttribute("loginUserId");
 
         if (loginUserId == null) {
-            return 1;
+            session.setAttribute("loginUserId", "seohyunryu");
+            return "seohyunryu"; //화면 확인용임시로그인
         }
-
-        if (loginUserId instanceof Integer userId) {
-            return userId;
+        /*
+        if (loginUserId == null) {
+            throw new IllegalArgumentException("로그인이 필요합니다.");
         }
-
-        if (loginUserId instanceof Long userId) {
-            return userId.intValue();
-        }
-
-        if (loginUserId instanceof String userId) {
-            return Integer.parseInt(userId);
-        }
-
-        throw new IllegalArgumentException("로그인 사용자 정보 형식이 올바르지 않습니다.");
+	*/
+        return String.valueOf(loginUserId);
     }
 
     private MyPageInfoUpdateRequestDto toUpdateRequestDto(MyPageInfoResponseDto responseDto) {
         return MyPageInfoUpdateRequestDto.builder()
                 .name(responseDto.getName())
-                .birthDate(responseDto.getBirthDate() != null ? responseDto.getBirthDate() : java.time.LocalDate.of(1990, 1, 1))
+                .birthDate(responseDto.getBirthDate() != null
+                        ? responseDto.getBirthDate()
+                        : java.time.LocalDate.of(1990, 1, 1))
                 .gender(responseDto.getGender())
                 .phone(responseDto.getPhone())
                 .address(responseDto.getAddress())
