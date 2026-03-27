@@ -76,20 +76,19 @@ body {
 
 .vehicle-img-box {
 	width: 100%;
-	height: 160px;
+	height: 200px;
 	background: #f0f0f0;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	color: #bbb;
-	font-size: 0.85rem;
 	overflow: hidden;
 }
 
 .vehicle-img-box img {
 	width: 100%;
-	height: 160px;
+	height: 200px;
 	object-fit: cover;
+	
 }
 
 .card-body-inner {
@@ -152,11 +151,6 @@ body {
 	padding: 60px 0;
 	color: #aaa;
 }
-
-.filter-section {
-	padding: 12px 16px !important;
-	margin-bottom: 10px !important;
-}
 </style>
 </head>
 <body>
@@ -218,9 +212,12 @@ body {
 
 		<!-- 차량 카드 목록 -->
 		<div class="row g-3">
+
+			<!-- 결과 없을 때 -->
 			<div class="col-12 text-center text-muted py-5"
 				th:if="${#lists.isEmpty(vehicleList)}">조회된 차량이 없습니다.</div>
 
+			<!-- 차량 카드 -->
 			<div class="col-12 col-sm-6 col-md-4 col-lg-4"
 				th:each="v : ${vehicleList}">
 				<div class="vehicle-card" th:data-id="${v.vehicleId}"
@@ -228,28 +225,32 @@ body {
 
 					<!-- 이미지 -->
 					<div class="vehicle-img-box">
-						<img th:src="${v.imageUrl}" th:alt="${v.modelName}">
-							th:alt="${v.modelName}">
+						<img th:src="${v.imageUrl}" th:alt="${v.modelName}"
+							onerror="this.src='/images/evcar_logo.png'">
 					</div>
-				</div>
 
-				<!-- 카드 정보 -->
-				<div class="card-body-inner">
-					<div class="card-brand" th:text="${v.brand}">브랜드</div>
-					<div class="card-model" th:text="${v.modelName}">모델명</div>
-					<div class="card-price" th:text="${v.priceBasicFormatted}">가격</div>
+					<!-- 카드 정보 -->
+					<div class="card-body-inner">
+						<div class="card-brand" th:text="${v.brand}">브랜드</div>
+						<div class="card-model" th:text="${v.modelName}">모델명</div>
+						<div class="card-price" th:text="${v.priceBasicFormatted}">가격</div>
+					</div>
+
 				</div>
 			</div>
+
 		</div>
-	</div>
-	<div class="d-flex justify-content-center mt-4 gap-2"
-		th:if="${totalPages > 1}">
-		<button type="button" class="filter-btn"
-			th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
-			th:text="${i + 1}" th:classappend="${i == currentPage} ? ' active'"
-			th:data-brand="${selectedBrand}" th:data-class="${selectedClass}"
-			th:data-page="${i}" onclick="goPage(this)"></button>
-	</div>
+
+		<!-- 페이지네이션 -->
+		<div class="d-flex justify-content-center mt-4 gap-2"
+			th:if="${totalPages > 1}">
+			<button type="button" class="filter-btn"
+				th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+				th:text="${i + 1}" th:classappend="${i == currentPage} ? ' active'"
+				th:data-brand="${selectedBrand}" th:data-class="${selectedClass}"
+				th:data-page="${i}" onclick="goPage(this)"></button>
+		</div>
+
 	</div>
 
 	<!-- 푸터 -->
@@ -263,7 +264,6 @@ body {
 	<script
 		src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 	<script>
-		// 브랜드/차급 필터 - data 속성으로 안전하게 처리
 		function filterByData(btn) {
 			const brand = btn.getAttribute('data-brand');
 			const vehicleClass = btn.getAttribute('data-class');
@@ -271,13 +271,11 @@ body {
 					+ '&vehicleClass=' + encodeURIComponent(vehicleClass);
 		}
 
-		// 차량 상세 이동
 		function goDetail(card) {
 			const id = card.getAttribute('data-id');
 			location.href = '/vehicle/' + id;
 		}
 
-		// 페이지 이동
 		function goPage(btn) {
 			const brand = btn.getAttribute('data-brand');
 			const vehicleClass = btn.getAttribute('data-class');
