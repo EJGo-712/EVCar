@@ -82,6 +82,11 @@ input{
     cursor:pointer;
 }
 
+.email-box{
+    display:flex;
+    gap:5px;
+    align-items:center;
+}
 </style>
 
 </head>
@@ -106,9 +111,23 @@ input{
 <input type="text" name="name" required placeholder="이름" />
 </div>
 
-<div class="form-row">
-<label></label>
-<input type="email" name="email" required placeholder="이메일">
+<div class="form-row email-box">
+
+<input type="text" id="findEmailId" placeholder="이메일 아이디" />
+
+<span>@</span>
+
+<input type="text" id="findEmailDomain" />
+
+<select id="findDomainSelect">
+<option value="">직접입력</option>
+<option value="naver.com">naver.com</option>
+<option value="daum.net">daum.net</option>
+<option value="gmail.com">gmail.com</option>
+</select>
+
+<input type="hidden" name="email" id="findEmailFull" />
+
 </div>
 
 <button type="submit" class="btn">아이디 찾기</button>
@@ -132,8 +151,23 @@ input{
 <input type="text" name="name" required placeholder="이름" />
 </div>
 
-<div class="form-row">
-<input type="email" name="email" required placeholder="이메일" />
+<div class="form-row email-box">
+
+<input type="text" id="pwEmailId" placeholder="이메일 아이디" />
+
+<span>@</span>
+
+<input type="text" id="pwEmailDomain" />
+
+<select id="pwDomainSelect">
+<option value="">직접입력</option>
+<option value="naver.com">naver.com</option>
+<option value="daum.net">daum.net</option>
+<option value="gmail.com">gmail.com</option>
+</select>
+
+<input type="hidden" name="email" id="pwEmailFull" />
+
 </div>
 
 <button type="submit" class="btn">비밀번호 변경</button>
@@ -169,6 +203,63 @@ window.onload = function(){
 
 };
 
+/* 아이디 찾기 submit */
+document.querySelector('form[action="/login/find-id"]').onsubmit = function(){
+
+    const id = document.getElementById("findEmailId").value;
+    const domain = document.getElementById("findEmailDomain").value;
+
+    if(!id || !domain){
+        alert("이메일을 입력해주세요.");
+        return false;
+    }
+
+    document.getElementById("findEmailFull").value = id + "@" + domain;
+    return true;
+};
+
+/* 비밀번호 변경 submit */
+document.querySelector('form[action="/login/reset-pw"]').onsubmit = function(){
+
+    const id = document.getElementById("pwEmailId").value;
+    const domain = document.getElementById("pwEmailDomain").value;
+
+    if(!id || !domain){
+        alert("이메일을 입력해주세요.");
+        return false;
+    }
+
+    document.getElementById("pwEmailFull").value = id + "@" + domain;
+    return true;
+};
+
+/* 아이디 찾기 이메일 도메인 */
+const findSelect = document.getElementById("findDomainSelect");
+const findDomain = document.getElementById("findEmailDomain");
+
+findSelect.addEventListener("change", function(){
+    if(this.value !== ""){
+        findDomain.value = this.value;
+        findDomain.readOnly = true;
+    }else{
+        findDomain.value = "";
+        findDomain.readOnly = false;
+    }
+});
+
+/* 비밀번호 변경 이메일 도메인 */
+const pwSelect = document.getElementById("pwDomainSelect");
+const pwDomain = document.getElementById("pwEmailDomain");
+
+pwSelect.addEventListener("change", function(){
+    if(this.value !== ""){
+        pwDomain.value = this.value;
+        pwDomain.readOnly = true;
+    }else{
+        pwDomain.value = "";
+        pwDomain.readOnly = false;
+    }
+});
 </script>
 
 </body>

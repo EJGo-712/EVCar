@@ -7,6 +7,9 @@
 <!-- 카카오 주소 API -->
 <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 
+<!-- 국가 번호 API -->
+<script src="/js/country-code.js"></script>
+
 <style>
 
 *{
@@ -202,11 +205,19 @@ font-size:13px;
 </div>
 
 <!-- 생년월일 -->
-
 <div class="form-row">
 <div class="label">생년월일(필수) *</div>
-<div class="input-box">
-<input type="text" id="birthDate" name="birthDate" maxlength="10" placeholder="YYYY-MM-DD" />
+
+<div class="input-box" style="position:relative;">
+
+    <!-- 사용자 입력 -->
+    <input type="text" id="birthDate" name="birthDate"
+           maxlength="10" placeholder="YYYY-MM-DD" />
+
+    <!-- 숨겨진 달력 -->
+    <input type="date" id="birthPicker"
+           style="position:absolute; right:10px; top:5px; opacity:0; width:30px; cursor:pointer;" />
+
 </div>
 </div>
 
@@ -216,8 +227,8 @@ font-size:13px;
 <div class="label">성별(필수) *</div>
 
 <div class="gender-box">
-<label><input type="radio" name="gender" value="남"> 남</label>
-<label><input type="radio" name="gender" value="여"> 여</label>
+<label><input type="radio" name="gender" value="남" required> 남</label>
+<label><input type="radio" name="gender" value="여" required> 여</label>
 </div>
 
 </div>
@@ -226,9 +237,17 @@ font-size:13px;
 
 <div class="form-row">
 <div class="label">전화번호(필수) *</div>
-<div class="input-box">
-<input name="phone" placeholder="숫자만 입력" />
+
+<div class="input-box" style="display:flex; gap:5px;">
+
+<select id="countryCode" style="width:120px;"></select>
+
+<input id="phone" placeholder="숫자만 입력 합니다." style="flex:1;" />
+
+<input type="hidden" name="phone" id="fullPhone" />
+
 </div>
+
 </div>
 
 <!-- 주소 -->
@@ -278,6 +297,9 @@ font-size:13px;
 <option value="gmail.com">gmail.com</option>
 </select>
 
+<button type="button" class="check-btn" onclick="checkEmail()">중복확인</button>
+<small id="emailMsg"></small>
+
 </div>
 
 </div>
@@ -287,21 +309,22 @@ font-size:13px;
 <div class="form-row">
 <div class="label">보유 차량명(선택)</div>
 <div class="input-box">
-<input name="vehicleModel" id="carName" />
+<input name="vehicleModel" id="carName" placeholder="보유하신 차종을 입력하신 후 보유차종 연식, 주행거리(km)를 입력하세요" />
 </div>
 </div>
 
 <div class="form-row">
 <div class="label">보유차종 연식</div>
 <div class="input-box">
-<input name="vehicleYear" id="carYear" />
+<input type="text" name="vehicleYear" id="carYear" placeholder="YYYY-MM" disabled />
+
 </div>
 </div>
 
 <div class="form-row">
 <div class="label">주행거리(Km)</div>
 <div class="input-box">
-<input name="drivingDistance" id="carMileage" />
+<input name="drivingDistance" id="carMileage" disabled />
 </div>
 </div>
 
@@ -344,6 +367,54 @@ msg.style.color="red";
 }
 
 });
+
+/* 전화번호 */
+
+const phone = document.getElementById("phone");
+const country = document.getElementById("countryCode");
+const fullPhone = document.getElementById("fullPhone");
+
+phone.addEventListener("input", function () {
+
+    let numbers = this.value.replace(/[^0-9]/g, "");
+
+    if (numbers.length > 11) {
+        numbers = numbers.substring(0, 11);
+    }
+
+    let result = "";
+
+    if (numbers.length <= 3) {
+        result = numbers;
+    } else if (numbers.length <= 7) {
+        result = numbers.slice(0, 3) + "-" + numbers.slice(3);
+    } else {
+        result =
+            numbers.slice(0, 3) + "-" +
+            numbers.slice(3, 7) + "-" +
+            numbers.slice(7, 11);
+    }
+
+    this.value = result;
+
+    fullPhone.value = country.value + "-" + result;
+});
+
+country.addEventListener("change", function () {
+    fullPhone.value = this.value + "-" + phone.value;
+    
+});
+const countrySelect = document.getElementById("countryCode");
+
+countryCodes.forEach(c => {
+    const option = document.createElement("option");
+    option.value = c.code;
+    option.textContent = `${c.name} (+${c.code})`;
+    countrySelect.appendChild(option);
+});
+
+// 기본값
+countrySelect.value = "82";
 
 /* 카카오 주소 검색 */
 
@@ -401,7 +472,12 @@ const carName=document.getElementById("carName");
 const carYear=document.getElementById("carYear");
 const mileage=document.getElementById("carMileage");
 
+//초기 상태 (페이지 로드 시)
+carYear.disabled = true;
+mileage.disabled = true;
+
 carName.addEventListener("input", function () {
+
     const hasValue = this.value.trim() !== "";
 
     carYear.disabled = !hasValue;
@@ -413,6 +489,7 @@ carName.addEventListener("input", function () {
     }
 });
 
+/* 아이디 입력, 중복 체크 */
 async function checkId() {
     const loginId = document.getElementById("loginId").value;
     const msg = document.getElementById("idMsg");
@@ -424,29 +501,99 @@ async function checkId() {
     }
 
     const res = await fetch(`/signup/check-id?loginId=${loginId}`);
-    const isDuplicate = await res.json();
+    const text = await res.text();
+    const isDuplicate = text.trim() === "true";
 
     if (isDuplicate) {
-        msg.textContent = "이미 사용중인 아이디입니다.";
+        msg.innerText = "이미 사용중인 아이디입니다.";
         msg.style.color = "red";
     } else {
-        msg.textContent = "사용 가능한 아이디입니다.";
+        msg.innerText = "사용 가능한 아이디입니다.";
+        msg.style.color = "green";
+    }
+}  
+
+/* 생년월일 */
+const birth = document.getElementById("birthDate");
+const picker = document.getElementById("birthPicker");
+
+birth.addEventListener("input", function () {
+
+    let numbers = this.value.replace(/[^0-9]/g, "");
+
+    if (numbers.length > 8) {
+        numbers = numbers.substring(0, 8);
+    }
+
+    let result = "";
+
+    if (numbers.length <= 4) {
+        result = numbers;
+    } else if (numbers.length <= 6) {
+        result = numbers.slice(0, 4) + "-" + numbers.slice(4);
+    } else {
+        result =
+            numbers.slice(0, 4) + "-" +
+            numbers.slice(4, 6) + "-" +
+            numbers.slice(6, 8);
+    }
+
+    this.value = result;
+
+    if (result.length === 10) {
+        picker.value = result;
+    }
+});
+
+/* 이메일 중복 체크 */
+async function checkEmail() {
+
+    const id = document.getElementById("emailId").value;
+    const domain = document.getElementById("emailDomain").value;
+    const msg = document.getElementById("emailMsg");
+
+    if (!id || !domain) {
+        msg.innerText = "이메일을 입력하세요.";
+        msg.style.color = "red";
+        return;
+    }
+
+    const email = id + "@" + domain;
+
+    const res = await fetch(`/signup/check-email?email=${encodeURIComponent(email)}`);
+    const text = await res.text();
+    const isDuplicate = text.trim() === "true";
+
+    if (isDuplicate) {
+        msg.innerText = "이미 사용중인 이메일입니다.";
+        msg.style.color = "red";
+    } else {
+        msg.innerText = "사용 가능한 이메일입니다.";
         msg.style.color = "green";
     }
 }
+/* 차량 연식 YYYY-MM 포맷 */
 
+const carYearInput = document.getElementById("carYear");
 
-const birth = document.getElementById("birthDate");
+carYearInput.addEventListener("input", function () {
 
-birth.addEventListener("input", function () {
-	let val = this.value.replace(/[^0-9]/g, "").slice(0, 8);
+    let numbers = this.value.replace(/[^0-9]/g, "");
 
-    if (val.length >= 5) val = val.slice(0, 4) + "-" + val.slice(4);
-    if (val.length >= 8) val = val.slice(0, 7) + "-" + val.slice(7, 10);
+    if (numbers.length > 6) {
+        numbers = numbers.substring(0, 6);
+    }
 
-    this.value = val;
+    let result = "";
+
+    if (numbers.length <= 4) {
+        result = numbers;
+    } else {
+        result = numbers.slice(0, 4) + "-" + numbers.slice(4, 6);
+    }
+
+    this.value = result;
 });
-
 </script>
 
 </body>

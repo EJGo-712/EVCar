@@ -62,6 +62,18 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean isUserLoginIdDuplicate(String loginId) {
-        return userRepository.existsByLoginId(loginId);
+
+        System.out.println("===== DB 확인 =====");
+        System.out.println("loginId = " + loginId);
+
+        boolean result = userRepository.existsByLoginId(loginId);
+
+        System.out.println("중복 여부 = " + result);
+
+        return result;
+    }
+    @Override
+    public boolean isUserEmailDuplicate(String email) {
+        return userRepository.existsByEmail(email);
     }
 }

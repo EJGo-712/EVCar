@@ -25,7 +25,7 @@ public class LoginServiceImpl implements LoginService {
                         dto.getName(),
                         dto.getEmail()
                 )
-                .orElseThrow(() -> new IllegalArgumentException("일치하는 회원이 없습니다."));
+                .orElseThrow(() -> new IllegalArgumentException("아이디, 이름, 이메일 주소가 일치하지 않습니다. 확인 후 다시 입력해 주세요"));
     }
 
     @Override

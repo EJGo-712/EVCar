@@ -66,21 +66,31 @@ public class LoginController {
         model.addAttribute("passwordResetDto", new PasswordResetDto());
         return "login/pwreset";
     }
-
-    // 비밀번호 재설정 처리 (🔥 핵심 수정)
+    
     @PostMapping("/reset-pw")
-    public String resetPassword(@ModelAttribute PasswordResetDto dto, Model model) {
+    public String resetPassword(@RequestParam("loginId") String loginId,
+                                @RequestParam("name") String name,
+                                @RequestParam("email") String email,
+                                Model model) {
 
         try {
-            loginService.resetPassword(dto);
+            PasswordResetDto dto = PasswordResetDto.builder()
+                    .loginId(loginId)
+                    .name(name)
+                    .email(email)
+                    .build();
 
-            model.addAttribute("message", "비밀번호가 변경되었습니다.");
-            model.addAttribute("loginRequestDto", new LoginRequestDto());
-            return "login/login";
+            loginService.verifyUser(dto);
+
+            model.addAttribute("loginId", loginId);
+            model.addAttribute("name", name);
+            model.addAttribute("email", email);
+
+            return "user/signupcomplete";
 
         } catch (IllegalArgumentException e) {
             model.addAttribute("errorMessage", e.getMessage());
-            return "login/pwreset";
+            return "login/idrecovery";
         }
     }
 

@@ -98,7 +98,7 @@ body{
 <ul>
     <li>아이디: <span th:text="${signupUser.loginId}"></span></li>
     <li>이름: <span th:text="${signupUser.name}"></span></li>
-    <li>생년월일: <span th:text="${signupUser.birth}"></span></li>
+    <li>생년월일: <span th:text="${signupUser.birthDate}"></span></li>
     <li>성별: <span th:text="${signupUser.gender}"></span></li>
     <li>전화번호: <span th:text="${signupUser.phone}"></span></li>
     <li>주소: <span th:text="${signupUser.address}"></span></li>
@@ -122,7 +122,7 @@ body{
 <!-- 버튼 -->
 <div class="button-area">
     <button class="btn login-btn" onclick="location.href='/login'">로그인</button>
-    <button class="btn home-btn" onclick="location.href='/'">메인으로</button>
+    <button class="btn home-btn" onclick="location.href='/main'">메인으로</button>
 </div>
 
 </div>

@@ -31,7 +31,7 @@ public class User {
     @Column(name = "birth_date")
     private LocalDate birthDate;
 
-    @Column(name = "gender", length = 10)
+    @Column(name = "gender", nullable = false, length = 10)
     private String gender;
 
     @Column(name = "phone", length = 20)
@@ -52,8 +52,9 @@ public class User {
     @Column(name = "user_status", length = 10)
     private String userStatus;
 
-    @Column(name = "has_vehicle", length = 10)
-    private String hasVehicle;
+    // 제외
+    // @Column(name = "has_vehicle", length = 10)
+    // private String hasVehicle;
 
     @Column(name = "vehicle_model", length = 50)
     private String vehicleModel;

@@ -31,13 +31,19 @@ public class UserController {
     @PostMapping
     public String signup(@ModelAttribute UserSignupDto dto, Model model) {
 
-        // ✅ 여기 수정
-    	System.out.println("loginId = " + dto.getLoginId());
+        System.out.println("===== DTO 전체 =====");
+        System.out.println(dto);
+
+        System.out.println("loginId = " + dto.getLoginId());
+        System.out.println("password = " + dto.getPassword());
+        System.out.println("name = " + dto.getName());
+        System.out.println("email = " + dto.getEmail());
+        System.out.println("phone = " + dto.getPhone());
 
         try {
             userService.signup(dto);
 
-            System.out.println("🔥 회원가입 완료");
+            System.out.println("회원가입 완료");
 
             model.addAttribute("signupUser", dto);
             return "user/signupcomplete";
@@ -48,10 +54,14 @@ public class UserController {
             return "user/signup";
         }
     }
-
     @GetMapping("/check-id")
     @ResponseBody
-    public boolean checkDuplicate(@RequestParam(name = "loginId") String loginId) {
+    public boolean checkDuplicate(@RequestParam("loginId") String loginId) {
         return userService.isUserLoginIdDuplicate(loginId);
+    }
+    @GetMapping("/check-email")
+    @ResponseBody
+    public boolean checkEmailDuplicate(@RequestParam("email") String email) {
+        return userService.isUserEmailDuplicate(email);
     }
 }
