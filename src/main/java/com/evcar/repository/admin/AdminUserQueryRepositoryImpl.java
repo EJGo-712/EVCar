@@ -21,7 +21,7 @@ public class AdminUserQueryRepositoryImpl implements AdminUserQueryRepository {
     private EntityManager entityManager;
 
     @Override
-    public List<AdminUserListResponseDto> findUserList(String status, String keyword) {
+    public List<AdminUserListResponseDto> findUserList(String status, String keyword, int offset, int size) {
         StringBuilder sql = new StringBuilder("""
                 SELECT
                     u.user_id,
@@ -57,9 +57,12 @@ public class AdminUserQueryRepositoryImpl implements AdminUserQueryRepository {
         }
 
         sql.append(" ORDER BY u.created_at DESC, u.user_id DESC ");
+        sql.append(" LIMIT :size OFFSET :offset ");
 
         Query query = entityManager.createNativeQuery(sql.toString());
         query.setParameter("role", "USER");
+        query.setParameter("size", size);
+        query.setParameter("offset", offset);
 
         if (StringUtils.hasText(status) && !"ALL".equalsIgnoreCase(status)) {
             query.setParameter("status", status);
@@ -91,6 +94,48 @@ public class AdminUserQueryRepositoryImpl implements AdminUserQueryRepository {
         }
 
         return userList;
+    }
+
+    @Override
+    public long countUserList(String status, String keyword) {
+        StringBuilder sql = new StringBuilder("""
+                SELECT COUNT(*)
+                FROM user u
+                WHERE 1 = 1
+                  AND u.role = :role
+                """);
+
+        if (StringUtils.hasText(status) && !"ALL".equalsIgnoreCase(status)) {
+            sql.append(" AND u.user_status = :status ");
+        }
+
+        if (StringUtils.hasText(keyword)) {
+            sql.append("""
+                     AND (
+                        u.name LIKE :keyword
+                        OR u.phone LIKE :keyword
+                        OR u.login_id LIKE :keyword
+                        OR u.email LIKE :keyword
+                     )
+                    """);
+        }
+
+        Query query = entityManager.createNativeQuery(sql.toString());
+        query.setParameter("role", "USER");
+
+        if (StringUtils.hasText(status) && !"ALL".equalsIgnoreCase(status)) {
+            query.setParameter("status", status);
+        }
+
+        if (StringUtils.hasText(keyword)) {
+            query.setParameter("keyword", "%" + keyword.trim() + "%");
+        }
+
+        Object result = query.getSingleResult();
+        if (result instanceof Number number) {
+            return number.longValue();
+        }
+        return Long.parseLong(result.toString());
     }
 
     @Override
@@ -149,16 +194,6 @@ public class AdminUserQueryRepositoryImpl implements AdminUserQueryRepository {
                 .withdrawnAt(toLocalDateTime(row[14]))
                 .updatedAt(toLocalDateTime(row[15]))
                 .build();
-    }
-
-    private Long toLong(Object value) {
-        if (value == null) {
-            return null;
-        }
-        if (value instanceof Number number) {
-            return number.longValue();
-        }
-        return Long.parseLong(value.toString());
     }
 
     private Integer toInteger(Object value) {
