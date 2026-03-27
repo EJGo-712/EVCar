@@ -77,18 +77,26 @@ textarea {
     margin-bottom: 24px;
 }
 
-.ev-admin-sidebar__logo {
-    display: inline-block;
-    font-size: 1.375rem;
+.ev-admin-sidebar__brand-link {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.ev-admin-sidebar__logo-image {
+    width: 60px;
+    height: auto;
+    display: block;
+}
+
+.ev-admin-sidebar__logo-text {
+    display: block;
+    font-size: 1.6rem;
     font-weight: 700;
     color: var(--ev-admin-accent);
     letter-spacing: -0.03em;
-}
-
-.ev-admin-sidebar__text {
-    margin: 8px 0 0;
-    font-size: 0.875rem;
-    color: var(--ev-admin-text-muted);
+    line-height: 1;
 }
 
 .ev-admin-sidebar__nav {
@@ -465,13 +473,11 @@ textarea {
     gap: 10px;
 }
 
+
 @media (min-width: 1024px) {
     .ev-admin-layout {
-        grid-template-columns: 280px 1fr;
-    }
-
-    .ev-admin-layout {
         display: grid;
+        grid-template-columns: 280px 1fr;
     }
 
     .ev-admin-sidebar {
@@ -505,5 +511,9 @@ textarea {
 
     .ev-admin-form-grid--3 {
         grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .ev-admin-sidebar__logo-image {
+        width: 72px;
     }
 }

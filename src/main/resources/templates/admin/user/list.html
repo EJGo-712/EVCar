@@ -61,9 +61,9 @@
 										<tbody>
 											<tr th:each="user, stat : ${userList}">
 												<td th:text="${stat.count}">1</td>
-												<td th:text="${user.userName}">홍길동</td>
-												<td th:text="${user.userPhone}">010-0000-0000</td>
-												<td th:text="${user.userEmail}">sample@evcar.com</td>
+												<td th:text="${user.name}">홍길동</td>
+												<td th:text="${user.phone}">010-0000-0000</td>
+												<td th:text="${user.email}">sample@evcar.com</td>
 												<td th:text="${user.createdAt}">2026-03-01</td>
 												<td>
 													<span class="ev-admin-badge"
@@ -97,19 +97,19 @@
 									<dl class="ev-admin-detail-list">
 										<div class="ev-admin-detail-item">
 											<dt>이름</dt>
-											<dd th:text="${selectedUser.userName}">홍길동</dd>
+											<dd th:text="${selectedUser.name}">홍길동</dd>
 										</div>
 										<div class="ev-admin-detail-item">
 											<dt>전화번호</dt>
-											<dd th:text="${selectedUser.userPhone}">010-0000-0000</dd>
+											<dd th:text="${selectedUser.phone}">010-0000-0000</dd>
 										</div>
 										<div class="ev-admin-detail-item">
 											<dt>이메일</dt>
-											<dd th:text="${selectedUser.userEmail}">sample@evcar.com</dd>
+											<dd th:text="${selectedUser.email}">sample@evcar.com</dd>
 										</div>
 										<div class="ev-admin-detail-item">
 											<dt>주소</dt>
-											<dd th:text="${selectedUser.userAddress}">서울시 강남구</dd>
+											<dd th:text="${selectedUser.address}">서울시 강남구</dd>
 										</div>
 										<div class="ev-admin-detail-item">
 											<dt>회원 상태</dt>
@@ -127,12 +127,12 @@
 											<dd th:text="${selectedUser.withdrawnAt}">2026-03-12 14:30</dd>
 										</div>
 										<div class="ev-admin-detail-item">
-											<dt>관심차량</dt>
-											<dd th:text="${selectedUser.wishlistVehicleName}">아이오닉 5</dd>
+											<!--관심차량-->
+											<!-- th:text="${selectedUser.wishlistVehicleName}">아이오닉 5-->
 										</div>
 										<div class="ev-admin-detail-item">
-											<dt>상담이력</dt>
-											<dd th:text="${selectedUser.consultationCount} + '건'">0건</dd>
+											<!--상담이력-->
+											<!-- th:text="${selectedUser.consultationCount} + '건'">-->
 										</div>
 									</dl>
 

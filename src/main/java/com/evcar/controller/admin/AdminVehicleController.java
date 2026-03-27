@@ -1,42 +1,30 @@
 package com.evcar.controller.admin;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequiredArgsConstructor
 @RequestMapping("/admin/vehicle")
 public class AdminVehicleController {
 
-    /**
-     * 차량 목록 (임시)
-     */
     @GetMapping("")
-    public String vehicleList() {
+    public String vehicleList(Model model) {
+        model.addAttribute("vehicleList", null);
         return "admin/vehicle/list";
     }
 
-    /**
-     * 차량 등록
-     */
     @GetMapping("/form")
     public String vehicleForm(Model model) {
-
         model.addAttribute("isEditMode", false);
-
         return "admin/vehicle/form";
     }
 
-    /**
-     * 차량 수정
-     */
     @GetMapping("/{id}/form")
     public String vehicleEditForm(@PathVariable Long id, Model model) {
-
         model.addAttribute("isEditMode", true);
-
         return "admin/vehicle/form";
     }
 }
