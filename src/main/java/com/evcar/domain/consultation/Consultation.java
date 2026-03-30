@@ -4,8 +4,6 @@ import com.evcar.domain.user.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -26,19 +24,18 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class Consultation {
-	
-	private static final String STATUS_PENDING="대기";
-	private static final String STATUS_IN_PROGRESS="진행중";
-	private static final String STATUS_COMPLETED="완료";
-	private static final String STATUS_CANCELED="취소";
+
+    private static final String STATUS_PENDING = "대기";
+    private static final String STATUS_IN_PROGRESS = "진행중";
+    private static final String STATUS_COMPLETED = "완료";
+    private static final String STATUS_CANCELED = "취소";
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "consult_id", nullable = false)
-    private Integer consultId;
+    @Column(name = "consult_id", nullable = false, length = 20)
+    private String consultId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false, referencedColumnName = "user_id")
     private User user;
 
     @Column(name = "preferred_datetime", nullable = false)
@@ -72,9 +69,9 @@ public class Consultation {
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
-        
-        if(this.consultStatus==null||this.consultStatus.isBlank()) {
-        	this.consultStatus=STATUS_PENDING;
+
+        if (this.consultStatus == null || this.consultStatus.isBlank()) {
+            this.consultStatus = STATUS_PENDING;
         }
     }
 
@@ -82,22 +79,27 @@ public class Consultation {
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
+
     public boolean canBeCanceled() {
-    	return STATUS_PENDING.equals(this.consultStatus)||STATUS_IN_PROGRESS.equals(this.consultStatus);
+        return STATUS_PENDING.equals(this.consultStatus) || STATUS_IN_PROGRESS.equals(this.consultStatus);
     }
+
     public void cancel() {
-    	if(!canBeCanceled()) {
-    		throw new IllegalArgumentException("취소할 수 없는 상담 상태입니다.");
-    	}
-        this.consultStatus =  STATUS_CANCELED;
+        if (!canBeCanceled()) {
+            throw new IllegalArgumentException("취소할 수 없는 상담 상태입니다.");
+        }
+        this.consultStatus = STATUS_CANCELED;
     }
+
     public boolean isInProgress() {
-    	return STATUS_IN_PROGRESS.equals(this.consultStatus);
+        return STATUS_IN_PROGRESS.equals(this.consultStatus);
     }
+
     public boolean isCompleted() {
-    	return STATUS_COMPLETED.equals(this.consultStatus);
+        return STATUS_COMPLETED.equals(this.consultStatus);
     }
+
     public boolean isCanceled() {
-    	return STATUS_CANCELED.equals(this.consultStatus);
+        return STATUS_CANCELED.equals(this.consultStatus);
     }
 }

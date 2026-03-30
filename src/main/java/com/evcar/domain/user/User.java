@@ -25,8 +25,8 @@ import lombok.NoArgsConstructor;
 public class User {
 
     @Id
-    @Column(name = "user_id", nullable = false)
-    private Integer userId;
+    @Column(name = "user_id", nullable = false, length = 20)
+    private String userId;
 
     @Column(name = "login_id", nullable = false, unique = true, length = 20)
     private String loginId;
@@ -104,7 +104,6 @@ public class User {
             String address,
             String addressDetail,
             String email,
-          
             String hasVehicle,
             String vehicleModel,
             String vehicleYear,

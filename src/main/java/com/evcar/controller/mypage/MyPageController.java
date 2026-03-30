@@ -31,8 +31,8 @@ public class MyPageController {
 
     @GetMapping("/main")
     public String myPageMain(HttpSession session, Model model) {
-        String loginId = getLoginId(session);
-        MyPageInfoResponseDto myPageInfo = myPageService.getMyPageInfo(loginId);
+        String userId = getUserId(session);
+        MyPageInfoResponseDto myPageInfo = myPageService.getMyPageInfo(userId);
 
         model.addAttribute("myPageInfo", myPageInfo);
         return "mypage/myPageMain";
@@ -40,8 +40,8 @@ public class MyPageController {
 
     @GetMapping("/info")
     public String myInfo(HttpSession session, Model model) {
-        String loginId = getLoginId(session);
-        MyPageInfoResponseDto myPageInfo = myPageService.getMyPageInfo(loginId);
+        String userId = getUserId(session);
+        MyPageInfoResponseDto myPageInfo = myPageService.getMyPageInfo(userId);
 
         model.addAttribute("myPageInfo", myPageInfo);
         model.addAttribute("myPageInfoUpdateRequestDto", toUpdateRequestDto(myPageInfo));
@@ -54,8 +54,8 @@ public class MyPageController {
             HttpSession session,
             @ModelAttribute MyPageInfoUpdateRequestDto myPageInfoUpdateRequestDto
     ) {
-        String loginId = getLoginId(session);
-        myPageService.updateMyPageInfo(loginId, myPageInfoUpdateRequestDto);
+        String userId = getUserId(session);
+        myPageService.updateMyPageInfo(userId, myPageInfoUpdateRequestDto);
 
         return "redirect:/mypage/info";
     }
@@ -67,8 +67,8 @@ public class MyPageController {
 
     @GetMapping("/consultation")
     public String myConsultation(HttpSession session, Model model) {
-        String loginId = getLoginId(session);
-        List<MyConsultationResponseDto> consultations = myPageService.getMyConsultations(loginId);
+        String userId = getUserId(session);
+        List<MyConsultationResponseDto> consultations = myPageService.getMyConsultations(userId);
 
         model.addAttribute("consultations", consultations);
         return "mypage/myConsultation";
@@ -77,18 +77,18 @@ public class MyPageController {
     @PostMapping("/consultation/cancel")
     public String cancelMyConsultation(
             HttpSession session,
-            @RequestParam("consultId") Integer consultId
+            @RequestParam("consultId") String consultId
     ) {
-        String loginId = getLoginId(session);
-        myPageService.cancelMyConsultation(loginId, consultId);
+        String userId = getUserId(session);
+        myPageService.cancelMyConsultation(userId, consultId);
 
         return "redirect:/mypage/consultation";
     }
 
     @GetMapping("/inquiry")
     public String myInquiry(HttpSession session, Model model) {
-        String loginId = getLoginId(session);
-        List<MyInquiryResponseDto> inquiries = myPageService.getMyInquiries(loginId);
+        String userId = getUserId(session);
+        List<MyInquiryResponseDto> inquiries = myPageService.getMyInquiries(userId);
 
         model.addAttribute("inquiries", inquiries);
         return "mypage/myInquiry";
@@ -96,8 +96,8 @@ public class MyPageController {
 
     @GetMapping("/withdraw")
     public String myWithdraw(HttpSession session, Model model) {
-        String loginId = getLoginId(session);
-        MyPageInfoResponseDto myPageInfo = myPageService.getMyPageInfo(loginId);
+        String userId = getUserId(session);
+        MyPageInfoResponseDto myPageInfo = myPageService.getMyPageInfo(userId);
 
         model.addAttribute("myPageInfo", myPageInfo);
         model.addAttribute("withdrawRequestDto", WithdrawRequestDto.builder().build());
@@ -110,26 +110,32 @@ public class MyPageController {
             HttpSession session,
             @ModelAttribute WithdrawRequestDto withdrawRequestDto
     ) {
-        String loginId = getLoginId(session);
-        myPageService.withdraw(loginId, withdrawRequestDto);
+        String userId = getUserId(session);
+        myPageService.withdraw(userId, withdrawRequestDto);
 
         session.invalidate();
         return "redirect:/";
     }
+    /*로그인이 완성되면 이 부분의 주석을 풀 것 
+    private String getUserId(HttpSession session) {
+        Object userId = session.getAttribute("userId");
 
-    private String getLoginId(HttpSession session) {
-        Object loginUserId = session.getAttribute("loginUserId");
-
-        if (loginUserId == null) {
-            session.setAttribute("loginUserId", "seohyunryu");
-            return "seohyunryu"; //화면 확인용임시로그인
-        }
-        /*
-        if (loginUserId == null) {
+        if (userId == null) {
             throw new IllegalArgumentException("로그인이 필요합니다.");
         }
-	*/
-        return String.valueOf(loginUserId);
+
+        return String.valueOf(userId);
+    }
+    */
+    
+    private String getUserId(HttpSession session) {
+        Object userId = session.getAttribute("userId");
+
+        if (userId == null) {
+            return "user0001";
+        }
+
+        return String.valueOf(userId);
     }
 
     private MyPageInfoUpdateRequestDto toUpdateRequestDto(MyPageInfoResponseDto responseDto) {
