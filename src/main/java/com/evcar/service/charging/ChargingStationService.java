@@ -1,13 +1,15 @@
 package com.evcar.service.charging;
 
-import com.evcar.dto.charging.ChargingStationDTO;
+import com.evcar.domain.charging.ChargingStation;
 
 import java.util.List;
 
 public interface ChargingStationService {
 
-    List<ChargingStationDTO> getStations();
+    List<ChargingStation> findByMapBounds(
+            double swLat, double neLat,
+            double swLng, double neLng
+    );
 
-    // 🔥 이거 추가
-    void saveFromApi();
+    List<ChargingStation> findByRegion(String sido, String sigungu);
 }

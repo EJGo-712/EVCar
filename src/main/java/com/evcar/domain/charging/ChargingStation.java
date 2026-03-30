@@ -6,31 +6,50 @@ import lombok.*;
 @Entity
 @Table(name = "charging_station")
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
 public class ChargingStation {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "station_id")
-    private Long stationId;
+    @Column(name = "station_id", length = 50, nullable = false)
+    private String stationId;
 
-    @Column(name = "station_name", nullable = false, length = 100)
+    @Column(name = "station_name", length = 100)
     private String stationName;
 
-    @Column(nullable = false)
-    private double lat;
-
-    @Column(nullable = false)
-    private double lng;
-
-    @Column(nullable = false, length = 200)
+    @Column(name = "address", length = 255)
     private String address;
 
-    @Column(name = "charger_type", length = 20)
-    private String chargerType;
+    @Column(name = "lat")
+    private Double lat;
 
-    @Column(length = 20)
-    private String status;
+    @Column(name = "lng")
+    private Double lng;
+
+    @Column(name = "use_time", length = 100)
+    private String useTime;
+
+    @Column(name = "zcode", length = 20)
+    private String zcode;
+
+    // 🔥🔥🔥 추가 (핵심)
+    @Column(name = "sido", length = 50)
+    private String sido;
+
+    // 🔥🔥🔥 추가 (핵심)
+    @Column(name = "sigungu", length = 50)
+    private String sigungu;
+
+    @Column(name = "operator_name", length = 100)
+    private String operatorName;
+
+    @Column(name = "operator_call", length = 20)
+    private String operatorCall;
+
+    @Column(name = "parking_free", length = 20)
+    private String parkingFree;
+
+    @Column(name = "note", columnDefinition = "TEXT")
+    private String note;
 }

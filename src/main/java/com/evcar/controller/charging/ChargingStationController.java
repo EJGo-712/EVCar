@@ -1,6 +1,6 @@
 package com.evcar.controller.charging;
 
-import com.evcar.dto.charging.ChargingStationDTO;
+import com.evcar.domain.charging.ChargingStation;
 import com.evcar.service.charging.ChargingStationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -9,30 +9,37 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @Controller
-@RequiredArgsConstructor
 @RequestMapping("/charging")
+@RequiredArgsConstructor
 public class ChargingStationController {
 
     private final ChargingStationService chargingStationService;
 
-    // 지도 페이지
-    @GetMapping("/map")
+    // ✅ 1. 지도 페이지 이동
+    @GetMapping("/map-page")
     public String mapPage() {
         return "charging/map";
     }
 
-    // 충전소 데이터 조회 API
-    @GetMapping("/current")
+    // ✅ 2. 지도 범위 기반 조회 (지도 이동 시 자동 호출)
+    @GetMapping("/map")
     @ResponseBody
-    public List<ChargingStationDTO> getStations() {
-        return chargingStationService.getStations();
+    public List<ChargingStation> getMap(
+            @RequestParam("swLat") double swLat,
+            @RequestParam("swLng") double swLng,
+            @RequestParam("neLat") double neLat,
+            @RequestParam("neLng") double neLng
+    ) {
+        return chargingStationService.findByMapBounds(swLat, neLat, swLng, neLng);
     }
 
-    // 🔥 공공데이터 → DB 저장 실행 API
-    @GetMapping("/init")
+    // ✅ 3. 🔥 지역 선택 조회 (이게 핵심 추가)
+    @GetMapping("/region")
     @ResponseBody
-    public String init() {
-        chargingStationService.saveFromApi();
-        return "DB 저장 완료";
+    public List<ChargingStation> getByRegion(
+            @RequestParam("sido") String sido,
+            @RequestParam("sigungu") String sigungu
+    ) {
+        return chargingStationService.findByRegion(sido, sigungu);
     }
 }

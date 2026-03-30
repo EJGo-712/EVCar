@@ -10,10 +10,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class ChargingStationDTO {
-
     private Long stationId;
     private String stationName;
     private double latitude;
     private double longitude;
     private String address;
+    private String sido;      // ← 추가
+    private String sigungu;   // ← 추가
 }
