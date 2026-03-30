@@ -104,7 +104,6 @@ public class User {
             String address,
             String addressDetail,
             String email,
-          
             String hasVehicle,
             String vehicleModel,
             String vehicleYear,
