@@ -154,6 +154,31 @@ body {
 	background: black;
 	transform: translateY(-3px);
 }
+
+/* 가격 완전 분리 */
+.price-main {
+	font-size: 34px;
+	font-weight: 900;
+	color: #111;
+	text-align: left;
+	margin-bottom: 18px;
+	letter-spacing: -0.5px;
+}
+
+/* 카드 정리 */
+.spec-box {
+	background: #fff;
+	border-radius: 18px;
+	padding: 28px 24px;
+	box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+}
+
+/* 나머지는 보조 정보 */
+.spec-row strong {
+	font-size: 15px;
+	font-weight: 500;
+	color: #333;
+}
 </style>
 </head>
 
@@ -207,7 +232,7 @@ body {
 
 				</div>
 
-				<!-- 🔥 썸네일 -->
+				<!--  썸네일 -->
 				<div class="thumbnail-wrap">
 					<img th:each="img, stat : ${images}" th:src="${img.imageUrl}"
 						class="thumbnail-img"
@@ -237,12 +262,13 @@ body {
 
 				<div class="spec-box">
 
-					<div class="spec-row">
-						<span>가격</span> <strong th:text="${vehicle.priceBasic} + '만원'"></strong>
+					<div class="price-main">
+						₩ <span th:text="${vehicle.priceBasic}"></span>만원 ~
 					</div>
 
 					<div class="spec-row">
-						<span>주행거리</span> <strong th:text="${vehicle.drivingRange} + 'km'"></strong>
+						<span>1회충전 주행거리</span> <strong
+							th:text="${vehicle.drivingRange} + 'km'"></strong>
 					</div>
 
 					<div class="spec-row">
@@ -250,7 +276,8 @@ body {
 					</div>
 
 					<div class="spec-row">
-						<span>충전방식</span> <strong th:text="${vehicle.chargingMethod}"></strong>
+						<span>충전방식</span> <strong class="badge-custom"
+							th:text="${vehicle.chargingMethod}"></strong>
 					</div>
 
 					<div class="spec-row">

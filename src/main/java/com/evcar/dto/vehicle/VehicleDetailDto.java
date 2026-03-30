@@ -9,8 +9,8 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@NoArgsConstructor   //  기본 생성자 (필수)
-@AllArgsConstructor  //  전체 생성자 (JPQL 대비)
+@NoArgsConstructor
+@AllArgsConstructor
 public class VehicleDetailDto {
 
     // 기본 정보
@@ -19,24 +19,23 @@ public class VehicleDetailDto {
     private String modelName;
     private String vehicleClass;
 
-    // 가격
-    private int priceBasic;
-    private int pricePremium;
+    // 가격 (🔥 Integer로 변경)
+    private Integer priceBasic;
+    private Integer pricePremium;
 
-    // 주행 / 충전
-    private int drivingRange;
+    // 주행 / 충전 (🔥 이것도 안전하게 Integer 추천)
+    private Integer drivingRange;
     private String fastChargingTime;
     private String slowChargingTime;
     private String chargingMethod;
 
-    // 배터리
-    private double batteryCapacity;
+    // 배터리 (🔥 이것도 Double로)
+    private Double batteryCapacity;
 
     // 이미지 & 링크
     private String imageUrl;
     private String catalogUrl;
 
-    // 🔥 위시리스트 여부 (기본값 false)
+    // 위시리스트 여부
     private boolean wished = false;
-    
 }

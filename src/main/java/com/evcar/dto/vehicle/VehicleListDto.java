@@ -12,7 +12,6 @@ public class VehicleListDto {
     private String imageUrl;
     private String catalogUrl;
     private boolean wished;  
-   
 
     // 생성자
     public VehicleListDto() {}
@@ -49,7 +48,11 @@ public class VehicleListDto {
     public void setPriceBasic(Integer priceBasic) { this.priceBasic = priceBasic; }
 
     public Integer getPricePremium() { return pricePremium; }
-    public void setPricePremium(Integer pricePremium) { this.pricePremium = pricePremium; }
+
+    // 🔥 null 방어 추가
+    public void setPricePremium(Integer pricePremium) {
+        this.pricePremium = (pricePremium != null) ? pricePremium : 0;
+    }
 
     public Integer getDrivingRange() { return drivingRange; }
     public void setDrivingRange(Integer drivingRange) { this.drivingRange = drivingRange; }
@@ -60,7 +63,6 @@ public class VehicleListDto {
     public String getCatalogUrl() { return catalogUrl; }
     public void setCatalogUrl(String catalogUrl) { this.catalogUrl = catalogUrl; }
 
-    // 🔥 여기 추가 (핵심)
     public boolean isWished() {
         return wished;
     }
@@ -72,9 +74,12 @@ public class VehicleListDto {
     // 가격 포맷 (만원 단위)
     public String getPriceBasicFormatted() {
         if (priceBasic == null) return "-";
-        if (pricePremium != null) {
+
+        // 🔥 여기서도 안전하게 처리
+        if (pricePremium != null && pricePremium > 0) {
             return String.format("%,d만원 ~ %,d만원", priceBasic, pricePremium);
         }
+
         return String.format("%,d만원~", priceBasic);
     }
 }

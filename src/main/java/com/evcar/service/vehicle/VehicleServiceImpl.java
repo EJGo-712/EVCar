@@ -25,7 +25,6 @@ public class VehicleServiceImpl implements VehicleService {
     @Override
     public List<VehicleListDto> getVehicleList(String brand, String vehicleClass) {
 
-        // 🔥 핵심: Repository 하나로 처리
         List<Vehicle> vehicles = vehicleRepository.findByFilter(brand, vehicleClass);
 
         return vehicles.stream().map(v -> {
@@ -68,7 +67,12 @@ public class VehicleServiceImpl implements VehicleService {
         dto.setFastChargingTime(v.getFastChargingTime());
         dto.setSlowChargingTime(v.getSlowChargingTime());
         dto.setChargingMethod(v.getChargingMethod());
-        dto.setBatteryCapacity(v.getBatteryCapacity().doubleValue());
+
+        // 🔥 여기만 수정 (null 방어)
+        dto.setBatteryCapacity(
+                v.getBatteryCapacity() != null ? v.getBatteryCapacity().doubleValue() : 0.0
+        );
+
         dto.setImageUrl(v.getImageUrl());
         dto.setCatalogUrl(v.getCatalogUrl());
 
