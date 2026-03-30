@@ -9,16 +9,16 @@ import java.util.List;
 
 public interface MyPageService {
 
-    MyPageInfoResponseDto getMyPageInfo(String loginId);
+    MyPageInfoResponseDto getMyPageInfo(String userId);
 
-    void updateMyPageInfo(String loginId, MyPageInfoUpdateRequestDto requestDto);
+    void updateMyPageInfo(String userId, MyPageInfoUpdateRequestDto requestDto);
 
-    List<MyConsultationResponseDto> getMyConsultations(String loginId);
+    List<MyConsultationResponseDto> getMyConsultations(String userId);
 
-    void cancelMyConsultation(String loginId, Integer consultId);
+    void cancelMyConsultation(String userId, String consultId);
 
-    List<MyInquiryResponseDto> getMyInquiries(String loginId);
+    List<MyInquiryResponseDto> getMyInquiries(String userId);
 
-    void withdraw(String loginId, WithdrawRequestDto withdrawRequestDto);
+    void withdraw(String userId, WithdrawRequestDto withdrawRequestDto);
 }
 

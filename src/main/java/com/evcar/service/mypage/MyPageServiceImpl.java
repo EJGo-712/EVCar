@@ -29,15 +29,15 @@ public class MyPageServiceImpl implements MyPageService {
     private final InquiryRepository inquiryRepository;
 
     @Override
-    public MyPageInfoResponseDto getMyPageInfo(String loginId) {
-        User user = getUserByLoginId(loginId);
+    public MyPageInfoResponseDto getMyPageInfo(String userId) {
+        User user = getUserByUserId(userId);
         return MyPageInfoResponseDto.from(user);
     }
 
     @Override
     @Transactional
-    public void updateMyPageInfo(String loginId, MyPageInfoUpdateRequestDto requestDto) {
-        User user = getUserByLoginId(loginId);
+    public void updateMyPageInfo(String userId, MyPageInfoUpdateRequestDto requestDto) {
+        User user = getUserByUserId(userId);
 
         String name = requestDto.getName() != null ? requestDto.getName() : user.getName();
         LocalDate birthDate = requestDto.getBirthDate() != null ? requestDto.getBirthDate() : user.getBirthDate();
@@ -90,8 +90,8 @@ public class MyPageServiceImpl implements MyPageService {
     }
 
     @Override
-    public List<MyConsultationResponseDto> getMyConsultations(String loginId) {
-        User user = getUserByLoginId(loginId);
+    public List<MyConsultationResponseDto> getMyConsultations(String userId) {
+        User user = getUserByUserId(userId);
 
         return consultationRepository.findByUserUserIdOrderByCreatedAtDesc(user.getUserId()).stream()
                 .map(MyConsultationResponseDto::from)
@@ -100,8 +100,8 @@ public class MyPageServiceImpl implements MyPageService {
 
     @Override
     @Transactional
-    public void cancelMyConsultation(String loginId, Integer consultId) {
-        User user = getUserByLoginId(loginId);
+    public void cancelMyConsultation(String userId, String consultId) {
+        User user = getUserByUserId(userId);
 
         Consultation consultation = consultationRepository.findById(consultId)
                 .orElseThrow(() -> new IllegalArgumentException("상담 정보를 찾을 수 없습니다."));
@@ -114,8 +114,8 @@ public class MyPageServiceImpl implements MyPageService {
     }
 
     @Override
-    public List<MyInquiryResponseDto> getMyInquiries(String loginId) {
-        User user = getUserByLoginId(loginId);
+    public List<MyInquiryResponseDto> getMyInquiries(String userId) {
+        User user = getUserByUserId(userId);
 
         return inquiryRepository.findByUserUserIdOrderByCreatedAtDesc(user.getUserId()).stream()
                 .map(MyInquiryResponseDto::from)
@@ -124,12 +124,12 @@ public class MyPageServiceImpl implements MyPageService {
 
     @Override
     @Transactional
-    public void withdraw(String loginId, WithdrawRequestDto withdrawRequestDto) {
+    public void withdraw(String userId, WithdrawRequestDto withdrawRequestDto) {
         if (withdrawRequestDto.isInvalid()) {
             throw new IllegalArgumentException("회원탈퇴 입력값을 확인해주세요.");
         }
 
-        User user = getUserByLoginId(loginId);
+        User user = getUserByUserId(userId);
 
         if (user.getUserStatus() == UserStatus.WITHDRAWN) {
             throw new IllegalArgumentException("이미 탈퇴 처리된 회원입니다.");
@@ -149,8 +149,8 @@ public class MyPageServiceImpl implements MyPageService {
         user.withdraw();
     }
 
-    private User getUserByLoginId(String loginId) {
-        return userRepository.findByLoginId(loginId)
+    private User getUserByUserId(String userId) {
+        return userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("회원정보를 찾을 수 없습니다."));
     }
 }

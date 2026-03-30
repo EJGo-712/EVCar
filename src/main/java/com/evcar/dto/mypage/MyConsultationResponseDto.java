@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class MyConsultationResponseDto {
 
-    private Integer consultId;
+    private String consultId;
     private LocalDateTime preferredDatetime;
     private Integer budget;
     private String purchasePlan;

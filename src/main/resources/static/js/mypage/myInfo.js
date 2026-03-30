@@ -64,45 +64,19 @@ document.addEventListener('DOMContentLoaded', () => {
         return `${year}-${pad2(month)}-${pad2(day)}`;
     };
 
-    const normalizeMonthValue = (value) => {
+    const normalizeVehicleYearValue = (value) => {
         if (!value) {
             return '';
         }
 
         const trimmed = String(value).trim();
+        const numericMatch = trimmed.match(/\d{4}/);
 
-        if (/^\d{4}-\d{2}$/.test(trimmed)) {
-            return trimmed;
-        }
-
-        const numericParts = trimmed.match(/\d+/g);
-
-        if (!numericParts || numericParts.length < 2) {
-            return '';
-        }
-
-        let [year, month] = numericParts;
-
-        if (year.length === 2) {
-            year = Number(year) >= 30 ? `19${year}` : `20${year}`;
-        }
-
-        return `${year}-${pad2(month)}`;
+        return numericMatch ? numericMatch[0] : '';
     };
 
     const formatDateDisplayValue = (value) => {
         return normalizeDateValue(value);
-    };
-
-    const formatMonthDisplayValue = (value) => {
-        const normalized = normalizeMonthValue(value);
-
-        if (!normalized) {
-            return '';
-        }
-
-        const [year, month] = normalized.split('-');
-        return `${year}-${month}`;
     };
 
     const syncBirthDateInputFromDisplay = () => {
@@ -118,15 +92,15 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const syncVehicleYearInputFromDisplay = () => {
-        const normalized = normalizeMonthValue(vehicleYearDisplay.value);
+        const normalized = normalizeVehicleYearValue(vehicleYearDisplay.value);
         vehicleYearInput.value = normalized;
-        vehicleYearDisplay.value = formatMonthDisplayValue(normalized);
+        vehicleYearDisplay.value = normalized;
     };
 
     const syncVehicleYearDisplayFromInput = () => {
-        const normalized = normalizeMonthValue(vehicleYearInput.value);
+        const normalized = normalizeVehicleYearValue(vehicleYearInput.value);
         vehicleYearInput.value = normalized;
-        vehicleYearDisplay.value = formatMonthDisplayValue(normalized);
+        vehicleYearDisplay.value = normalized;
     };
 
     const saveInitialValues = () => {
@@ -201,7 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const hasVehicleSelected = () => {
         const value = getHasVehicleValue();
-        return value === 'yes' || value === 'Y';
+        return value === 'Y';
     };
 
     const clearOwnedVehicleFields = () => {
@@ -415,6 +389,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     birthDateInput.addEventListener('change', syncBirthDateDisplayFromInput);
+    vehicleYearInput.addEventListener('input', syncVehicleYearDisplayFromInput);
     vehicleYearInput.addEventListener('change', syncVehicleYearDisplayFromInput);
 
     editModeButton.addEventListener('click', () => {
@@ -449,7 +424,7 @@ document.addEventListener('DOMContentLoaded', () => {
     birthDateDisplay.value = formatDateDisplayValue(birthDateDisplay.value);
     syncBirthDateInputFromDisplay();
 
-    vehicleYearDisplay.value = formatMonthDisplayValue(vehicleYearDisplay.value);
+    vehicleYearDisplay.value = normalizeVehicleYearValue(vehicleYearDisplay.value);
     syncVehicleYearInputFromDisplay();
 
     saveInitialValues();
