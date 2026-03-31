@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class MyConsultationResponseDto {
 
-    private Integer consultId;
+    private String consultId;
     private LocalDateTime preferredDatetime;
     private Integer budget;
     private String purchasePlan;
@@ -37,5 +37,15 @@ public class MyConsultationResponseDto {
                 .createdAt(consultation.getCreatedAt())
                 .cancelable(consultation.canBeCanceled())
                 .build();
+    }
+
+    public String getConsultStatusLabel() {
+        return switch (consultStatus) {
+            case "PENDING" -> "대기";
+            case "IN_PROGRESS" -> "진행중";
+            case "COMPLETED" -> "완료";
+            case "CANCELED" -> "취소";
+            default -> consultStatus;
+        };
     }
 }

@@ -30,14 +30,13 @@ public class ChargingStation {
     @Column(name = "use_time", length = 100)
     private String useTime;
 
+    // 🔥 핵심 (정상)
     @Column(name = "zcode", length = 20)
     private String zcode;
 
-    // 🔥🔥🔥 추가 (핵심)
     @Column(name = "sido", length = 50)
     private String sido;
 
-    // 🔥🔥🔥 추가 (핵심)
     @Column(name = "sigungu", length = 50)
     private String sigungu;
 

@@ -6,7 +6,7 @@ plugins {
 
 group = 'com.evcar'
 version = '0.0.1-SNAPSHOT'
-description = 'Hi-media AI coding Team Project / Team Name : FL!P'
+description = 'Hi-media AI coding Team Project / Team Name : FLIP'
 
 java {
     toolchain {

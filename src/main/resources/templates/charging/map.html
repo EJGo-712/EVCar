@@ -1,169 +1,71 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>충전소 지도 - EVCar</title>
+    <title>충전소 지도</title>
+
+    <!-- 🔥 카카오맵 -->
+    <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=45ba50972b453c86407e783b76d96dbf"></script>
+
+    <style>
+        body {
+            margin: 0;
+        }
+
+        #map {
+            width: 100%;
+            height: 100vh;
+        }
+
+        /* 🔥 필터 UI */
+        .filter-box {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 999;
+            background: white;
+            padding: 12px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+        }
+
+        select, button {
+            margin: 5px;
+            padding: 6px;
+        }
+    </style>
 </head>
+
 <body>
 
-<h2>충전소 지도</h2>
+<!-- 🔥 필터 -->
+<div class="filter-box">
 
-<!-- ✅ 지역 선택 -->
-<div style="margin-bottom:10px;">
-    <select id="sido" onchange="changeSigungu()">
+    <select id="sido">
         <option value="">시/도 선택</option>
+
+        <!-- 🔥🔥🔥 여기 핵심 수정 -->
         <option value="서울">서울</option>
         <option value="경기">경기</option>
+        <option value="인천">인천</option>
+
     </select>
 
     <select id="sigungu">
         <option value="">시/군/구 선택</option>
+        <option value="강남구">강남구</option>
+        <option value="서초구">서초구</option>
     </select>
 
-    <button onclick="searchRegion()">검색</button>
+    <button id="searchBtn">검색</button>
+
 </div>
 
 <!-- 지도 -->
-<div id="map" style="width:100%; height:600px;"></div>
+<div id="map"></div>
 
-<script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=45ba50972b453c86407e783b76d96dbf"></script>
-
-<script>
-'use strict';
-
-/* ===============================
-   전역 변수
-=============================== */
-let map;
-let markers = [];
-
-/* ===============================
-   초기 실행
-=============================== */
-window.onload = function () {
-
-    const container = document.getElementById('map');
-
-    map = new kakao.maps.Map(container, {
-        center: new kakao.maps.LatLng(37.5665, 126.9780),
-        level: 5
-    });
-
-    loadStations();
-
-    // 🔥 지도 이동 시 자동 재조회
-    kakao.maps.event.addListener(map, 'idle', loadStations);
-};
-
-/* ===============================
-   마커 제거
-=============================== */
-function clearMarkers() {
-    markers.forEach(marker => marker.setMap(null));
-    markers = [];
-}
-
-/* ===============================
-   지도 범위 조회
-=============================== */
-function loadStations() {
-
-    const bounds = map.getBounds();
-
-    const sw = bounds.getSouthWest();
-    const ne = bounds.getNorthEast();
-
-    fetch(`/charging/map?swLat=${sw.getLat()}&swLng=${sw.getLng()}&neLat=${ne.getLat()}&neLng=${ne.getLng()}`)
-        .then(res => res.json())
-        .then(data => {
-
-            clearMarkers();
-
-            data.forEach(station => {
-
-                const marker = new kakao.maps.Marker({
-                    position: new kakao.maps.LatLng(station.lat, station.lng)
-                });
-
-                marker.setMap(map);
-                markers.push(marker);
-            });
-        });
-}
-
-/* ===============================
-   지역 데이터
-=============================== */
-const regionData = {
-    "서울": ["강남구","서초구","중구","종로구"],
-    "경기": ["수원시","성남시","용인시"]
-};
-
-/* ===============================
-   시군구 변경
-=============================== */
-function changeSigungu() {
-
-    const sido = document.getElementById('sido').value;
-    const sigungu = document.getElementById('sigungu');
-
-    sigungu.innerHTML = '<option value="">시/군/구 선택</option>';
-
-    if (!sido) return;
-
-    regionData[sido].forEach(item => {
-        const option = document.createElement('option');
-        option.value = item;
-        option.textContent = item;
-        sigungu.appendChild(option);
-    });
-}
-
-/* ===============================
-   🔥 지역 검색 (핵심 수정됨)
-=============================== */
-function searchRegion() {
-
-    const sido = document.getElementById('sido').value;
-    const sigungu = document.getElementById('sigungu').value;
-
-    if (!sido || !sigungu) {
-        alert("지역 선택해라");
-        return;
-    }
-
-    // 🔥 DB 조회
-    fetch(`/charging/region?sido=${sido}&sigungu=${sigungu}`)
-        .then(res => res.json())
-        .then(data => {
-
-            clearMarkers();
-
-            if (data.length === 0) {
-                alert("데이터 없음");
-                return;
-            }
-
-            // 🔥 지도 이동
-            const first = data[0];
-            map.setCenter(new kakao.maps.LatLng(first.lat, first.lng));
-
-            // 🔥 마커 찍기
-            data.forEach(station => {
-
-                const marker = new kakao.maps.Marker({
-                    position: new kakao.maps.LatLng(
-                        station.lat,
-                        station.lng
-                    )
-                });
-
-                marker.setMap(map);
-                markers.push(marker);
-            });
-        });
-}
-</script>
+<!-- JS -->
+<script src="/js/charging/map.js"></script>
 
 </body>
 </html>

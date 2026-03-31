@@ -13,6 +13,9 @@ public interface ChargingStationRepository extends JpaRepository<ChargingStation
             double swLng, double neLng
     );
 
-    // 🔥🔥🔥 이거 추가 (핵심)
+    // 지역 조회
     List<ChargingStation> findBySidoAndSigungu(String sido, String sigungu);
+
+    // 🔥 추가 (이거 한 줄만)
+    List<ChargingStation> findByZcode(String zcode);
 }
