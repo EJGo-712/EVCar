@@ -7,7 +7,7 @@
 
     <link rel="stylesheet" th:href="@{/css/common/common.css}">
     <link rel="stylesheet" th:href="@{/css/admin/admin-common.css}">
-    <link rel="stylesheet" th:href="@{/css/admin/inquiry/list.css}">
+    <link rel="stylesheet" th:href="@{/css/admin/admin-inquiry.css}">
 </head>
 <body>
 <div class="ev-admin-app">
@@ -31,7 +31,7 @@
 
                             <div class="ev-inquiry-filter-group">
                                 <a class="ev-inquiry-filter-button"
-                                   th:classappend="${replyStatus == ''} ? ' is-active'"
+                                   th:classappend="${replyStatus == null or replyStatus == ''} ? ' is-active'"
                                    th:href="@{/admin/inquiry(page=1,size=${size},keyword=${keyword})}">
                                     전체
                                 </a>
@@ -63,16 +63,25 @@
                     <div class="ev-admin-card ev-inquiry-list-card">
                         <div class="ev-admin-card__body">
                             <div class="ev-inquiry-list-header">
-                                <strong>문의 목록</strong>
-                                <span th:text="|총 ${pageResponse.totalCount}건|"></span>
+                                <div class="ev-inquiry-list-title-wrap">
+                                    <h2 class="ev-inquiry-section-title">문의 목록</h2>
+                                    <p class="ev-inquiry-section-subtitle" th:text="|총 ${pageResponse.totalCount}건|"></p>
+                                </div>
                             </div>
 
                             <div class="ev-inquiry-table-wrap">
-                                <table class="ev-table ev-inquiry-table">
+                                <table class="ev-inquiry-table">
+                                    <colgroup>
+                                        <col style="width: 7%;">
+                                        <col style="width: 18%;">
+                                        <col style="width: 37%;">
+                                        <col style="width: 14%;">
+                                        <col style="width: 12%;">
+                                        <col style="width: 12%;">
+                                    </colgroup>
                                     <thead>
                                     <tr>
                                         <th>No</th>
-                                        <th>문의번호</th>
                                         <th>작성자</th>
                                         <th>제목</th>
                                         <th>등록일</th>
@@ -82,18 +91,18 @@
                                     </thead>
                                     <tbody>
                                     <tr th:if="${#lists.isEmpty(pageResponse.inquiries)}">
-                                        <td colspan="7" class="ev-inquiry-empty">등록된 문의가 없습니다.</td>
+                                        <td colspan="6" class="ev-inquiry-empty">등록된 문의가 없습니다.</td>
                                     </tr>
                                     <tr th:each="item, stat : ${pageResponse.inquiries}"
-                                        th:classappend="${selectedId == item.inquiryId} ? ' is-selected'">
+                                        th:classappend="${selectedId == item.inquiryId} ? ' is-selected'"
+                                        th:attr="data-detail-url=@{/admin/inquiry(page=${pageResponse.currentPage},size=${size},replyStatus=${replyStatus},keyword=${keyword},selectedId=${item.inquiryId})}">
                                         <td th:text="${(pageResponse.currentPage - 1) * pageResponse.pageSize + stat.index + 1}"></td>
-                                        <td th:text="${item.inquiryId}"></td>
                                         <td>
                                             <div class="ev-inquiry-user-name" th:text="${item.userName}"></div>
                                             <div class="ev-inquiry-user-id" th:text="${item.userId}"></div>
                                         </td>
                                         <td class="ev-inquiry-title-cell" th:text="${item.title}"></td>
-                                        <td th:text="${item.createdAt}"></td>
+                                        <td class="ev-inquiry-date-cell" th:text="${item.createdAt}"></td>
                                         <td>
                                             <span class="ev-inquiry-status"
                                                   th:classappend="${item.replyStatus == 'COMPLETED'} ? ' is-completed' : ' is-waiting'"
@@ -101,7 +110,7 @@
                                         </td>
                                         <td>
                                             <a class="ev-inquiry-detail-link"
-                                               th:href="@{/admin/inquiry/{id}(id=${item.inquiryId},page=${pageResponse.currentPage},size=${size},replyStatus=${replyStatus},keyword=${keyword})}">
+                                               th:href="@{/admin/inquiry(page=${pageResponse.currentPage},size=${size},replyStatus=${replyStatus},keyword=${keyword},selectedId=${item.inquiryId})}">
                                                 상세
                                             </a>
                                         </td>
@@ -110,27 +119,27 @@
                                 </table>
                             </div>
 
-                            <nav class="ev-inquiry-pagination" th:if="${pageResponse.totalCount > 0}">
-                                <a class="ev-inquiry-page-link"
-                                   th:classappend="${!pageResponse.hasPreviousGroup} ? ' is-disabled'"
-                                   th:href="${pageResponse.hasPreviousGroup} ? @{/admin/inquiry(page=${pageResponse.previousGroupPage},size=${size},replyStatus=${replyStatus},keyword=${keyword},selectedId=${selectedId})} : '#'">
-                                    &lt;
-                                </a>
+							<nav class="ev-admin-pagination" th:if="${pageResponse.totalCount > 0}">
+							    <a class="ev-admin-pagination__link ev-admin-pagination__link--arrow"
+							       th:classappend="${!pageResponse.hasPreviousGroup} ? ' is-disabled'"
+							       th:href="${pageResponse.hasPreviousGroup} ? @{/admin/inquiry(page=${pageResponse.previousGroupPage},size=${size},replyStatus=${replyStatus},keyword=${keyword},selectedId=${selectedId})} : '#'">
+							        &lt;
+							    </a>
 
-                                <th:block th:each="pageNumber : ${#numbers.sequence(pageResponse.startPage, pageResponse.endPage)}">
-                                    <a class="ev-inquiry-page-link"
-                                       th:classappend="${pageResponse.currentPage == pageNumber} ? ' is-active'"
-                                       th:text="${pageNumber}"
-                                       th:href="@{/admin/inquiry(page=${pageNumber},size=${size},replyStatus=${replyStatus},keyword=${keyword},selectedId=${selectedId})}">
-                                    </a>
-                                </th:block>
+							    <th:block th:each="pageNumber : ${#numbers.sequence(pageResponse.startPage, pageResponse.endPage)}">
+							        <a class="ev-admin-pagination__link"
+							           th:classappend="${pageResponse.currentPage == pageNumber} ? ' is-active'"
+							           th:text="${pageNumber}"
+							           th:href="@{/admin/inquiry(page=${pageNumber},size=${size},replyStatus=${replyStatus},keyword=${keyword},selectedId=${selectedId})}">
+							        </a>
+							    </th:block>
 
-                                <a class="ev-inquiry-page-link"
-                                   th:classappend="${!pageResponse.hasNextGroup} ? ' is-disabled'"
-                                   th:href="${pageResponse.hasNextGroup} ? @{/admin/inquiry(page=${pageResponse.nextGroupPage},size=${size},replyStatus=${replyStatus},keyword=${keyword},selectedId=${selectedId})} : '#'">
-                                    &gt;
-                                </a>
-                            </nav>
+							    <a class="ev-admin-pagination__link ev-admin-pagination__link--arrow"
+							       th:classappend="${!pageResponse.hasNextGroup} ? ' is-disabled'"
+							       th:href="${pageResponse.hasNextGroup} ? @{/admin/inquiry(page=${pageResponse.nextGroupPage},size=${size},replyStatus=${replyStatus},keyword=${keyword},selectedId=${selectedId})} : '#'">
+							        &gt;
+							    </a>
+							</nav>
                         </div>
                     </div>
 
@@ -147,12 +156,30 @@
                             </div>
 
                             <div class="ev-inquiry-detail-meta">
-                                <div><strong>문의번호 :</strong> <span th:text="${detail.inquiryId}"></span></div>
-                                <div><strong>작성자 :</strong> <span th:text="${detail.userName}"></span> (<span th:text="${detail.userId}"></span>)</div>
-                                <div><strong>전화번호 :</strong> <span th:text="${detail.phone}"></span></div>
-                                <div><strong>이메일 :</strong> <span th:text="${detail.email}"></span></div>
-                                <div><strong>등록일 :</strong> <span th:text="${detail.createdAt}"></span></div>
-                                <div><strong>수정일 :</strong> <span th:text="${detail.updatedAt != null ? detail.updatedAt : '-'}"></span></div>
+                                <div>
+                                    <strong>문의번호</strong>
+                                    <span th:text="${detail.inquiryId}"></span>
+                                </div>
+                                <div>
+                                    <strong>작성자</strong>
+                                    <span th:text="|${detail.userName} (${detail.userId})|"></span>
+                                </div>
+                                <div>
+                                    <strong>전화번호</strong>
+                                    <span th:text="${detail.phone}"></span>
+                                </div>
+                                <div>
+                                    <strong>이메일</strong>
+                                    <span th:text="${detail.email}"></span>
+                                </div>
+                                <div>
+                                    <strong>등록일</strong>
+                                    <span th:text="${detail.createdAt}"></span>
+                                </div>
+                                <div>
+                                    <strong>수정일</strong>
+                                    <span th:text="${detail.updatedAt != null ? detail.updatedAt : '-'}"></span>
+                                </div>
                             </div>
 
                             <div class="ev-inquiry-detail-section">
@@ -199,6 +226,6 @@
 </div>
 
 <script th:src="@{/js/common/common.js}"></script>
-<script th:src="@{/js/admin/inquiry/list.js}"></script>
+<script th:src="@{/js/admin/admin-inquiry.js}"></script>
 </body>
 </html>

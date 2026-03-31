@@ -1,14 +1,10 @@
 package com.evcar.domain.inquiry;
 
-import com.evcar.domain.user.User;
 import jakarta.persistence.Access;
 import jakarta.persistence.AccessType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
@@ -32,9 +28,8 @@ public class Inquiry {
     @Column(name = "inquiry_id", nullable = false, length = 20)
     private String inquiryId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @Column(name = "user_id", nullable = false, length = 20)
+    private String userId;
 
     @Column(name = "title", nullable = false, length = 200)
     private String title;
@@ -59,7 +54,6 @@ public class Inquiry {
         LocalDate now = LocalDate.now();
         this.createdAt = now;
         this.updatedAt = now;
-
         if (this.replyStatus == null || this.replyStatus.isBlank()) {
             this.replyStatus = "WAITING";
         }

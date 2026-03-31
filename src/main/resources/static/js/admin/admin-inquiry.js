@@ -1,27 +1,22 @@
 'use strict';
 
 document.addEventListener('DOMContentLoaded', () => {
-    const detailLinks = document.querySelectorAll('.ev-inquiry-detail-link');
     const rows = document.querySelectorAll('.ev-inquiry-table tbody tr');
 
     rows.forEach((row) => {
+        const detailUrl = row.dataset.detailUrl;
         const link = row.querySelector('.ev-inquiry-detail-link');
-        if (!link) {
+
+        if (!detailUrl || !link) {
             return;
         }
 
         row.addEventListener('click', (event) => {
-            const target = event.target;
-            if (target instanceof HTMLElement && target.closest('a')) {
+            if (event.target.closest('a, button, textarea, input')) {
                 return;
             }
-            window.location.href = link.href;
-        });
-    });
 
-    detailLinks.forEach((link) => {
-        link.addEventListener('click', (event) => {
-            event.stopPropagation();
+            window.location.href = detailUrl;
         });
     });
 });
