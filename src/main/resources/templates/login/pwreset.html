@@ -82,9 +82,12 @@ input{
 
 </style>
 
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/common/common.css}">
+    <link rel="stylesheet" th:href="@{/css/common/main.css}">
 </head>
-
 <body>
+<div th:replace="~{layout/header :: header}"></div>
 
 <div class="container">
 
@@ -182,6 +185,11 @@ window.onload = function(){
 };
 
 </script>
+<div th:replace="~{layout/footer :: footer}"></div>
 
+<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+<script th:src="@{/js/common/header.js}"></script>
+<script th:src="@{/js/common/footer.js}"></script>
+<script th:src="@{/js/common/main.js}"></script>
 </body>
 </html>
