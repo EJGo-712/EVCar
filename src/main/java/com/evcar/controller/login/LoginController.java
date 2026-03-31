@@ -20,24 +20,37 @@ public class LoginController {
 
     // 로그인 화면
     @GetMapping
-    public String loginPage(Model model) {
+    public String loginPage(@RequestParam(value = "error", required = false) String error,
+                            Model model) {
+
         model.addAttribute("loginRequestDto", new LoginRequestDto());
+
+        if (error != null) {
+            model.addAttribute("errorMessage", "아이디 또는 비밀번호가 올바르지 않습니다.");
+        }
+
         return "login/login";
     }
 
     // 로그인 처리
+    @GetMapping("/main")
+    public String index() {
+        return "index";
+    }
     @PostMapping
     public String login(@ModelAttribute LoginRequestDto dto,
-                        HttpSession session,
-                        Model model) {
+                        HttpSession session) {
         try {
-            User loginUser = loginService.login(dto);
-            session.setAttribute("loginUser", loginUser);
-            return "redirect:/";
+        	User loginUser = loginService.login(dto);
+
+        	if (loginUser == null) {
+        	    return "redirect:/login";
+        	}
+
+        	session.setAttribute("loginUser", loginUser);
+        	return "redirect:/login/main";
         } catch (IllegalArgumentException e) {
-            model.addAttribute("errorMessage", e.getMessage());
-            model.addAttribute("loginRequestDto", dto); // 🔥 중요 (다시 넣기)
-            return "login/login";
+            return "redirect:/login?error=true";
         }
     }
 

@@ -50,11 +50,25 @@ public class UserServiceImpl implements UserService {
                 .gender(dto.getGender())
                 .phone(dto.getPhone())
                 .address(dto.getAddress())
-                .addressDetail(dto.getAddressDetail())
+                .addressDetail(
+                	    dto.getAddressDetail() != null && !dto.getAddressDetail().isEmpty()
+                	        ? dto.getAddressDetail()
+                	        : null
+                	)
                 .email(dto.getEmail())
-                .vehicleModel(dto.getVehicleModel())
-                .vehicleYear(dto.getVehicleYear())
-                .drivingDistance(dto.getDrivingDistance())
+                .vehicleModel(
+                	    dto.getVehicleModel() != null && !dto.getVehicleModel().isEmpty()
+                	        ? dto.getVehicleModel()
+                	        : null
+                	)
+                	.vehicleYear(
+                	    dto.getVehicleYear() != null && !dto.getVehicleYear().isEmpty()
+                	        ? dto.getVehicleYear()
+                	        : null
+                	)
+                	.drivingDistance(
+                	    dto.getDrivingDistance() != null ? dto.getDrivingDistance() : 0
+                	)
                 .build();
 
         userRepository.save(user);
@@ -73,6 +87,7 @@ public class UserServiceImpl implements UserService {
         return result;
     }
     @Override
+    @Transactional(readOnly = true)
     public boolean isUserEmailDuplicate(String email) {
         return userRepository.existsByEmail(email);
     }

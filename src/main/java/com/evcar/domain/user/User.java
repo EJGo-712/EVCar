@@ -52,10 +52,6 @@ public class User {
     @Column(name = "user_status", length = 10)
     private String userStatus;
 
-    // 제외
-    // @Column(name = "has_vehicle", length = 10)
-    // private String hasVehicle;
-
     @Column(name = "vehicle_model", length = 50)
     private String vehicleModel;
 
@@ -68,16 +64,14 @@ public class User {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "withdrawn_at")
-    private LocalDateTime withdrawnAt;
-
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
-
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
         this.role = "USER";
         this.userStatus = "ACTIVE";
+    }
+
+    public void changePassword(String password) {
+        this.password = password;
     }
 }

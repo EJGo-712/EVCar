@@ -15,23 +15,16 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 public class SecurityConfig {
 
     // 비밀번호 암호화
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+	@Bean
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+	    http
+	        .csrf(csrf -> csrf.disable())
+	        .formLogin(form -> form.disable())
+	        .httpBasic(basic -> basic.disable())
+	        .authorizeHttpRequests(auth -> auth
+	            .anyRequest().permitAll()
+	        );
 
-    // Spring Security 로그인 비활성화
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-            .csrf(csrf -> csrf.disable())
-            .formLogin(form -> form.disable())
-            .httpBasic(basic -> basic.disable())
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/login/**", "/css/**", "/js/**", "/images/**").permitAll()
-                .anyRequest().permitAll()
-            );
-
-        return http.build();
-    }
+	    return http.build();
+	}
 }

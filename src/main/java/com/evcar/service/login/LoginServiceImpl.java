@@ -31,10 +31,27 @@ public class LoginServiceImpl implements LoginService {
     @Override
     public User login(LoginRequestDto dto) {
 
-        User user = userRepository.findByLoginId(dto.getLoginId())
+        // 1. 공백 제거 (핵심)
+    	String loginId = dto.getLoginId() != null ? dto.getLoginId().trim() : "";
+    	String password = dto.getPassword() != null ? dto.getPassword().trim() : "";
+
+    	// 추가 (이게 핵심)
+    	if (loginId.isEmpty() || password.isEmpty()) {
+    	    throw new IllegalArgumentException("아이디 또는 비밀번호가 올바르지 않습니다.");
+    	}
+
+        System.out.println("입력 ID = [" + loginId + "]");
+        System.out.println("입력 PW = [" + password + "]");
+
+        // 3. 조회 (수정됨)
+        User user = userRepository.findByLoginId(loginId)
                 .orElseThrow(() -> new IllegalArgumentException("아이디 또는 비밀번호가 올바르지 않습니다."));
 
-        if (!passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
+        // 4. DB 값 확인
+        System.out.println("DB PW = " + user.getPassword());
+
+        // 5. 비교 (수정됨)
+        if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new IllegalArgumentException("아이디 또는 비밀번호가 올바르지 않습니다.");
         }
 

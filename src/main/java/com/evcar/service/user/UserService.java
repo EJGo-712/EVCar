@@ -9,4 +9,7 @@ public interface UserService {
 
     // 아이디 중복 체크
     boolean isUserLoginIdDuplicate(String userLoginId);
+
+    // 이메일 중복 체크 🔥 추가
+    boolean isUserEmailDuplicate(String email);
 }
