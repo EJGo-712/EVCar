@@ -20,13 +20,17 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    // 🔥 핵심: Spring Security 로그인 비활성화
+    // Spring Security 로그인 비활성화
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable())              // CSRF 비활성 (개발 단계)
-            .formLogin(form -> form.disable())         // 기본 로그인 화면 제거
-            .httpBasic(basic -> basic.disable());      // 기본 인증 제거
+            .csrf(csrf -> csrf.disable())
+            .formLogin(form -> form.disable())
+            .httpBasic(basic -> basic.disable())
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/login/**", "/css/**", "/js/**", "/images/**").permitAll()
+                .anyRequest().permitAll()
+            );
 
         return http.build();
     }
