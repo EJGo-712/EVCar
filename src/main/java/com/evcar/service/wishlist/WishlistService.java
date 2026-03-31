@@ -1,4 +1,4 @@
-package com.evcar.service.vehicle;
+package com.evcar.service.wishlist;
 
 import java.util.List;
 import com.evcar.dto.vehicle.VehicleListDto;

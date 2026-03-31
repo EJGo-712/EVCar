@@ -5,6 +5,7 @@ import com.evcar.domain.vehicle.Vehicle;
 import com.evcar.dto.vehicle.VehicleDetailDto;
 import com.evcar.dto.vehicle.VehicleListDto;
 import com.evcar.repository.vehicle.VehicleRepository;
+import com.evcar.service.wishlist.WishlistService;
 
 import java.util.List;
 import java.util.stream.Collectors;

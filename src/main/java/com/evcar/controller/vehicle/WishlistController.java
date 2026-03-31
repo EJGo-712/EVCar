@@ -8,7 +8,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.evcar.dto.vehicle.VehicleListDto;
-import com.evcar.service.vehicle.WishlistService;
+import com.evcar.service.wishlist.WishlistService;
+
 import lombok.RequiredArgsConstructor;
 
 @RestController

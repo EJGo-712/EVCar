@@ -4,8 +4,9 @@ import com.evcar.dto.vehicle.VehicleDetailDto;
 import com.evcar.dto.vehicle.VehicleListDto;
 import com.evcar.dto.vehicle.VehicleImageResponseDto;
 import com.evcar.service.vehicle.VehicleService;
+import com.evcar.service.wishlist.WishlistService;
 import com.evcar.service.vehicle.VehicleImageService;
-import com.evcar.service.vehicle.WishlistService;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

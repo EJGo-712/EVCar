@@ -1,13 +1,15 @@
-package com.evcar.service.vehicle;
+package com.evcar.service.wishlist;
 
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.evcar.domain.vehicle.Wishlist;
+
+import com.evcar.domain.wishlist.Wishlist;
 import com.evcar.dto.vehicle.VehicleListDto;
 import com.evcar.repository.vehicle.VehicleRepository;
-import com.evcar.repository.vehicle.WishlistRepository;
+import com.evcar.repository.wishlist.WishlistRepository;
+
 import lombok.RequiredArgsConstructor;
 
 @Service
