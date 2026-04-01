@@ -10,7 +10,7 @@ public class Vehicle {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "vehicle_id")
-    private Long vehicleId;
+    private String vehicleId;
 
     @Column(name = "brand", length = 20)
     private String brand;
@@ -61,8 +61,8 @@ public class Vehicle {
     private String imagePath;
 
     // Getters & Setters
-    public Long getVehicleId() { return vehicleId; }
-    public void setVehicleId(Long vehicleId) { this.vehicleId = vehicleId; }
+    public String getVehicleId() { return vehicleId; }
+    public void setVehicleId(String vehicleId) { this.vehicleId = vehicleId; }
 
     public String getBrand() { return brand; }
     public void setBrand(String brand) { this.brand = brand; }

@@ -19,13 +19,13 @@ public class WishlistController {
     private final WishlistService wishlistService;
 
     @PostMapping("/add")
-    public String add(@RequestParam Long vehicleId) {   
+    public String add(@RequestParam String vehicleId) {   
         wishlistService.add(vehicleId);
         return "ok";
     }
 
     @PostMapping("/delete")
-    public String delete(@RequestParam Long vehicleId) {  
+    public String delete(@RequestParam String vehicleId) {  
         wishlistService.remove(vehicleId);
         return "ok";
     }

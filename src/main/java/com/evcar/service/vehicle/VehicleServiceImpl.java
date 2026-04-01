@@ -50,7 +50,7 @@ public class VehicleServiceImpl implements VehicleService {
 
     // 차량 상세
     @Override
-    public VehicleDetailDto getDetail(Long vehicleId) {
+    public VehicleDetailDto getDetail(String vehicleId) {
 
         Vehicle v = vehicleRepository.findById(vehicleId)
                 .orElseThrow(() -> new RuntimeException("차량 없음"));
@@ -79,7 +79,7 @@ public class VehicleServiceImpl implements VehicleService {
         return dto;
     }
 
-    public Vehicle getVehicleDetail(Long id) {
+    public Vehicle getVehicleDetail(String id) {
         return vehicleRepository.findById(id).orElse(null);
     }
 }

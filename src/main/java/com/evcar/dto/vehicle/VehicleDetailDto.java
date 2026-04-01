@@ -14,7 +14,7 @@ import lombok.Setter;
 public class VehicleDetailDto {
 
     // 기본 정보
-    private Long vehicleId;
+    private String vehicleId;
     private String brand;
     private String modelName;
     private String vehicleClass;

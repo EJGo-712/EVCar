@@ -19,12 +19,12 @@ public class WishlistServiceImpl implements WishlistService {
     private final VehicleRepository vehicleRepository;
 
     @Override
-    public boolean isWished(Long vehicleId) {
+    public boolean isWished(String vehicleId) {
         return wishlistRepository.existsByVehicleId(vehicleId);
     }
 
     @Override
-    public void add(Long vehicleId) {
+    public void add(String vehicleId) {
         if (!wishlistRepository.existsByVehicleId(vehicleId)) {
             Wishlist w = new Wishlist();
             w.setVehicleId(vehicleId);
@@ -33,7 +33,7 @@ public class WishlistServiceImpl implements WishlistService {
     }
 
     @Override
-    public void remove(Long vehicleId) {
+    public void remove(String vehicleId) {
         if (wishlistRepository.existsByVehicleId(vehicleId)) {
             wishlistRepository.deleteByVehicleId(vehicleId);
         }

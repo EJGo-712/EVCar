@@ -16,7 +16,7 @@ public class VehicleImage {
     private Long imageId;
 
     @Column(nullable = false)
-    private Long vehicleId;
+    private String vehicleId;
 
     @Column(nullable = false, length = 255)
     private String imageUrl;

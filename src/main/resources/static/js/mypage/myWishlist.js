@@ -13,66 +13,111 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const STORAGE_KEY = 'evcar-wishlist';
-	const USE_TEST_DATA = true;
+    const USE_TEST_DATA = false;
     const DEFAULT_VISIBLE_COUNT = 3;
     let isExpanded = false;
 
-    /*
-     * TODO: 차량 목록/상세 및 위시리스트 실연동 완료 후 false로 변경하거나
-     * 개발용 테스트(localStorage/버튼) 영역 전체 제거
-     */
     const defaultWishlist = [
         {
             wishlistId: 1,
             brand: '현대',
-            category: '중형 SUV',
-            model: '아이오닉 5',
-            price: '5,200만원',
+            vehicleClass: '중형 SUV',
+            modelName: '아이오닉 5',
+            priceBasic: '5,200',
             imageUrl: '/images/ev_HYUNDAI_IONIQ5.png',
             detailUrl: '#'
         },
         {
             wishlistId: 2,
             brand: '기아',
-            category: '중형 SUV',
-            model: 'EV6',
-            price: '4,870만원',
+            vehicleClass: '중형 SUV',
+            modelName: 'EV6',
+            priceBasic: '4,870',
             imageUrl: '/images/ev_KIA_EV6.png',
             detailUrl: '#'
         },
-		{
-		        wishlistId: 3,
-		        brand: '현대',
-		        category: '대형 SUV',
-		        model: '아이오닉 9',
-		        price: '6,700만원',
-		        imageUrl: '/images/ev_HYUNDAI_IONIQ9.png',
-		        detailUrl: '#'
-		    },
-		    {
-		        wishlistId: 4,
-		        brand: '기아',
-		        category: '중형 SUV',
-		        model: 'EV3',
-		        price: '4,200만원',
-		        imageUrl: '/images/ev_KIA_EV6.png',
-		        detailUrl: '#'
-		    }
+        {
+            wishlistId: 3,
+            brand: '현대',
+            vehicleClass: '대형 SUV',
+            modelName: '아이오닉 9',
+            priceBasic: '6,700',
+            imageUrl: '/images/ev_HYUNDAI_IONIQ9.png',
+            detailUrl: '#'
+        },
+        {
+            wishlistId: 4,
+            brand: '기아',
+            vehicleClass: '중형 SUV',
+            modelName: 'EV3',
+            priceBasic: '4,200',
+            imageUrl: '/images/ev_KIA_EV3.png',
+            detailUrl: '#'
+        }
     ];
 
+    const getPreviewUserId = () => {
+        const params = new URLSearchParams(window.location.search);
+        return params.get('previewUserId');
+    };
+
+    const buildApiUrl = (basePath) => {
+        const previewUserId = getPreviewUserId();
+
+        if (!previewUserId) {
+            return basePath;
+        }
+
+        const query = new URLSearchParams({
+            previewUserId: previewUserId
+        });
+
+        return `${basePath}?${query.toString()}`;
+    };
+
+    const formatPrice = (priceBasic) => {
+        if (priceBasic === null || priceBasic === undefined || priceBasic === '') {
+            return '-';
+        }
+
+        const numericPrice = Number(priceBasic);
+        if (Number.isNaN(numericPrice)) {
+            return `${priceBasic}`;
+        }
+
+        return `${numericPrice.toLocaleString()}만원`;
+    };
+
+    const escapeHtml = (value) => {
+        return String(value ?? '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    };
+
     const createCardHtml = (item) => {
+        const brand = escapeHtml(item.brand);
+        const vehicleClass = escapeHtml(item.vehicleClass);
+        const modelName = escapeHtml(item.modelName);
+        const imageUrl = escapeHtml(item.imageUrl);
+        const detailUrl = escapeHtml(item.detailUrl);
+        const wishlistId = escapeHtml(item.wishlistId);
+        const priceText = escapeHtml(formatPrice(item.priceBasic));
+
         return `
-            <article class="ev-wishlist-card" data-wishlist-id="${item.wishlistId}">
+            <article class="ev-wishlist-card" data-wishlist-id="${wishlistId}">
                 <button type="button" class="ev-wishlist-favorite" aria-label="관심차량 삭제">♥</button>
                 <div class="ev-wishlist-image-wrap">
-                    <img class="ev-wishlist-image" src="${item.imageUrl}" alt="${item.model}">
+                    <img class="ev-wishlist-image" src="${imageUrl}" alt="${modelName}">
                 </div>
                 <div class="ev-wishlist-body">
-                    <p class="ev-wishlist-brand">${item.brand} | ${item.category}</p>
-                    <h2 class="ev-wishlist-model">${item.model}</h2>
-                    <p class="ev-wishlist-price">${item.price}</p>
+                    <p class="ev-wishlist-brand">${brand} | ${vehicleClass}</p>
+                    <h2 class="ev-wishlist-model">${modelName}</h2>
+                    <p class="ev-wishlist-price">${priceText}</p>
                     <div class="ev-wishlist-actions">
-                        <a href="${item.detailUrl}" class="btn btn-ev-secondary">상세보기</a>
+                        <a href="${detailUrl}" class="btn btn-ev-secondary">상세보기</a>
                         <button type="button" class="btn btn-ev-primary ev-delete-btn">삭제</button>
                     </div>
                 </div>
@@ -88,7 +133,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const renderMoreButton = (wishlist) => {
         const shouldShowMoreButton = wishlist.length > DEFAULT_VISIBLE_COUNT;
-
         wishlistMoreWrap.classList.toggle('ev-wishlist-more--hidden', !shouldShowMoreButton);
 
         if (shouldShowMoreButton) {
@@ -96,23 +140,23 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-	const bindEvents = () => {
-	    const deleteButtons = wishlistGrid.querySelectorAll('.ev-delete-btn');
-	    deleteButtons.forEach((button) => {
-	        button.addEventListener('click', async (event) => {
-	            const card = event.target.closest('.ev-wishlist-card');
-	            await handleDelete(card);
-	        });
-	    });
+    const bindEvents = () => {
+        const deleteButtons = wishlistGrid.querySelectorAll('.ev-delete-btn');
+        deleteButtons.forEach((button) => {
+            button.addEventListener('click', async (event) => {
+                const card = event.target.closest('.ev-wishlist-card');
+                await handleDelete(card);
+            });
+        });
 
-	    const favoriteButtons = wishlistGrid.querySelectorAll('.ev-wishlist-favorite');
-	    favoriteButtons.forEach((button) => {
-	        button.addEventListener('click', async (event) => {
-	            const card = event.target.closest('.ev-wishlist-card');
-	            await handleDelete(card);
-	        });
-	    });
-	};
+        const favoriteButtons = wishlistGrid.querySelectorAll('.ev-wishlist-favorite');
+        favoriteButtons.forEach((button) => {
+            button.addEventListener('click', async (event) => {
+                const card = event.target.closest('.ev-wishlist-card');
+                await handleDelete(card);
+            });
+        });
+    };
 
     const renderWishlist = async () => {
         const wishlist = await getWishlist();
@@ -129,7 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-		const wishlistId = card.dataset.wishlistId;
+        const wishlistId = card.dataset.wishlistId;
 
         if (!wishlistId) {
             window.alert('관심 차량 식별값이 없습니다.');
@@ -151,11 +195,6 @@ document.addEventListener('DOMContentLoaded', () => {
         await renderWishlist();
     };
 
-    /*
-     * =========================
-     * 개발용 localStorage 영역
-     * =========================
-     */
     const getWishlistFromLocal = () => {
         const stored = localStorage.getItem(STORAGE_KEY);
 
@@ -178,7 +217,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const addWishlistToLocal = (item) => {
         const wishlist = getWishlistFromLocal();
-        const exists = wishlist.some((wishlistItem) => wishlistItem.model === item.model);
+        const exists = wishlist.some((wishlistItem) => wishlistItem.modelName === item.modelName);
 
         if (exists) {
             window.alert('이미 관심차량에 등록된 차량입니다.');
@@ -189,18 +228,14 @@ document.addEventListener('DOMContentLoaded', () => {
         saveWishlistToLocal(wishlist);
     };
 
-	const removeWishlistFromLocal = (wishlistId) => {
-	    const wishlist = getWishlistFromLocal();
-	    const filteredWishlist = wishlist.filter((item) => String(item.wishlistId) !== String(wishlistId));
-	    saveWishlistToLocal(filteredWishlist);
-	};
-    /*
-     * =========================
-     * 서버 연동 영역
-     * =========================
-     */
+    const removeWishlistFromLocal = (wishlistId) => {
+        const wishlist = getWishlistFromLocal();
+        const filteredWishlist = wishlist.filter((item) => String(item.wishlistId) !== String(wishlistId));
+        saveWishlistToLocal(filteredWishlist);
+    };
+
     const getWishlistFromServer = async () => {
-        const response = await fetch('/mypage/wishlist/api', {
+        const response = await fetch(buildApiUrl('/mypage/wishlist/api'), {
             method: 'GET',
             headers: {
                 'Accept': 'application/json'
@@ -215,7 +250,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const removeWishlistFromServer = async (wishlistId) => {
-        const response = await fetch('/mypage/wishlist/delete', {
+        const response = await fetch(buildApiUrl('/mypage/wishlist/delete'), {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded'
@@ -230,11 +265,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    /*
-     * =========================
-     * 공통 분기 영역
-     * =========================
-     */
     const getWishlist = async () => {
         if (USE_TEST_DATA) {
             return getWishlistFromLocal();
@@ -261,9 +291,9 @@ document.addEventListener('DOMContentLoaded', () => {
         addWishlistToLocal({
             wishlistId: Date.now(),
             brand: '현대',
-            category: '대형 SUV',
-            model: '아이오닉 9',
-            price: '6,700만원',
+            vehicleClass: '대형 SUV',
+            modelName: '아이오닉 9',
+            priceBasic: '6,700',
             imageUrl: '/images/ev_HYUNDAI_IONIQ9.png',
             detailUrl: '#'
         });
