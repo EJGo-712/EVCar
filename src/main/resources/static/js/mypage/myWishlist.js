@@ -5,56 +5,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const wishlistEmpty = document.getElementById('wishlistEmpty');
     const wishlistMoreWrap = document.getElementById('wishlistMoreWrap');
     const wishlistMoreButton = document.getElementById('wishlistMoreButton');
-    const addSampleVehicleButton = document.getElementById('addSampleVehicleButton');
-    const resetWishlistButton = document.getElementById('resetWishlistButton');
 
     if (!wishlistGrid || !wishlistEmpty || !wishlistMoreWrap || !wishlistMoreButton) {
         return;
     }
 
-    const STORAGE_KEY = 'evcar-wishlist';
-    const USE_TEST_DATA = false;
     const DEFAULT_VISIBLE_COUNT = 3;
     let isExpanded = false;
-
-    const defaultWishlist = [
-        {
-            wishlistId: 1,
-            brand: '현대',
-            vehicleClass: '중형 SUV',
-            modelName: '아이오닉 5',
-            priceBasic: '5,200',
-            imageUrl: '/images/ev_HYUNDAI_IONIQ5.png',
-            detailUrl: '#'
-        },
-        {
-            wishlistId: 2,
-            brand: '기아',
-            vehicleClass: '중형 SUV',
-            modelName: 'EV6',
-            priceBasic: '4,870',
-            imageUrl: '/images/ev_KIA_EV6.png',
-            detailUrl: '#'
-        },
-        {
-            wishlistId: 3,
-            brand: '현대',
-            vehicleClass: '대형 SUV',
-            modelName: '아이오닉 9',
-            priceBasic: '6,700',
-            imageUrl: '/images/ev_HYUNDAI_IONIQ9.png',
-            detailUrl: '#'
-        },
-        {
-            wishlistId: 4,
-            brand: '기아',
-            vehicleClass: '중형 SUV',
-            modelName: 'EV3',
-            priceBasic: '4,200',
-            imageUrl: '/images/ev_KIA_EV3.png',
-            detailUrl: '#'
-        }
-    ];
 
     const getPreviewUserId = () => {
         const params = new URLSearchParams(window.location.search);
@@ -140,6 +97,45 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    const getWishlistFromServer = async () => {
+        const response = await fetch(buildApiUrl('/mypage/wishlist/api'), {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error('관심 차량 목록 조회에 실패했습니다.');
+        }
+
+        return await response.json();
+    };
+
+    const removeWishlistFromServer = async (wishlistId) => {
+        const response = await fetch(buildApiUrl('/mypage/wishlist/delete'), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: new URLSearchParams({
+                wishlistId: String(wishlistId)
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error('관심 차량 삭제에 실패했습니다.');
+        }
+    };
+
+    const getWishlist = async () => {
+        return await getWishlistFromServer();
+    };
+
+    const removeWishlistItem = async (wishlistId) => {
+        await removeWishlistFromServer(wishlistId);
+    };
+
     const bindEvents = () => {
         const deleteButtons = wishlistGrid.querySelectorAll('.ev-delete-btn');
         deleteButtons.forEach((button) => {
@@ -195,137 +191,10 @@ document.addEventListener('DOMContentLoaded', () => {
         await renderWishlist();
     };
 
-    const getWishlistFromLocal = () => {
-        const stored = localStorage.getItem(STORAGE_KEY);
-
-        if (!stored) {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultWishlist));
-            return defaultWishlist;
-        }
-
-        try {
-            return JSON.parse(stored);
-        } catch (error) {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultWishlist));
-            return defaultWishlist;
-        }
-    };
-
-    const saveWishlistToLocal = (wishlist) => {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(wishlist));
-    };
-
-    const addWishlistToLocal = (item) => {
-        const wishlist = getWishlistFromLocal();
-        const exists = wishlist.some((wishlistItem) => wishlistItem.modelName === item.modelName);
-
-        if (exists) {
-            window.alert('이미 관심차량에 등록된 차량입니다.');
-            return;
-        }
-
-        wishlist.push(item);
-        saveWishlistToLocal(wishlist);
-    };
-
-    const removeWishlistFromLocal = (wishlistId) => {
-        const wishlist = getWishlistFromLocal();
-        const filteredWishlist = wishlist.filter((item) => String(item.wishlistId) !== String(wishlistId));
-        saveWishlistToLocal(filteredWishlist);
-    };
-
-    const getWishlistFromServer = async () => {
-        const response = await fetch(buildApiUrl('/mypage/wishlist/api'), {
-            method: 'GET',
-            headers: {
-                'Accept': 'application/json'
-            }
-        });
-
-        if (!response.ok) {
-            throw new Error('관심 차량 목록 조회에 실패했습니다.');
-        }
-
-        return await response.json();
-    };
-
-    const removeWishlistFromServer = async (wishlistId) => {
-        const response = await fetch(buildApiUrl('/mypage/wishlist/delete'), {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            body: new URLSearchParams({
-                wishlistId: String(wishlistId)
-            })
-        });
-
-        if (!response.ok) {
-            throw new Error('관심 차량 삭제에 실패했습니다.');
-        }
-    };
-
-    const getWishlist = async () => {
-        if (USE_TEST_DATA) {
-            return getWishlistFromLocal();
-        }
-
-        return await getWishlistFromServer();
-    };
-
-    const removeWishlistItem = async (wishlistId) => {
-        if (USE_TEST_DATA) {
-            removeWishlistFromLocal(wishlistId);
-            return;
-        }
-
-        await removeWishlistFromServer(wishlistId);
-    };
-
-    const addSampleWishlistItem = async () => {
-        if (!USE_TEST_DATA) {
-            window.alert('개발용 테스트 모드가 아닙니다.');
-            return;
-        }
-
-        addWishlistToLocal({
-            wishlistId: Date.now(),
-            brand: '현대',
-            vehicleClass: '대형 SUV',
-            modelName: '아이오닉 9',
-            priceBasic: '6,700',
-            imageUrl: '/images/ev_HYUNDAI_IONIQ9.png',
-            detailUrl: '#'
-        });
-
+    wishlistMoreButton.addEventListener('click', async () => {
+        isExpanded = !isExpanded;
         await renderWishlist();
-    };
-
-    if (wishlistMoreButton) {
-        wishlistMoreButton.addEventListener('click', async () => {
-            isExpanded = !isExpanded;
-            await renderWishlist();
-        });
-    }
-
-    if (addSampleVehicleButton) {
-        addSampleVehicleButton.addEventListener('click', async () => {
-            await addSampleWishlistItem();
-        });
-    }
-
-    if (resetWishlistButton) {
-        resetWishlistButton.addEventListener('click', async () => {
-            if (!USE_TEST_DATA) {
-                window.alert('개발용 테스트 모드에서만 초기화할 수 있습니다.');
-                return;
-            }
-
-            localStorage.removeItem(STORAGE_KEY);
-            isExpanded = false;
-            await renderWishlist();
-        });
-    }
+    });
 
     renderWishlist().catch(() => {
         window.alert('관심 차량 정보를 불러오는 중 오류가 발생했습니다.');

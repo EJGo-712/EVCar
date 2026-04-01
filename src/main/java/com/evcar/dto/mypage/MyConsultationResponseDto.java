@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 public class MyConsultationResponseDto {
 
     private String consultId;
-    private LocalDateTime preferredDatetime;
+    private String preferredDatetime;
     private Integer budget;
     private String purchasePlan;
     private String consultContent;
