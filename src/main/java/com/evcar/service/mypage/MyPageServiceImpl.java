@@ -20,6 +20,8 @@ import java.time.Year;
 import java.time.ZoneId;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,7 +38,7 @@ public class MyPageServiceImpl implements MyPageService {
     private final ConsultationRepository consultationRepository;
     private final InquiryRepository inquiryRepository;
     private final MyWishlistQueryRepository myWishlistQueryRepository;
-    
+    private final PasswordEncoder passwordEncoder;
     
     @Override
     public MyPageInfoResponseDto getMyPageInfo(String userId) {
@@ -93,25 +95,32 @@ public class MyPageServiceImpl implements MyPageService {
             validateOwnedVehicleInfo(vehicleModel, vehicleYear, drivingDistance);
         } else {
             hasVehicle = "no";
-            vehicleModel = null;
-            vehicleYear = null;
-            drivingDistance = null;
+            vehicleModel = "";
+            vehicleYear = "";
+            drivingDistance = 0;
         }
 
-        if (requestDto.hasInvalidPasswordChangeInput()) {
-            throw new IllegalArgumentException("비밀번호 변경 항목을 모두 입력해주세요.");
+        if (!hasText(requestDto.getCurrentPassword())) {
+            throw new IllegalArgumentException("회원정보 수정을 위해 현재 비밀번호를 입력해주세요.");
         }
 
-        if (requestDto.isNewPasswordMismatch()) {
-            throw new IllegalArgumentException("새 비밀번호와 새 비밀번호 확인이 일치하지 않습니다.");
+        if (!passwordEncoder.matches(requestDto.getCurrentPassword(), user.getPassword())) {
+            throw new IllegalArgumentException("현재 비밀번호가 일치하지 않습니다.");
         }
 
-        if (requestDto.hasPasswordChangeRequest()) {
-            if (!user.getPassword().equals(requestDto.getCurrentPassword())) {
-                throw new IllegalArgumentException("현재 비밀번호가 일치하지 않습니다.");
+        boolean isPasswordChangeRequested =
+                hasText(requestDto.getNewPassword()) || hasText(requestDto.getNewPasswordConfirm());
+
+        if (isPasswordChangeRequested) {
+            if (!hasText(requestDto.getNewPassword()) || !hasText(requestDto.getNewPasswordConfirm())) {
+                throw new IllegalArgumentException("새 비밀번호와 새 비밀번호 확인을 모두 입력해주세요.");
             }
 
-            user.changePassword(requestDto.getNewPassword());
+            if (requestDto.isNewPasswordMismatch()) {
+                throw new IllegalArgumentException("새 비밀번호와 새 비밀번호 확인이 일치하지 않습니다.");
+            }
+
+            user.changePassword(passwordEncoder.encode(requestDto.getNewPassword()));
         }
 
         user.updateMyPageInfo(
@@ -191,17 +200,28 @@ public class MyPageServiceImpl implements MyPageService {
             throw new IllegalArgumentException("이미 탈퇴 처리된 회원입니다.");
         }
 
-        boolean hasInProgressConsultation =
-                consultationRepository.existsByUserUserIdAndConsultStatus(user.getUserId(), CONSULT_STATUS_IN_PROGRESS);
-
-        if (hasInProgressConsultation) {
-            throw new IllegalArgumentException("현재 진행중인 상담이 있어 탈퇴가 불가능합니다. 상담 완료 또는 취소 후 다시 시도해주세요.");
-        }
-
-        if (!user.getPassword().equals(withdrawRequestDto.getPassword())) {
+        boolean hasPendingOrInProgressConsultation =
+                consultationRepository.existsByUserUserIdAndConsultStatusIn(
+                        user.getUserId(),
+                        List.of("PENDING", "IN_PROGRESS")
+                );
+        
+        if (!passwordEncoder.matches(withdrawRequestDto.getPassword(), user.getPassword())) {
             throw new IllegalArgumentException("비밀번호를 확인하세요.");
         }
+        
+        if (hasPendingOrInProgressConsultation) {
+            throw new IllegalArgumentException("대기중 또는 진행중인 상담이 있어 탈퇴가 불가능합니다. 상담 완료 또는 취소 후 다시 시도해주세요.");
+        }
+        
+        boolean hasWaitingInquiry =
+        	    inquiryRepository.existsByUserUserIdAndReplyStatus(user.getUserId(), "WAITING");
 
+        	if (hasWaitingInquiry) {
+        	    throw new IllegalArgumentException("답변 대기 중인 문의가 있어 탈퇴가 불가능합니다.");
+        	}
+        
+       
         String finalWithdrawReason = withdrawRequestDto.getFinalWithdrawReason();
         System.out.println("withdrawReason = [" + finalWithdrawReason + "]");
 

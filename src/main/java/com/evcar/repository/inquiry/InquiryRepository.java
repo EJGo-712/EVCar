@@ -10,4 +10,6 @@ public interface InquiryRepository extends JpaRepository<Inquiry, String> {
     List<Inquiry> findByUserUserIdOrderByCreatedAtDesc(String userId);
 
     Optional<Inquiry> findByInquiryIdAndUserUserId(String inquiryId, String userId);
+    
+    boolean existsByUserUserIdAndReplyStatus(String userId, String replyStatus);
 }

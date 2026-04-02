@@ -219,46 +219,41 @@ document.addEventListener('DOMContentLoaded', () => {
         return true;
     };
 
-    const validatePasswordChange = () => {
-        const currentPassword = form.querySelector('input[name="currentPassword"]');
-        const newPassword = form.querySelector('input[name="newPassword"]');
-        const newPasswordConfirm = form.querySelector('input[name="newPasswordConfirm"]');
+	const validatePasswordChange = () => {
+	    const currentPassword = form.querySelector('input[name="currentPassword"]');
+	    const newPassword = form.querySelector('input[name="newPassword"]');
+	    const newPasswordConfirm = form.querySelector('input[name="newPasswordConfirm"]');
 
-        const hasAnyPasswordValue =
-            (currentPassword && currentPassword.value.trim()) ||
-            (newPassword && newPassword.value.trim()) ||
-            (newPasswordConfirm && newPasswordConfirm.value.trim());
+	    // 현재 비밀번호는 항상 필요
+	    if (!currentPassword.value.trim()) {
+	        window.alert('현재 비밀번호를 입력해주세요.');
+	        currentPassword.focus();
+	        return false;
+	    }
 
-        if (!hasAnyPasswordValue) {
-            return true;
-        }
+	    // 새 비밀번호 입력 여부로 "비번 변경 요청" 판단
+	    const isPasswordChangeRequested =
+	        newPassword.value.trim() || newPasswordConfirm.value.trim();
 
-        if (!currentPassword.value.trim()) {
-            window.alert('현재 비밀번호를 입력해주세요.');
-            currentPassword.focus();
-            return false;
-        }
+	    // 비밀번호 변경 안하면 그냥 통과
+	    if (!isPasswordChangeRequested) {
+	        return true;
+	    }
 
-        if (!newPassword.value.trim()) {
-            window.alert('새 비밀번호를 입력해주세요.');
-            newPassword.focus();
-            return false;
-        }
+	    // 변경하려면 둘 다 입력해야 함
+	    if (!newPassword.value.trim() || !newPasswordConfirm.value.trim()) {
+	        window.alert('새 비밀번호와 새 비밀번호 확인을 모두 입력해주세요.');
+	        return false;
+	    }
 
-        if (!newPasswordConfirm.value.trim()) {
-            window.alert('새 비밀번호 확인을 입력해주세요.');
-            newPasswordConfirm.focus();
-            return false;
-        }
+	    if (newPassword.value !== newPasswordConfirm.value) {
+	        window.alert('새 비밀번호와 새 비밀번호 확인이 일치하지 않습니다.');
+	        newPasswordConfirm.focus();
+	        return false;
+	    }
 
-        if (newPassword.value !== newPasswordConfirm.value) {
-            window.alert('새 비밀번호와 새 비밀번호 확인이 일치하지 않습니다.');
-            newPasswordConfirm.focus();
-            return false;
-        }
-
-        return true;
-    };
+	    return true;
+	};
 
     const prepareSubmit = () => {
         form.querySelectorAll('input').forEach((input) => {

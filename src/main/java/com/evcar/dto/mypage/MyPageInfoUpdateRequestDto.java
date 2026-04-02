@@ -1,6 +1,5 @@
 package com.evcar.dto.mypage;
 
-
 import java.time.LocalDate;
 
 import lombok.AllArgsConstructor;
@@ -15,7 +14,8 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 public class MyPageInfoUpdateRequestDto {
-	private LocalDate birthDate;
+
+    private LocalDate birthDate;
     private String name;
     private String gender;
     private String phone;
@@ -31,16 +31,18 @@ public class MyPageInfoUpdateRequestDto {
     private Integer drivingDistance;
 
     public boolean hasPasswordChangeRequest() {
-        return hasText(currentPassword) || hasText(newPassword) || hasText(newPasswordConfirm);
+        return hasText(newPassword) || hasText(newPasswordConfirm);
     }
 
     public boolean hasInvalidPasswordChangeInput() {
         return hasPasswordChangeRequest()
-                && (!hasText(currentPassword) || !hasText(newPassword) || !hasText(newPasswordConfirm));
+                && (!hasText(newPassword) || !hasText(newPasswordConfirm));
     }
 
     public boolean isNewPasswordMismatch() {
-        return hasText(newPassword) && hasText(newPasswordConfirm) && !newPassword.equals(newPasswordConfirm);
+        return hasText(newPassword)
+                && hasText(newPasswordConfirm)
+                && !newPassword.equals(newPasswordConfirm);
     }
 
     private boolean hasText(String value) {

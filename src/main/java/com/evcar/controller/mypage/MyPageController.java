@@ -1,7 +1,13 @@
 package com.evcar.controller.mypage;
 
 import com.evcar.domain.user.UserStatus;
-import com.evcar.dto.mypage.*;
+import com.evcar.dto.mypage.MyConsultationResponseDto;
+import com.evcar.dto.mypage.MyInquiryResponseDto;
+import com.evcar.dto.mypage.MyPageInfoResponseDto;
+import com.evcar.dto.mypage.MyPageInfoUpdateRequestDto;
+import com.evcar.dto.mypage.MyPageSummaryResponseDto;
+import com.evcar.dto.mypage.MyWishlistResponseDto;
+import com.evcar.dto.mypage.WithdrawRequestDto;
 import com.evcar.service.mypage.MyPageService;
 import jakarta.servlet.http.HttpSession;
 import java.util.Collections;
@@ -9,7 +15,14 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/mypage")
@@ -45,7 +58,11 @@ public class MyPageController {
 
             model.addAttribute("currentUserId", userId);
             model.addAttribute("myPageInfo", info);
-            model.addAttribute("myPageInfoUpdateRequestDto", toUpdateRequestDto(info));
+
+            if (!model.containsAttribute("myPageInfoUpdateRequestDto")) {
+                model.addAttribute("myPageInfoUpdateRequestDto", toUpdateRequestDto(info));
+            }
+
             return "mypage/myInfo";
         });
     }
@@ -53,13 +70,28 @@ public class MyPageController {
     @PostMapping("/info")
     public String updateMyInfo(HttpSession session,
                                @ModelAttribute MyPageInfoUpdateRequestDto dto,
-                               Model model) {
+                               Model model,
+                               RedirectAttributes redirectAttributes) {
 
         String userId = getUserId(session);
-        if (userId == null) return "redirect:/login";
+        if (userId == null) {
+            return "redirect:/login";
+        }
 
-        myPageService.updateMyPageInfo(userId, dto);
-        return "redirect:/mypage/info";
+        try {
+            myPageService.updateMyPageInfo(userId, dto);
+            redirectAttributes.addFlashAttribute("message", "내 정보가 정상적으로 수정되었습니다.");
+            return "redirect:/mypage/info";
+        } catch (IllegalArgumentException e) {
+            MyPageInfoResponseDto info = myPageService.getMyPageInfo(userId);
+
+            model.addAttribute("currentUserId", userId);
+            model.addAttribute("myPageInfo", info);
+            model.addAttribute("myPageInfoUpdateRequestDto", dto);
+            model.addAttribute("infoErrorMessage", e.getMessage());
+
+            return "mypage/myInfo";
+        }
     }
 
     @GetMapping("/wishlist")
@@ -77,7 +109,9 @@ public class MyPageController {
     @ResponseBody
     public List<MyWishlistResponseDto> wishlistApi(HttpSession session) {
         String userId = getUserId(session);
-        if (userId == null) return Collections.emptyList();
+        if (userId == null) {
+            return Collections.emptyList();
+        }
 
         return myPageService.getMyWishlist(userId);
     }
@@ -85,10 +119,12 @@ public class MyPageController {
     @PostMapping("/wishlist/delete")
     @ResponseBody
     public void deleteWishlist(HttpSession session,
-                               @RequestParam String wishlistId) {
+                               @RequestParam("wishlistId") String wishlistId) {
 
         String userId = getUserId(session);
-        if (userId == null) throw new IllegalArgumentException("로그인이 필요합니다.");
+        if (userId == null) {
+            throw new IllegalArgumentException("로그인이 필요합니다.");
+        }
 
         myPageService.deleteWishlist(userId, wishlistId);
     }
@@ -106,10 +142,12 @@ public class MyPageController {
 
     @PostMapping("/consultation/cancel")
     public String cancelConsult(HttpSession session,
-                                @RequestParam String consultId) {
+                                @RequestParam("consultId") String consultId) {
 
         String userId = getUserId(session);
-        if (userId == null) return "redirect:/login";
+        if (userId == null) {
+            return "redirect:/login";
+        }
 
         myPageService.cancelMyConsultation(userId, consultId);
         return "redirect:/mypage/consultation";
@@ -127,9 +165,9 @@ public class MyPageController {
     }
 
     @GetMapping("/inquiry/{id}")
-    public String myInquiryDetail(@PathVariable String id,
-                                 HttpSession session,
-                                 Model model) {
+    public String myInquiryDetail(@PathVariable("id") String id,
+                                  HttpSession session,
+                                  Model model) {
 
         return handlePage(session, model, userId -> {
             MyInquiryResponseDto inquiry = myPageService.getMyInquiryDetail(userId, id);
@@ -147,7 +185,11 @@ public class MyPageController {
 
             model.addAttribute("currentUserId", userId);
             model.addAttribute("myPageInfo", info);
-            model.addAttribute("withdrawRequestDto", WithdrawRequestDto.builder().build());
+
+            if (!model.containsAttribute("withdrawRequestDto")) {
+                model.addAttribute("withdrawRequestDto", WithdrawRequestDto.builder().build());
+            }
+
             return "mypage/myWithdraw";
         });
     }
@@ -155,19 +197,25 @@ public class MyPageController {
     @PostMapping("/withdraw")
     public String withdraw(HttpSession session,
                            @ModelAttribute WithdrawRequestDto dto,
-                           Model model) {
+                           RedirectAttributes redirectAttributes) {
 
         String userId = getUserId(session);
-        if (userId == null) return "redirect:/login";
+        if (userId == null) {
+            return "redirect:/login";
+        }
 
-        myPageService.withdraw(userId, dto);
-        session.invalidate();
-
-        model.addAttribute("message", "회원탈퇴가 완료되었습니다.");
-        return ACCESS_DENIED_VIEW;
+        try {
+            myPageService.withdraw(userId, dto);
+            session.invalidate();
+            redirectAttributes.addFlashAttribute("message", "회원탈퇴가 완료되었습니다.");
+            return "redirect:/login";
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("withdrawErrorMessage", e.getMessage());
+            redirectAttributes.addFlashAttribute("withdrawRequestDto", dto);
+            return "redirect:/mypage/withdraw";
+        }
     }
 
-    // 🔥 핵심 공통 처리
     private String handlePage(HttpSession session, Model model, PageHandler handler) {
         String userId = getUserId(session);
 
@@ -185,7 +233,6 @@ public class MyPageController {
             }
 
             return handler.handle(userId);
-
         } catch (IllegalArgumentException e) {
             model.addAttribute("message", "존재하지 않는 회원입니다.");
             return ACCESS_DENIED_VIEW;
@@ -216,4 +263,5 @@ public class MyPageController {
     private interface PageHandler {
         String handle(String userId);
     }
+
 }

@@ -1,54 +1,21 @@
 .ev-inquiry-detail-page {
     min-height: 100vh;
-    background: var(--bg-primary);
+    background: var(--bg-secondary);
     padding: 120px 0 80px;
 }
 
 .ev-inquiry-detail-section {
     width: 100%;
+    padding: 32px 16px 80px;
 }
 
 .ev-inquiry-detail-container {
-    display: grid;
-    grid-template-columns: 240px minmax(0, 1fr);
-    gap: 48px;
-    max-width: 1360px;
+    max-width: 1400px;
     margin: 0 auto;
-    padding: 0 24px;
-}
-
-.ev-mypage-sidebar {
-    position: sticky;
-    top: 112px;
-    align-self: start;
-}
-
-.ev-mypage-sidebar__title {
-    margin: 0 0 28px;
-    font-size: 2rem;
-    font-weight: 700;
-    color: var(--text-primary);
-}
-
-.ev-mypage-sidebar__nav {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.ev-mypage-sidebar__link {
-    display: block;
-    padding: 12px 8px;
-    color: var(--text-primary);
-    font-weight: 500;
-    text-decoration: none;
-    transition: color 0.2s ease, transform 0.2s ease;
-}
-
-.ev-mypage-sidebar__link:hover,
-.ev-mypage-sidebar__link--active {
-    color: var(--accent);
-    transform: translateX(4px);
+    display: grid;
+    grid-template-columns: 280px minmax(0, 1fr);
+    gap: 24px;
+    align-items: start;
 }
 
 .ev-inquiry-detail-content {
@@ -56,7 +23,7 @@
 }
 
 .ev-inquiry-detail-header {
-    margin-bottom: 32px;
+    margin-bottom: 24px;
 }
 
 .ev-inquiry-detail-eyebrow {
@@ -68,9 +35,9 @@
 }
 
 .ev-inquiry-detail-title {
-    margin: 0 0 12px;
+    margin: 0 0 10px;
     color: var(--text-primary);
-    font-size: 2.5rem;
+    font-size: 2rem;
     font-weight: 700;
     letter-spacing: -0.02em;
 }
@@ -163,14 +130,9 @@
     justify-content: flex-end;
 }
 
-@media (max-width: 991px) {
+@media (max-width: 1023px) {
     .ev-inquiry-detail-container {
         grid-template-columns: 1fr;
-        gap: 32px;
-    }
-
-    .ev-mypage-sidebar {
-        position: static;
     }
 }
 
@@ -198,5 +160,10 @@
 
     .ev-inquiry-detail-card__title {
         font-size: 1.6rem;
+    }
+}
+@media (min-width: 1024px) {
+    .ev-inquiry-detail-section {
+        padding: 48px 32px 120px;
     }
 }
