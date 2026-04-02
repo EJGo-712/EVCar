@@ -3,12 +3,12 @@ package com.evcar.domain.charging;
 import jakarta.persistence.*;
 import lombok.*;
 
-@Entity
-@Table(name = "charging_station")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
+@Entity
+@Table(name = "charging_station")
 public class ChargingStation {
 
     @Id
@@ -21,24 +21,19 @@ public class ChargingStation {
     @Column(name = "address", length = 255)
     private String address;
 
+    // ✅ 수정된 부분
     @Column(name = "lat")
     private Double lat;
 
+    // ✅ 수정된 부분
     @Column(name = "lng")
     private Double lng;
 
     @Column(name = "use_time", length = 100)
     private String useTime;
 
-    // 🔥 핵심 (정상)
     @Column(name = "zcode", length = 20)
     private String zcode;
-
-    @Column(name = "sido", length = 50)
-    private String sido;
-
-    @Column(name = "sigungu", length = 50)
-    private String sigungu;
 
     @Column(name = "operator_name", length = 100)
     private String operatorName;
@@ -49,6 +44,6 @@ public class ChargingStation {
     @Column(name = "parking_free", length = 20)
     private String parkingFree;
 
-    @Column(name = "note", columnDefinition = "TEXT")
+    @Column(name = "note")
     private String note;
 }
