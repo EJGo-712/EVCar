@@ -19,6 +19,7 @@ import java.time.Year;
 import java.time.ZoneId;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +35,7 @@ public class MyPageServiceImpl implements MyPageService {
     private final UserRepository userRepository;
     private final ConsultationRepository consultationRepository;
     private final InquiryRepository inquiryRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public MyPageInfoResponseDto getMyPageInfo(String userId) {
@@ -68,16 +70,16 @@ public class MyPageServiceImpl implements MyPageService {
 
         String name = hasText(requestDto.getName()) ? requestDto.getName().trim() : user.getName();
         LocalDate birthDate = requestDto.getBirthDate() != null ? requestDto.getBirthDate() : user.getBirthDate();
-        String gender = hasText(requestDto.getGender()) ? requestDto.getGender() : user.getGender();
+        String gender = hasText(requestDto.getGender()) ? requestDto.getGender().trim() : user.getGender();
         String phone = hasText(requestDto.getPhone()) ? requestDto.getPhone().trim() : user.getPhone();
         String address = hasText(requestDto.getAddress()) ? requestDto.getAddress().trim() : user.getAddress();
         String addressDetail = requestDto.getAddressDetail() != null ? requestDto.getAddressDetail().trim() : user.getAddressDetail();
         String email = hasText(requestDto.getEmail()) ? requestDto.getEmail().trim() : user.getEmail();
 
         String hasVehicle = hasText(requestDto.getHasVehicle()) ? requestDto.getHasVehicle().trim() : "no";
-        String vehicleModel = hasText(requestDto.getVehicleModel()) ? requestDto.getVehicleModel().trim() : null;
-        String vehicleYear = hasText(requestDto.getVehicleYear()) ? requestDto.getVehicleYear().trim() : null;
-        Integer drivingDistance = requestDto.getDrivingDistance();
+        String vehicleModel = hasText(requestDto.getVehicleModel()) ? requestDto.getVehicleModel().trim() : "";
+        String vehicleYear = hasText(requestDto.getVehicleYear()) ? requestDto.getVehicleYear().trim() : "";
+        Integer drivingDistance = requestDto.getDrivingDistance() == null ? 0 : requestDto.getDrivingDistance();
 
         if (addressDetail == null) {
             addressDetail = "";
@@ -86,13 +88,11 @@ public class MyPageServiceImpl implements MyPageService {
         validateBasicInfo(name, birthDate, gender, phone, address, addressDetail, email);
 
         if ("yes".equalsIgnoreCase(hasVehicle) || "y".equalsIgnoreCase(hasVehicle)) {
-            hasVehicle = "yes";
             validateOwnedVehicleInfo(vehicleModel, vehicleYear, drivingDistance);
         } else {
-            hasVehicle = "no";
-            vehicleModel = null;
-            vehicleYear = null;
-            drivingDistance = null;
+            vehicleModel = "";
+            vehicleYear = "";
+            drivingDistance = 0;
         }
 
         if (requestDto.hasInvalidPasswordChangeInput()) {
@@ -104,15 +104,23 @@ public class MyPageServiceImpl implements MyPageService {
         }
 
         if (requestDto.hasPasswordChangeRequest()) {
-            if (!user.getPassword().equals(requestDto.getCurrentPassword())) {
+            if (!passwordMatches(requestDto.getCurrentPassword(), user.getPassword())) {
                 throw new IllegalArgumentException("현재 비밀번호가 일치하지 않습니다.");
             }
-            user.changePassword(requestDto.getNewPassword());
+            user.changePassword(passwordEncoder.encode(requestDto.getNewPassword()));
         }
 
         user.updateMyPageInfo(
-                name, birthDate, gender, phone, address, addressDetail, email,
-                hasVehicle, vehicleModel, vehicleYear, drivingDistance
+                name,
+                birthDate,
+                gender,
+                phone,
+                address,
+                addressDetail,
+                email,
+                vehicleModel,
+                vehicleYear,
+                drivingDistance
         );
 
         userRepository.saveAndFlush(user);
@@ -122,7 +130,6 @@ public class MyPageServiceImpl implements MyPageService {
     public List<MyConsultationResponseDto> getMyConsultations(String userId) {
         getUserByUserId(userId);
 
-        // String userId 기준으로 수정
         return consultationRepository.findByUserIdOrderByCreatedAtDesc(userId).stream()
                 .map(MyConsultationResponseDto::from)
                 .toList();
@@ -136,7 +143,6 @@ public class MyPageServiceImpl implements MyPageService {
         Consultation consultation = consultationRepository.findById(consultId)
                 .orElseThrow(() -> new IllegalArgumentException("상담 정보를 찾을 수 없습니다."));
 
-        // String userId 기준으로 수정
         if (!consultation.getUserId().equals(userId)) {
             throw new IllegalArgumentException("본인의 상담만 취소할 수 있습니다.");
         }
@@ -148,7 +154,6 @@ public class MyPageServiceImpl implements MyPageService {
     public List<MyInquiryResponseDto> getMyInquiries(String userId) {
         getUserByUserId(userId);
 
-        // String userId 기준으로 수정
         return inquiryRepository.findByUserIdOrderByCreatedAtDesc(userId).stream()
                 .map(MyInquiryResponseDto::from)
                 .toList();
@@ -161,7 +166,6 @@ public class MyPageServiceImpl implements MyPageService {
         Inquiry inquiry = inquiryRepository.findById(inquiryId)
                 .orElseThrow(() -> new IllegalArgumentException("문의 정보를 찾을 수 없습니다."));
 
-        // String userId 기준으로 수정
         if (!inquiry.getUserId().equals(userId)) {
             throw new IllegalArgumentException("본인의 문의만 조회할 수 있습니다.");
         }
@@ -172,50 +176,28 @@ public class MyPageServiceImpl implements MyPageService {
     @Override
     @Transactional
     public void withdraw(String userId, WithdrawRequestDto withdrawRequestDto) {
-        System.out.println("===== withdraw debug start =====");
-        System.out.println("userId = [" + userId + "]");
-        System.out.println("password = [" + withdrawRequestDto.getPassword() + "]");
-        System.out.println("withdrawReason = [" + withdrawRequestDto.getWithdrawReason() + "]");
-        System.out.println("agreeWithdraw = [" + withdrawRequestDto.getAgreeWithdraw() + "]");
-        System.out.println("isInvalid = [" + withdrawRequestDto.isInvalid() + "]");
-
         if (withdrawRequestDto.isInvalid()) {
-            System.out.println(">>> invalid request dto");
             throw new IllegalArgumentException("회원탈퇴 입력값을 확인해주세요.");
         }
 
         User user = getUserByUserId(userId);
-        System.out.println("loadedUserId = [" + user.getUserId() + "]");
-        System.out.println("loadedUserStatus = [" + user.getUserStatus() + "]");
 
         if (user.getUserStatus() == UserStatus.WITHDRAWN) {
-            System.out.println(">>> already withdrawn user");
             throw new IllegalArgumentException("이미 탈퇴 처리된 회원입니다.");
         }
 
-        // String userId 기준으로 수정
         boolean hasInProgressConsultation =
                 consultationRepository.existsByUserIdAndConsultStatus(userId, CONSULT_STATUS_IN_PROGRESS);
 
-        System.out.println("hasInProgressConsultation = [" + hasInProgressConsultation + "]");
-        System.out.println("CONSULT_STATUS_IN_PROGRESS = [" + CONSULT_STATUS_IN_PROGRESS + "]");
-
         if (hasInProgressConsultation) {
-            System.out.println(">>> blocked by in-progress consultation");
             throw new IllegalArgumentException("현재 진행중인 상담이 있어 탈퇴가 불가능합니다. 상담 완료 또는 취소 후 다시 시도해주세요.");
         }
 
-        boolean passwordMatched = user.getPassword().equals(withdrawRequestDto.getPassword());
-        System.out.println("passwordMatched = [" + passwordMatched + "]");
-
-        if (!passwordMatched) {
-            System.out.println(">>> password mismatch");
+        if (!passwordMatches(withdrawRequestDto.getPassword(), user.getPassword())) {
             throw new IllegalArgumentException("비밀번호를 확인하세요.");
         }
 
         user.withdraw();
-        System.out.println(">>> withdraw success");
-        System.out.println("===== withdraw debug end =====");
     }
 
     @Override
@@ -268,31 +250,71 @@ public class MyPageServiceImpl implements MyPageService {
                 .orElseThrow(() -> new IllegalArgumentException("회원정보를 찾을 수 없습니다."));
     }
 
-    private void validateBasicInfo(String name, LocalDate birthDate, String gender,
-            String phone, String address, String addressDetail, String email) {
-        if (name == null || name.isBlank()) throw new IllegalArgumentException("이름을 입력해주세요.");
-        if (birthDate == null) throw new IllegalArgumentException("생년월일을 입력해주세요.");
-        if (gender == null || gender.isBlank()) throw new IllegalArgumentException("성별 정보를 확인해주세요.");
-        if (phone == null || phone.isBlank()) throw new IllegalArgumentException("전화번호를 입력해주세요.");
-        if (address == null || address.isBlank()) throw new IllegalArgumentException("주소를 입력해주세요.");
-        if (email == null || email.isBlank()) throw new IllegalArgumentException("이메일을 입력해주세요.");
+    private void validateBasicInfo(
+            String name,
+            LocalDate birthDate,
+            String gender,
+            String phone,
+            String address,
+            String addressDetail,
+            String email
+    ) {
+        if (name == null || name.isBlank()) {
+            throw new IllegalArgumentException("이름을 입력해주세요.");
+        }
+        if (birthDate == null) {
+            throw new IllegalArgumentException("생년월일을 입력해주세요.");
+        }
+        if (gender == null || gender.isBlank()) {
+            throw new IllegalArgumentException("성별 정보를 확인해주세요.");
+        }
+        if (phone == null || phone.isBlank()) {
+            throw new IllegalArgumentException("전화번호를 입력해주세요.");
+        }
+        if (address == null || address.isBlank()) {
+            throw new IllegalArgumentException("주소를 입력해주세요.");
+        }
+        if (email == null || email.isBlank()) {
+            throw new IllegalArgumentException("이메일을 입력해주세요.");
+        }
     }
 
     private void validateOwnedVehicleInfo(String vehicleModel, String vehicleYear, Integer drivingDistance) {
-        if (vehicleModel == null || vehicleModel.isBlank()) throw new IllegalArgumentException("보유 차량명을 입력해주세요.");
-        if (vehicleYear == null || vehicleYear.isBlank()) throw new IllegalArgumentException("보유차량 연식을 입력해주세요.");
-        if (!vehicleYear.matches("^\\d{4}$")) throw new IllegalArgumentException("보유차량 연식은 4자리 숫자(YYYY)로 입력해주세요.");
+        if (vehicleModel == null || vehicleModel.isBlank()) {
+            throw new IllegalArgumentException("보유 차량명을 입력해주세요.");
+        }
+        if (vehicleYear == null || vehicleYear.isBlank()) {
+            throw new IllegalArgumentException("보유차량 연식을 입력해주세요.");
+        }
+        if (!vehicleYear.matches("^\\d{4}$")) {
+            throw new IllegalArgumentException("보유차량 연식은 4자리 숫자(YYYY)로 입력해주세요.");
+        }
 
         int currentYear = Year.now(KOREA_ZONE_ID).getValue();
         int year = Integer.parseInt(vehicleYear);
 
-        if (year < MIN_VEHICLE_YEAR) throw new IllegalArgumentException("보유차량 연식이 올바르지 않습니다.");
-        if (year > currentYear) throw new IllegalArgumentException("보유차량 연식은 현재 연도보다 클 수 없습니다.");
-        if (drivingDistance == null) throw new IllegalArgumentException("주행거리를 입력해주세요.");
-        if (drivingDistance < 0) throw new IllegalArgumentException("주행거리는 0 이상이어야 합니다.");
+        if (year < MIN_VEHICLE_YEAR) {
+            throw new IllegalArgumentException("보유차량 연식이 올바르지 않습니다.");
+        }
+        if (year > currentYear) {
+            throw new IllegalArgumentException("보유차량 연식은 현재 연도보다 클 수 없습니다.");
+        }
+        if (drivingDistance == null) {
+            throw new IllegalArgumentException("주행거리를 입력해주세요.");
+        }
+        if (drivingDistance < 0) {
+            throw new IllegalArgumentException("주행거리는 0 이상이어야 합니다.");
+        }
     }
 
     private boolean hasText(String value) {
         return value != null && !value.trim().isEmpty();
+    }
+
+    private boolean passwordMatches(String rawPassword, String savedPassword) {
+        if (rawPassword == null || savedPassword == null) {
+            return false;
+        }
+        return rawPassword.equals(savedPassword) || passwordEncoder.matches(rawPassword, savedPassword);
     }
 }

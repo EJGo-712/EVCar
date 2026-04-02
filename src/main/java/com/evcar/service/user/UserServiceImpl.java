@@ -3,12 +3,11 @@ package com.evcar.service.user;
 import com.evcar.domain.user.User;
 import com.evcar.dto.user.UserSignupDto;
 import com.evcar.repository.user.UserRepository;
+import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDate;
 
 @Service
 @RequiredArgsConstructor
@@ -18,7 +17,6 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    // user0001, user0002 ... 형식으로 ID 자동 생성
     private String generateUserId() {
         return userRepository.findLastUserId()
                 .map(last -> {
@@ -31,7 +29,6 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void signup(UserSignupDto dto) {
-
         if (!dto.isAgreeTerms() || !dto.isAgreePrivacy()) {
             throw new IllegalArgumentException("필수 약관 동의가 필요합니다.");
         }
@@ -48,6 +45,10 @@ public class UserServiceImpl implements UserService {
             throw new IllegalArgumentException("비밀번호 확인이 일치하지 않습니다.");
         }
 
+        String vehicleModel = dto.getVehicleModel() == null ? "" : dto.getVehicleModel().trim();
+        String vehicleYear = dto.getVehicleYear() == null ? "" : dto.getVehicleYear().trim();
+        Integer drivingDistance = dto.getDrivingDistance() == null ? 0 : dto.getDrivingDistance();
+
         User user = User.builder()
                 .userId(generateUserId())
                 .loginId(dto.getLoginId())
@@ -61,11 +62,11 @@ public class UserServiceImpl implements UserService {
                 .gender(dto.getGender())
                 .phone(dto.getPhone())
                 .address(dto.getAddress())
-                .addressDetail(dto.getAddressDetail())
+                .addressDetail(dto.getAddressDetail() == null ? "" : dto.getAddressDetail().trim())
                 .email(dto.getEmail())
-                .vehicleModel(dto.getVehicleModel())
-                .vehicleYear(dto.getVehicleYear())
-                .drivingDistance(dto.getDrivingDistance())
+                .vehicleModel(vehicleModel)
+                .vehicleYear(vehicleYear)
+                .drivingDistance(drivingDistance)
                 .build();
 
         userRepository.save(user);

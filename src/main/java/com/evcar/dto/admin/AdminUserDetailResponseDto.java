@@ -23,9 +23,16 @@ public class AdminUserDetailResponseDto {
     private String email;
     private String userStatus;
     private String role;
-    private String hasVehicle;
-    private Integer vehicleYear;
+    private String vehicleModel;
+    private String vehicleYear;
     private Integer drivingDistance;
     private String createdAt;
     private String updatedAt;
+
+    public String getHasVehicle() {
+        boolean hasModel = vehicleModel != null && !vehicleModel.isBlank();
+        boolean hasYear = vehicleYear != null && !vehicleYear.isBlank();
+        boolean hasDistance = drivingDistance != null && drivingDistance > 0;
+        return (hasModel || hasYear || hasDistance) ? "yes" : "no";
+    }
 }

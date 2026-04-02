@@ -1,111 +1,132 @@
 package com.evcar.domain.vehicle;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Table;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "vehicle")
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+@Builder
 public class Vehicle {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "vehicle_id")
-    private Long vehicleId;
+    @Column(name = "vehicle_id", nullable = false, length = 20)
+    private String vehicleId;
 
-    @Column(name = "brand", length = 20)
+    @Column(name = "brand", nullable = false, length = 20)
     private String brand;
 
-    @Column(name = "model_name", length = 50)
+    @Column(name = "model_name", nullable = false, length = 50)
     private String modelName;
 
-    @Column(name = "vehicle_class", length = 30)
+    @Column(name = "vehicle_class", nullable = false, length = 30)
     private String vehicleClass;
 
-    @Column(name = "vehicle_status", length = 10)
-    private String vehicleStatus;
+    @Column(name = "vehicle_status", nullable = false, length = 10)
+    @Builder.Default
+    private String vehicleStatus = "ACTIVE";
 
-    @Column(name = "price_basic")
+    @Column(name = "price_basic", nullable = false)
     private Integer priceBasic;
 
-    @Column(name = "price_premium")
-    private Integer pricePremium;
+    @Column(name = "price_premium", nullable = false)
+    @Builder.Default
+    private Integer pricePremium = 0;
 
-    @Column(name = "driving_range")
-    private Integer drivingRange;
+    @Column(name = "driving_range", nullable = false)
+    @Builder.Default
+    private Integer drivingRange = 0;
 
-    @Column(name = "fast_charging_time", length = 30)
-    private String fastChargingTime;
+    @Column(name = "fast_charging_time", nullable = false, length = 30)
+    @Builder.Default
+    private String fastChargingTime = "";
 
-    @Column(name = "slow_charging_time", length = 30)
-    private String slowChargingTime;
+    @Column(name = "slow_charging_time", nullable = false, length = 30)
+    @Builder.Default
+    private String slowChargingTime = "";
 
-    @Column(name = "charging_method", length = 30)
-    private String chargingMethod;
+    @Column(name = "charging_method", nullable = false, length = 30)
+    @Builder.Default
+    private String chargingMethod = "";
 
-    @Column(name = "battery_capacity", precision = 5, scale = 1)
-    private java.math.BigDecimal batteryCapacity;
+    @Column(name = "battery_capacity", nullable = false, precision = 5, scale = 1)
+    @Builder.Default
+    private BigDecimal batteryCapacity = BigDecimal.ZERO;
 
-    @Column(name = "image_url", length = 255)
-    private String imageUrl;
+    @Column(name = "image_url", nullable = false, length = 255)
+    @Builder.Default
+    private String imageUrl = "";
 
-    @Column(name = "catalog_url", length = 255)
-    private String catalogUrl;
+    @Column(name = "catalog_url", nullable = false, length = 255)
+    @Builder.Default
+    private String catalogUrl = "";
 
-    @Column(name = "created_at")
+    @Column(name = "vehicle_url", nullable = false, length = 255)
+    @Builder.Default
+    private String vehicleUrl = "";
+
+    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
-    
-    @Column(name = "image_path", length = 50)
-    private String imagePath;
 
-    // Getters & Setters
-    public Long getVehicleId() { return vehicleId; }
-    public void setVehicleId(Long vehicleId) { this.vehicleId = vehicleId; }
+    @PrePersist
+    protected void onCreate() {
+        LocalDateTime now = LocalDateTime.now();
+        if (this.createdAt == null) {
+            this.createdAt = now;
+        }
+        if (this.updatedAt == null) {
+            this.updatedAt = now;
+        }
+        if (this.vehicleStatus == null || this.vehicleStatus.isBlank()) {
+            this.vehicleStatus = "ACTIVE";
+        }
+        if (this.pricePremium == null) {
+            this.pricePremium = 0;
+        }
+        if (this.drivingRange == null) {
+            this.drivingRange = 0;
+        }
+        if (this.fastChargingTime == null) {
+            this.fastChargingTime = "";
+        }
+        if (this.slowChargingTime == null) {
+            this.slowChargingTime = "";
+        }
+        if (this.chargingMethod == null) {
+            this.chargingMethod = "";
+        }
+        if (this.batteryCapacity == null) {
+            this.batteryCapacity = BigDecimal.ZERO;
+        }
+        if (this.imageUrl == null) {
+            this.imageUrl = "";
+        }
+        if (this.catalogUrl == null) {
+            this.catalogUrl = "";
+        }
+        if (this.vehicleUrl == null) {
+            this.vehicleUrl = "";
+        }
+    }
 
-    public String getBrand() { return brand; }
-    public void setBrand(String brand) { this.brand = brand; }
-
-    public String getModelName() { return modelName; }
-    public void setModelName(String modelName) { this.modelName = modelName; }
-
-    public String getVehicleClass() { return vehicleClass; }
-    public void setVehicleClass(String vehicleClass) { this.vehicleClass = vehicleClass; }
-
-    public String getVehicleStatus() { return vehicleStatus; }
-    public void setVehicleStatus(String vehicleStatus) { this.vehicleStatus = vehicleStatus; }
-
-    public Integer getPriceBasic() { return priceBasic; }
-    public void setPriceBasic(Integer priceBasic) { this.priceBasic = priceBasic; }
-
-    public Integer getPricePremium() { return pricePremium; }
-    public void setPricePremium(Integer pricePremium) { this.pricePremium = pricePremium; }
-
-    public Integer getDrivingRange() { return drivingRange; }
-    public void setDrivingRange(Integer drivingRange) { this.drivingRange = drivingRange; }
-
-    public String getFastChargingTime() { return fastChargingTime; }
-    public void setFastChargingTime(String fastChargingTime) { this.fastChargingTime = fastChargingTime; }
-
-    public String getSlowChargingTime() { return slowChargingTime; }
-    public void setSlowChargingTime(String slowChargingTime) { this.slowChargingTime = slowChargingTime; }
-
-    public String getChargingMethod() { return chargingMethod; }
-    public void setChargingMethod(String chargingMethod) { this.chargingMethod = chargingMethod; }
-
-    public java.math.BigDecimal getBatteryCapacity() { return batteryCapacity; }
-    public void setBatteryCapacity(java.math.BigDecimal batteryCapacity) { this.batteryCapacity = batteryCapacity; }
-
-    public String getImageUrl() { return imageUrl; }
-    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
-
-    public String getCatalogUrl() { return catalogUrl; }
-    public void setCatalogUrl(String catalogUrl) { this.catalogUrl = catalogUrl; }
-
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
-
-    public LocalDateTime getUpdatedAt() { return updatedAt; }
-    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
 }

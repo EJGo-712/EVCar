@@ -23,7 +23,6 @@ public class MyPageInfoResponseDto {
     private String address;
     private String addressDetail;
     private String email;
-    private String hasVehicle;
     private String vehicleModel;
     private String vehicleYear;
     private Integer drivingDistance;
@@ -40,10 +39,16 @@ public class MyPageInfoResponseDto {
                 .address(user.getAddress())
                 .addressDetail(user.getAddressDetail())
                 .email(user.getEmail())
-                .hasVehicle(user.getHasVehicle())
                 .vehicleModel(user.getVehicleModel())
                 .vehicleYear(user.getVehicleYear())
                 .drivingDistance(user.getDrivingDistance())
                 .build();
+    }
+
+    public String getHasVehicle() {
+        boolean hasModel = vehicleModel != null && !vehicleModel.isBlank();
+        boolean hasYear = vehicleYear != null && !vehicleYear.isBlank();
+        boolean hasDistance = drivingDistance != null && drivingDistance > 0;
+        return (hasModel || hasYear || hasDistance) ? "yes" : "no";
     }
 }

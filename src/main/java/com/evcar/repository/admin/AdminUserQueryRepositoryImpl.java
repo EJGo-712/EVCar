@@ -106,11 +106,14 @@ public class AdminUserQueryRepositoryImpl implements AdminUserQueryRepository {
                     u.birth_date,
                     u.gender,
                     u.phone,
-                    u.address,
+                    CONCAT(u.address, CASE
+                        WHEN u.address_detail IS NULL OR TRIM(u.address_detail) = '' THEN ''
+                        ELSE CONCAT(' ', u.address_detail)
+                    END) AS full_address,
                     u.email,
                     u.user_status,
                     u.role,
-                    u.has_vehicle,
+                    u.vehicle_model,
                     u.vehicle_year,
                     u.driving_distance,
                     CAST(u.created_at AS CHAR),
@@ -142,8 +145,8 @@ public class AdminUserQueryRepositoryImpl implements AdminUserQueryRepository {
                 .email((String) row[7])
                 .userStatus((String) row[8])
                 .role((String) row[9])
-                .hasVehicle((String) row[10])
-                .vehicleYear(row[11] == null ? null : ((Number) row[11]).intValue())
+                .vehicleModel((String) row[10])
+                .vehicleYear((String) row[11])
                 .drivingDistance(row[12] == null ? null : ((Number) row[12]).intValue())
                 .createdAt(row[13] == null ? null : row[13].toString())
                 .updatedAt(row[14] == null ? null : row[14].toString())
@@ -163,6 +166,7 @@ public class AdminUserQueryRepositoryImpl implements AdminUserQueryRepository {
             return localDate;
         }
 
-        return LocalDate.parse(value.toString());
+        String text = value.toString();
+        return LocalDate.parse(text.length() >= 10 ? text.substring(0, 10) : text);
     }
 }

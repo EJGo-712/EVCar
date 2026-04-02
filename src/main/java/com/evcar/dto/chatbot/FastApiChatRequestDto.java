@@ -1,5 +1,6 @@
-package com.evcar.dto.vehicle;
+package com.evcar.dto.chatbot;
 
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,10 +11,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-public class VehicleImageResponseDto {
+public class FastApiChatRequestDto {
 
-    private String imageId;
-    private String vehicleId;
-    private String imageUrl;
-    private Integer imageOrder;
+    private String userMessage;
+    private List<VehicleChatbotDto> vehicles;
+    private List<ConsultationChatbotDto> consultations;
 }

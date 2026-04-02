@@ -1,11 +1,10 @@
 package com.evcar.repository.user;
 
 import com.evcar.domain.user.User;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-
-import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, String> {
 
@@ -20,6 +19,14 @@ public interface UserRepository extends JpaRepository<User, String> {
 
     Optional<User> findByLoginIdAndNameAndEmail(String loginId, String name, String email);
 
-    @Query("SELECT u.userId FROM User u ORDER BY u.userId DESC LIMIT 1")
+    @Query(
+            value = """
+                    SELECT user_id
+                    FROM user
+                    ORDER BY CAST(SUBSTRING(user_id, 5) AS UNSIGNED) DESC
+                    LIMIT 1
+                    """,
+            nativeQuery = true
+    )
     Optional<String> findLastUserId();
 }

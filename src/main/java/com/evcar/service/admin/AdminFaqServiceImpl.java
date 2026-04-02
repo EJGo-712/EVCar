@@ -6,14 +6,13 @@ import com.evcar.dto.admin.AdminFaqListItemResponseDto;
 import com.evcar.dto.admin.AdminFaqPageResponseDto;
 import com.evcar.dto.admin.AdminFaqSaveRequestDto;
 import com.evcar.repository.faq.FaqRepository;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -52,8 +51,8 @@ public class AdminFaqServiceImpl implements AdminFaqService {
                     .no(no)
                     .faqId(faq.getFaqId())
                     .question(faq.getQuestion())
-                    .createdAt(faq.getCreatedAt())
-                    .updatedAt(faq.getUpdatedAt())
+                    .createdAt(toLocalDate(faq.getCreatedAt()))
+                    .updatedAt(toLocalDate(faq.getUpdatedAt()))
                     .build());
         }
 
@@ -78,8 +77,8 @@ public class AdminFaqServiceImpl implements AdminFaqService {
                 .faqId(faq.getFaqId())
                 .question(faq.getQuestion())
                 .answer(faq.getAnswer())
-                .createdAt(faq.getCreatedAt())
-                .updatedAt(faq.getUpdatedAt())
+                .createdAt(toLocalDate(faq.getCreatedAt()))
+                .updatedAt(toLocalDate(faq.getUpdatedAt()))
                 .build();
     }
 
@@ -106,14 +105,10 @@ public class AdminFaqServiceImpl implements AdminFaqService {
     }
 
     private void createFaq(AdminFaqSaveRequestDto requestDto) {
-        LocalDate today = LocalDate.now();
-
         Faq faq = Faq.builder()
                 .faqId(generateNextFaqId())
                 .question(requestDto.getQuestion().trim())
                 .answer(requestDto.getAnswer().trim())
-                .createdAt(today)
-                .updatedAt(today)
                 .build();
 
         faqRepository.save(faq);
@@ -125,8 +120,7 @@ public class AdminFaqServiceImpl implements AdminFaqService {
 
         faq.update(
                 requestDto.getQuestion().trim(),
-                requestDto.getAnswer().trim(),
-                LocalDate.now()
+                requestDto.getAnswer().trim()
         );
     }
 
@@ -147,5 +141,9 @@ public class AdminFaqServiceImpl implements AdminFaqService {
                     return String.format("faq%04d", nextNumber);
                 })
                 .orElse("faq0001");
+    }
+
+    private LocalDate toLocalDate(java.time.LocalDateTime value) {
+        return value == null ? null : value.toLocalDate();
     }
 }

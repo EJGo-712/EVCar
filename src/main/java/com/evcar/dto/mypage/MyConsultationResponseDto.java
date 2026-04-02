@@ -34,7 +34,7 @@ public class MyConsultationResponseDto {
                 .consultStatus(consultation.getConsultStatus())
                 .consultResult(consultation.getConsultResult())
                 .adminReply(consultation.getAdminReply())
-                .createdAt(consultation.getCreatedAt())
+                .createdAt(consultation.getCreatedAt() == null ? null : consultation.getCreatedAt().toLocalDate())
                 .cancelable(consultation.canBeCanceled())
                 .build();
     }

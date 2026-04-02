@@ -266,7 +266,6 @@ public class MyPageController {
             return previewUserId.trim();
         }
 
-        // loginUser 세션에서 userId 꺼내기
         Object loginUser = session.getAttribute("loginUser");
         if (loginUser instanceof com.evcar.domain.user.User user) {
             return user.getUserId();

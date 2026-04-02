@@ -6,7 +6,9 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
 import java.sql.Date;
+import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -52,7 +54,7 @@ public class AdminInquiryRepositoryImpl implements AdminInquiryQueryRepository {
                 """);
 
         Query query = entityManager.createNativeQuery(sql.toString());
-        bindConditions(query, replyStatus, keyword);
+        bindConditions(query, keyword);
         query.setParameter("size", size);
         query.setParameter("offset", offset);
 
@@ -77,7 +79,7 @@ public class AdminInquiryRepositoryImpl implements AdminInquiryQueryRepository {
         appendKeywordCondition(sql, keyword);
 
         Query query = entityManager.createNativeQuery(sql.toString());
-        bindConditions(query, replyStatus, keyword);
+        bindConditions(query, keyword);
 
         Number count = (Number) query.getSingleResult();
         return count.longValue();
@@ -137,7 +139,7 @@ public class AdminInquiryRepositoryImpl implements AdminInquiryQueryRepository {
                 UPDATE inquiry
                 SET reply_content = :replyContent,
                     reply_status = :replyStatus,
-                    updated_at = CURRENT_DATE
+                    updated_at = CURRENT_TIMESTAMP
                 WHERE inquiry_id = :inquiryId
                 """;
 
@@ -178,7 +180,7 @@ public class AdminInquiryRepositoryImpl implements AdminInquiryQueryRepository {
                 """);
     }
 
-    private void bindConditions(Query query, String replyStatus, String keyword) {
+    private void bindConditions(Query query, String keyword) {
         if (StringUtils.hasText(keyword)) {
             query.setParameter("keyword", keyword.trim());
         }
@@ -219,9 +221,20 @@ public class AdminInquiryRepositoryImpl implements AdminInquiryQueryRepository {
         if (value instanceof Date date) {
             return date.toLocalDate();
         }
+        if (value instanceof Timestamp timestamp) {
+            return timestamp.toLocalDateTime().toLocalDate();
+        }
         if (value instanceof LocalDate localDate) {
             return localDate;
         }
-        return LocalDate.parse(String.valueOf(value));
+        if (value instanceof LocalDateTime localDateTime) {
+            return localDateTime.toLocalDate();
+        }
+
+        String text = String.valueOf(value).trim();
+        if (text.length() >= 10) {
+            return LocalDate.parse(text.substring(0, 10));
+        }
+        return LocalDate.parse(text);
     }
 }

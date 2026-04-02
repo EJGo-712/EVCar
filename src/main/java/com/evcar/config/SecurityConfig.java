@@ -2,34 +2,45 @@ package com.evcar.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
 
-/**
- * Security 비활성 설정
- * Spring 기본 로그인 막고 우리가 만든 로그인 사용
- */
 @Configuration
 public class SecurityConfig {
 
-    // 비밀번호 암호화
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    //핵심: Spring Security 로그인 비활성화
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable())
-            .formLogin(form -> form.disable())
-            .httpBasic(basic -> basic.disable())
-            .authorizeHttpRequests(auth -> auth
-                .anyRequest().permitAll()   // ✅ 모든 요청 허용
-            );
+                .csrf(csrf -> csrf.disable())
+                .formLogin(form -> form.disable())
+                .httpBasic(basic -> basic.disable())
+                .logout(logout -> logout.disable())
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(
+                                "/",
+                                "/main",
+                                "/main/**",
+                                "/login",
+                                "/login/**",
+                                "/signup",
+                                "/signup/**",
+                                "/css/**",
+                                "/js/**",
+                                "/images/**",
+                                "/favicon.ico"
+                        ).permitAll()
+                        .anyRequest().permitAll()
+                )
+                .headers(headers -> headers.frameOptions(Customizer.withDefaults()));
+
         return http.build();
     }
 }

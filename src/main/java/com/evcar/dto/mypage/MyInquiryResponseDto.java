@@ -21,14 +21,15 @@ public class MyInquiryResponseDto {
     private boolean answered;
 
     public static MyInquiryResponseDto from(Inquiry inquiry) {
+        String replyStatus = inquiry.getReplyStatus();
+
         return MyInquiryResponseDto.builder()
                 .inquiryId(inquiry.getInquiryId())
                 .title(inquiry.getTitle())
                 .content(inquiry.getContent())
                 .replyContent(inquiry.getReplyContent())
                 .createdAt(inquiry.getCreatedAt())
-                // [수정된 부분] replyStatus 값을 확인하여 boolean으로 변환
-                .answered("COMPLETED".equals(inquiry.getReplyStatus()))
+                .answered("REPLIED".equals(replyStatus) || "CLOSED".equals(replyStatus))
                 .build();
     }
 }
