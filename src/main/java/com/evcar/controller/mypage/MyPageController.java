@@ -87,7 +87,7 @@ public class MyPageController {
 
             model.addAttribute("currentUserId", userId);
             model.addAttribute("myPageInfo", info);
-            model.addAttribute("myPageInfoUpdateRequestDto", dto);
+            model.addAttribute("myPageInfoUpdateRequestDto", toUpdateRequestDto(info));
             model.addAttribute("infoErrorMessage", e.getMessage());
 
             return "mypage/myInfo";

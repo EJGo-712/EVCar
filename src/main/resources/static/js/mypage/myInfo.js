@@ -10,35 +10,38 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
+    const MIN_VEHICLE_YEAR = 1900;
+
     const editableInputs = Array.from(form.querySelectorAll('[data-editable="true"]'));
     const genderInputs = Array.from(form.querySelectorAll('input[name="gender"]'));
     const hasVehicleInputs = Array.from(form.querySelectorAll('input[name="hasVehicle"]'));
     const ownedVehicleFields = Array.from(form.querySelectorAll('.ev-vehicle-owned-field'));
 
+    const fields = {
+        name: form.querySelector('input[name="name"]'),
+        birthDate: form.querySelector('input[name="birthDate"]'),
+        phone: form.querySelector('input[name="phone"]'),
+        address: form.querySelector('input[name="address"]'),
+        email: form.querySelector('input[name="email"]'),
+        currentPassword: form.querySelector('input[name="currentPassword"]'),
+        newPassword: form.querySelector('input[name="newPassword"]'),
+        newPasswordConfirm: form.querySelector('input[name="newPasswordConfirm"]'),
+        vehicleModel: form.querySelector('input[name="vehicleModel"]'),
+        vehicleYear: form.querySelector('input[name="vehicleYear"]'),
+        drivingDistance: form.querySelector('input[name="drivingDistance"]')
+    };
+
     const initialValues = new Map();
-    const MIN_VEHICLE_YEAR = 1900;
 
-    const saveInitialValues = () => {
-        form.querySelectorAll('input').forEach((input) => {
-            if (input.type === 'radio') {
-                initialValues.set(`${input.name}:${input.value}`, input.checked);
-            } else {
-                initialValues.set(input.name, input.value ?? '');
-            }
-        });
+    const alertAndFocus = (message, element) => {
+        window.alert(message);
+        if (element) {
+            element.focus();
+        }
+        return false;
     };
 
-    const restoreInitialValues = () => {
-        form.querySelectorAll('input').forEach((input) => {
-            if (input.type === 'radio') {
-                input.checked = Boolean(initialValues.get(`${input.name}:${input.value}`));
-            } else {
-                input.value = initialValues.get(input.name) ?? '';
-            }
-        });
-
-        updateOwnedVehicleFieldsState();
-    };
+    const getInputValue = (input) => input?.value?.trim() ?? '';
 
     const getHasVehicleValue = () => {
         const checked = form.querySelector('input[name="hasVehicle"]:checked');
@@ -50,6 +53,32 @@ document.addEventListener('DOMContentLoaded', () => {
         return value === 'yes' || value === 'Y' || value === 'y';
     };
 
+    const isEditing = () => !saveButton.classList.contains('ev-myinfo-hidden');
+
+    const saveInitialValues = () => {
+        form.querySelectorAll('input').forEach((input) => {
+            if (input.type === 'radio') {
+                initialValues.set(`${input.name}:${input.value}`, input.checked);
+                return;
+            }
+
+            initialValues.set(input.name, input.value ?? '');
+        });
+    };
+
+    const restoreInitialValues = () => {
+        form.querySelectorAll('input').forEach((input) => {
+            if (input.type === 'radio') {
+                input.checked = Boolean(initialValues.get(`${input.name}:${input.value}`));
+                return;
+            }
+
+            input.value = initialValues.get(input.name) ?? '';
+        });
+
+        updateOwnedVehicleFieldsState();
+    };
+
     const clearOwnedVehicleFields = () => {
         ownedVehicleFields.forEach((field) => {
             field.value = '';
@@ -57,17 +86,17 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const updateOwnedVehicleFieldsState = () => {
-        const editable = isVehicleOwned();
-        const isEditing = !saveButton.classList.contains('ev-myinfo-hidden');
+        const vehicleOwned = isVehicleOwned();
+        const editing = isEditing();
 
         ownedVehicleFields.forEach((field) => {
-            if (!isEditing) {
+            if (!editing) {
                 field.readOnly = true;
                 field.disabled = false;
                 return;
             }
 
-            if (!editable) {
+            if (!vehicleOwned) {
                 field.value = '';
                 field.readOnly = true;
                 field.disabled = true;
@@ -79,7 +108,13 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    const setEditMode = (editing) => {
+    const toggleActionButtons = (editing) => {
+        editModeButton.classList.toggle('ev-myinfo-hidden', editing);
+        saveButton.classList.toggle('ev-myinfo-hidden', !editing);
+        cancelButton.classList.toggle('ev-myinfo-hidden', !editing);
+    };
+
+    const updateEditableFieldsState = (editing) => {
         editableInputs.forEach((input) => {
             if (ownedVehicleFields.includes(input)) {
                 return;
@@ -97,48 +132,90 @@ document.addEventListener('DOMContentLoaded', () => {
             input.disabled = false;
         });
 
-        editModeButton.classList.toggle('ev-myinfo-hidden', editing);
-        saveButton.classList.toggle('ev-myinfo-hidden', !editing);
-        cancelButton.classList.toggle('ev-myinfo-hidden', !editing);
-
         updateOwnedVehicleFieldsState();
     };
 
+    const setEditMode = (editing) => {
+        toggleActionButtons(editing);
+        updateEditableFieldsState(editing);
+    };
+
+    const validateRequiredField = (input, message) => {
+        if (!input || getInputValue(input)) {
+            return true;
+        }
+
+        return alertAndFocus(message, input);
+    };
+
     const validateBasicFields = () => {
-        const name = form.querySelector('input[name="name"]');
-        const birthDate = form.querySelector('input[name="birthDate"]');
-        const phone = form.querySelector('input[name="phone"]');
-        const address = form.querySelector('input[name="address"]');
-        const email = form.querySelector('input[name="email"]');
-
-        if (name && !name.value.trim()) {
-            window.alert('이름을 입력해주세요.');
-            name.focus();
+        if (!validateRequiredField(fields.name, '이름을 입력해주세요.')) {
             return false;
         }
 
-        if (birthDate && !birthDate.value.trim()) {
-            window.alert('생년월일을 입력해주세요.');
-            birthDate.focus();
+        if (!validateRequiredField(fields.birthDate, '생년월일을 입력해주세요.')) {
             return false;
         }
 
-        if (phone && !phone.value.trim()) {
-            window.alert('전화번호를 입력해주세요.');
-            phone.focus();
+        if (!validateRequiredField(fields.phone, '전화번호를 입력해주세요.')) {
             return false;
         }
 
-        if (address && !address.value.trim()) {
-            window.alert('주소를 입력해주세요.');
-            address.focus();
+        if (!validateRequiredField(fields.address, '주소를 입력해주세요.')) {
             return false;
         }
 
-        if (email && !email.value.trim()) {
-            window.alert('이메일을 입력해주세요.');
-            email.focus();
+        if (!validateRequiredField(fields.email, '이메일을 입력해주세요.')) {
             return false;
+        }
+
+        return true;
+    };
+
+    const validateVehicleYear = () => {
+        const vehicleYear = getInputValue(fields.vehicleYear);
+        const currentYear = new Date().getFullYear();
+
+        if (!vehicleYear) {
+            return alertAndFocus('보유차량 연식을 입력해주세요.', fields.vehicleYear);
+        }
+
+        if (!/^\d{4}$/.test(vehicleYear)) {
+            return alertAndFocus('보유차량 연식은 4자리 숫자(YYYY)로 입력해주세요.', fields.vehicleYear);
+        }
+
+        const parsedYear = Number(vehicleYear);
+
+        if (Number.isNaN(parsedYear)) {
+            return alertAndFocus('보유차량 연식은 숫자로 입력해주세요.', fields.vehicleYear);
+        }
+
+        if (parsedYear < MIN_VEHICLE_YEAR) {
+            return alertAndFocus('보유차량 연식이 올바르지 않습니다.', fields.vehicleYear);
+        }
+
+        if (parsedYear > currentYear) {
+            return alertAndFocus('보유차량 연식은 현재 연도보다 클 수 없습니다.', fields.vehicleYear);
+        }
+
+        return true;
+    };
+
+    const validateDrivingDistance = () => {
+        const drivingDistance = getInputValue(fields.drivingDistance);
+
+        if (!drivingDistance) {
+            return alertAndFocus('주행거리를 입력해주세요.', fields.drivingDistance);
+        }
+
+        const parsedDistance = Number(fields.drivingDistance.value);
+
+        if (Number.isNaN(parsedDistance)) {
+            return alertAndFocus('주행거리는 숫자로 입력해주세요.', fields.drivingDistance);
+        }
+
+        if (parsedDistance < 0) {
+            return alertAndFocus('주행거리는 0 이상이어야 합니다.', fields.drivingDistance);
         }
 
         return true;
@@ -149,111 +226,45 @@ document.addEventListener('DOMContentLoaded', () => {
             return true;
         }
 
-        const vehicleModel = form.querySelector('input[name="vehicleModel"]');
-        const vehicleYear = form.querySelector('input[name="vehicleYear"]');
-        const drivingDistance = form.querySelector('input[name="drivingDistance"]');
-        const currentYear = new Date().getFullYear();
-
-        if (vehicleModel && !vehicleModel.value.trim()) {
-            window.alert('보유 차량명을 입력해주세요.');
-            vehicleModel.focus();
+        if (!validateRequiredField(fields.vehicleModel, '보유 차량명을 입력해주세요.')) {
             return false;
         }
 
-        if (vehicleYear && !vehicleYear.value.trim()) {
-            window.alert('보유차량 연식을 입력해주세요.');
-            vehicleYear.focus();
+        if (!validateVehicleYear()) {
             return false;
         }
 
-        if (vehicleYear && !/^\d{4}$/.test(vehicleYear.value.trim())) {
-            window.alert('보유차량 연식은 4자리 숫자(YYYY)로 입력해주세요.');
-            vehicleYear.focus();
+        if (!validateDrivingDistance()) {
             return false;
-        }
-
-        if (vehicleYear) {
-            const parsedYear = Number(vehicleYear.value.trim());
-
-            if (Number.isNaN(parsedYear)) {
-                window.alert('보유차량 연식은 숫자로 입력해주세요.');
-                vehicleYear.focus();
-                return false;
-            }
-
-            if (parsedYear < MIN_VEHICLE_YEAR) {
-                window.alert('보유차량 연식이 올바르지 않습니다.');
-                vehicleYear.focus();
-                return false;
-            }
-
-            if (parsedYear > currentYear) {
-                window.alert('보유차량 연식은 현재 연도보다 클 수 없습니다.');
-                vehicleYear.focus();
-                return false;
-            }
-        }
-
-        if (drivingDistance && !drivingDistance.value.trim()) {
-            window.alert('주행거리를 입력해주세요.');
-            drivingDistance.focus();
-            return false;
-        }
-
-        if (drivingDistance) {
-            const parsedDistance = Number(drivingDistance.value);
-
-            if (Number.isNaN(parsedDistance)) {
-                window.alert('주행거리는 숫자로 입력해주세요.');
-                drivingDistance.focus();
-                return false;
-            }
-
-            if (parsedDistance < 0) {
-                window.alert('주행거리는 0 이상이어야 합니다.');
-                drivingDistance.focus();
-                return false;
-            }
         }
 
         return true;
     };
 
-	const validatePasswordChange = () => {
-	    const currentPassword = form.querySelector('input[name="currentPassword"]');
-	    const newPassword = form.querySelector('input[name="newPassword"]');
-	    const newPasswordConfirm = form.querySelector('input[name="newPasswordConfirm"]');
+    const validatePasswordChange = () => {
+        const currentPassword = getInputValue(fields.currentPassword);
+        const newPassword = getInputValue(fields.newPassword);
+        const newPasswordConfirm = getInputValue(fields.newPasswordConfirm);
+        const isPasswordChangeRequested = Boolean(newPassword || newPasswordConfirm);
 
-	    // 현재 비밀번호는 항상 필요
-	    if (!currentPassword.value.trim()) {
-	        window.alert('현재 비밀번호를 입력해주세요.');
-	        currentPassword.focus();
-	        return false;
-	    }
+        if (!currentPassword) {
+            return alertAndFocus('현재 비밀번호를 입력해주세요.', fields.currentPassword);
+        }
 
-	    // 새 비밀번호 입력 여부로 "비번 변경 요청" 판단
-	    const isPasswordChangeRequested =
-	        newPassword.value.trim() || newPasswordConfirm.value.trim();
+        if (!isPasswordChangeRequested) {
+            return true;
+        }
 
-	    // 비밀번호 변경 안하면 그냥 통과
-	    if (!isPasswordChangeRequested) {
-	        return true;
-	    }
+        if (!newPassword || !newPasswordConfirm) {
+            return alertAndFocus('새 비밀번호와 새 비밀번호 확인을 모두 입력해주세요.', fields.newPassword);
+        }
 
-	    // 변경하려면 둘 다 입력해야 함
-	    if (!newPassword.value.trim() || !newPasswordConfirm.value.trim()) {
-	        window.alert('새 비밀번호와 새 비밀번호 확인을 모두 입력해주세요.');
-	        return false;
-	    }
+        if (newPassword !== newPasswordConfirm) {
+            return alertAndFocus('새 비밀번호와 새 비밀번호 확인이 일치하지 않습니다.', fields.newPasswordConfirm);
+        }
 
-	    if (newPassword.value !== newPasswordConfirm.value) {
-	        window.alert('새 비밀번호와 새 비밀번호 확인이 일치하지 않습니다.');
-	        newPasswordConfirm.focus();
-	        return false;
-	    }
-
-	    return true;
-	};
+        return true;
+    };
 
     const prepareSubmit = () => {
         form.querySelectorAll('input').forEach((input) => {
@@ -268,6 +279,22 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!isVehicleOwned()) {
             clearOwnedVehicleFields();
         }
+    };
+
+    const validateForm = () => {
+        if (!validateBasicFields()) {
+            return false;
+        }
+
+        if (!validateOwnedVehicleFields()) {
+            return false;
+        }
+
+        if (!validatePasswordChange()) {
+            return false;
+        }
+
+        return true;
     };
 
     hasVehicleInputs.forEach((input) => {
@@ -291,17 +318,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     form.addEventListener('submit', (event) => {
-        if (!validateBasicFields()) {
-            event.preventDefault();
-            return;
-        }
-
-        if (!validateOwnedVehicleFields()) {
-            event.preventDefault();
-            return;
-        }
-
-        if (!validatePasswordChange()) {
+        if (!validateForm()) {
             event.preventDefault();
             return;
         }

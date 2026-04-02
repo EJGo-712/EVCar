@@ -20,7 +20,6 @@ import java.time.Year;
 import java.time.ZoneId;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,7 +29,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class MyPageServiceImpl implements MyPageService {
 
-    private static final String CONSULT_STATUS_IN_PROGRESS = "IN_PROGRESS";
     private static final ZoneId KOREA_ZONE_ID = ZoneId.of("Asia/Seoul");
     private static final int MIN_VEHICLE_YEAR = 1900;
 
@@ -39,7 +37,7 @@ public class MyPageServiceImpl implements MyPageService {
     private final InquiryRepository inquiryRepository;
     private final MyWishlistQueryRepository myWishlistQueryRepository;
     private final PasswordEncoder passwordEncoder;
-    
+
     @Override
     public MyPageInfoResponseDto getMyPageInfo(String userId) {
         User user = getUserByUserId(userId);
@@ -71,56 +69,24 @@ public class MyPageServiceImpl implements MyPageService {
     public void updateMyPageInfo(String userId, MyPageInfoUpdateRequestDto requestDto) {
         User user = getUserByUserId(userId);
 
-        String name = hasText(requestDto.getName()) ? requestDto.getName().trim() : user.getName();
+        validateCurrentPassword(user, requestDto.getCurrentPassword());
+
+        String name = getOrDefault(requestDto.getName(), user.getName());
         LocalDate birthDate = user.getBirthDate();
-        String gender = hasText(requestDto.getGender()) ? requestDto.getGender() : user.getGender();
-        String phone = hasText(requestDto.getPhone()) ? requestDto.getPhone().trim() : user.getPhone();
-        String address = hasText(requestDto.getAddress()) ? requestDto.getAddress().trim() : user.getAddress();
-        String addressDetail = requestDto.getAddressDetail() != null ? requestDto.getAddressDetail().trim() : user.getAddressDetail();
-        String email = hasText(requestDto.getEmail()) ? requestDto.getEmail().trim() : user.getEmail();
-
-        String hasVehicle = hasText(requestDto.getHasVehicle()) ? requestDto.getHasVehicle().trim() : "no";
-        String vehicleModel = hasText(requestDto.getVehicleModel()) ? requestDto.getVehicleModel().trim() : null;
-        String vehicleYear = hasText(requestDto.getVehicleYear()) ? requestDto.getVehicleYear().trim() : null;
-        Integer drivingDistance = requestDto.getDrivingDistance();
-
-        if (addressDetail == null) {
-            addressDetail = "";
-        }
+        String gender = getOrDefault(requestDto.getGender(), user.getGender());
+        String phone = getOrDefault(requestDto.getPhone(), user.getPhone());
+        String address = getOrDefault(requestDto.getAddress(), user.getAddress());
+        String addressDetail = getTrimmedOrDefault(requestDto.getAddressDetail(), user.getAddressDetail());
+        String email = getOrDefault(requestDto.getEmail(), user.getEmail());
 
         validateBasicInfo(name, birthDate, gender, phone, address, addressDetail, email);
 
-        if ("yes".equalsIgnoreCase(hasVehicle) || "y".equalsIgnoreCase(hasVehicle)) {
-            hasVehicle = "yes";
-            validateOwnedVehicleInfo(vehicleModel, vehicleYear, drivingDistance);
-        } else {
-            hasVehicle = "no";
-            vehicleModel = "";
-            vehicleYear = "";
-            drivingDistance = 0;
-        }
+        VehicleInfo vehicleInfo = resolveVehicleInfo(requestDto);
 
-        if (!hasText(requestDto.getCurrentPassword())) {
-            throw new IllegalArgumentException("회원정보 수정을 위해 현재 비밀번호를 입력해주세요.");
-        }
+        validatePasswordChangeRequest(requestDto);
 
-        if (!passwordEncoder.matches(requestDto.getCurrentPassword(), user.getPassword())) {
-            throw new IllegalArgumentException("현재 비밀번호가 일치하지 않습니다.");
-        }
-
-        boolean isPasswordChangeRequested =
-                hasText(requestDto.getNewPassword()) || hasText(requestDto.getNewPasswordConfirm());
-
-        if (isPasswordChangeRequested) {
-            if (!hasText(requestDto.getNewPassword()) || !hasText(requestDto.getNewPasswordConfirm())) {
-                throw new IllegalArgumentException("새 비밀번호와 새 비밀번호 확인을 모두 입력해주세요.");
-            }
-
-            if (requestDto.isNewPasswordMismatch()) {
-                throw new IllegalArgumentException("새 비밀번호와 새 비밀번호 확인이 일치하지 않습니다.");
-            }
-
-            user.changePassword(passwordEncoder.encode(requestDto.getNewPassword()));
+        if (isPasswordChangeRequested(requestDto)) {
+            user.changePassword(passwordEncoder.encode(requestDto.getNewPassword().trim()));
         }
 
         user.updateMyPageInfo(
@@ -131,10 +97,10 @@ public class MyPageServiceImpl implements MyPageService {
                 address,
                 addressDetail,
                 email,
-                hasVehicle,
-                vehicleModel,
-                vehicleYear,
-                drivingDistance
+                vehicleInfo.hasVehicle(),
+                vehicleInfo.vehicleModel(),
+                vehicleInfo.vehicleYear(),
+                vehicleInfo.drivingDistance()
         );
 
         userRepository.saveAndFlush(user);
@@ -200,55 +166,114 @@ public class MyPageServiceImpl implements MyPageService {
             throw new IllegalArgumentException("이미 탈퇴 처리된 회원입니다.");
         }
 
+        if (!passwordEncoder.matches(withdrawRequestDto.getPassword(), user.getPassword())) {
+            throw new IllegalArgumentException("비밀번호를 확인하세요.");
+        }
+
         boolean hasPendingOrInProgressConsultation =
                 consultationRepository.existsByUserUserIdAndConsultStatusIn(
                         user.getUserId(),
                         List.of("PENDING", "IN_PROGRESS")
                 );
-        
-        if (!passwordEncoder.matches(withdrawRequestDto.getPassword(), user.getPassword())) {
-            throw new IllegalArgumentException("비밀번호를 확인하세요.");
-        }
-        
+
         if (hasPendingOrInProgressConsultation) {
             throw new IllegalArgumentException("대기중 또는 진행중인 상담이 있어 탈퇴가 불가능합니다. 상담 완료 또는 취소 후 다시 시도해주세요.");
         }
-        
-        boolean hasWaitingInquiry =
-        	    inquiryRepository.existsByUserUserIdAndReplyStatus(user.getUserId(), "WAITING");
 
-        	if (hasWaitingInquiry) {
-        	    throw new IllegalArgumentException("답변 대기 중인 문의가 있어 탈퇴가 불가능합니다.");
-        	}
-        
-       
-        String finalWithdrawReason = withdrawRequestDto.getFinalWithdrawReason();
-        System.out.println("withdrawReason = [" + finalWithdrawReason + "]");
+        boolean hasWaitingInquiry =
+                inquiryRepository.existsByUserUserIdAndReplyStatus(user.getUserId(), "WAITING");
+
+        if (hasWaitingInquiry) {
+            throw new IllegalArgumentException("답변 대기 중인 문의가 있어 탈퇴가 불가능합니다.");
+        }
 
         user.withdraw();
     }
 
-   
-        @Override
-        public List<MyWishlistResponseDto> getMyWishlist(String userId) {
-            getUserByUserId(userId);
-            return myWishlistQueryRepository.findMyWishlistByUserId(userId);
+    @Override
+    public List<MyWishlistResponseDto> getMyWishlist(String userId) {
+        getUserByUserId(userId);
+        return myWishlistQueryRepository.findMyWishlistByUserId(userId);
+    }
+
+    @Override
+    @Transactional
+    public void deleteWishlist(String userId, String wishlistId) {
+        getUserByUserId(userId);
+
+        if (wishlistId == null || wishlistId.isBlank()) {
+            throw new IllegalArgumentException("관심차량 식별값이 없습니다.");
         }
 
-        @Override
-        @Transactional
-        public void deleteWishlist(String userId, String wishlistId) {
-            getUserByUserId(userId);
+        myWishlistQueryRepository.deleteMyWishlistByUserIdAndWishlistId(userId, wishlistId);
+    }
 
-            if (wishlistId == null || wishlistId.isBlank()) {
-                throw new IllegalArgumentException("관심차량 식별값이 없습니다.");
-            }
-
-            myWishlistQueryRepository.deleteMyWishlistByUserIdAndWishlistId(userId, wishlistId);
-        }
     private User getUserByUserId(String userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("회원정보를 찾을 수 없습니다."));
+    }
+
+    private void validateCurrentPassword(User user, String currentPassword) {
+        if (!hasText(currentPassword)) {
+            throw new IllegalArgumentException("회원정보 수정을 위해 현재 비밀번호를 입력해주세요.");
+        }
+
+        if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+            throw new IllegalArgumentException("현재 비밀번호가 일치하지 않습니다.");
+        }
+    }
+
+    private VehicleInfo resolveVehicleInfo(MyPageInfoUpdateRequestDto requestDto) {
+        String normalizedHasVehicle = normalizeHasVehicle(requestDto.getHasVehicle());
+
+        if ("yes".equals(normalizedHasVehicle)) {
+            String vehicleModel = trimToNull(requestDto.getVehicleModel());
+            String vehicleYear = trimToNull(requestDto.getVehicleYear());
+            Integer drivingDistance = requestDto.getDrivingDistance();
+
+            validateOwnedVehicleInfo(vehicleModel, vehicleYear, drivingDistance);
+
+            return new VehicleInfo(
+                    "yes",
+                    vehicleModel,
+                    vehicleYear,
+                    drivingDistance
+            );
+        }
+
+        return new VehicleInfo(
+                "no",
+                "",
+                "",
+                0
+        );
+    }
+
+    private String normalizeHasVehicle(String hasVehicle) {
+        if (!hasText(hasVehicle)) {
+            return "no";
+        }
+
+        String normalized = hasVehicle.trim().toLowerCase();
+        return ("yes".equals(normalized) || "y".equals(normalized)) ? "yes" : "no";
+    }
+
+    private void validatePasswordChangeRequest(MyPageInfoUpdateRequestDto requestDto) {
+        if (!isPasswordChangeRequested(requestDto)) {
+            return;
+        }
+
+        if (!hasText(requestDto.getNewPassword()) || !hasText(requestDto.getNewPasswordConfirm())) {
+            throw new IllegalArgumentException("새 비밀번호와 새 비밀번호 확인을 모두 입력해주세요.");
+        }
+
+        if (requestDto.isNewPasswordMismatch()) {
+            throw new IllegalArgumentException("새 비밀번호와 새 비밀번호 확인이 일치하지 않습니다.");
+        }
+    }
+
+    private boolean isPasswordChangeRequested(MyPageInfoUpdateRequestDto requestDto) {
+        return hasText(requestDto.getNewPassword()) || hasText(requestDto.getNewPasswordConfirm());
     }
 
     private void validateBasicInfo(
@@ -318,7 +343,31 @@ public class MyPageServiceImpl implements MyPageService {
         }
     }
 
+    private String getOrDefault(String value, String defaultValue) {
+        return hasText(value) ? value.trim() : defaultValue;
+    }
+
+    private String getTrimmedOrDefault(String value, String defaultValue) {
+        if (value == null) {
+            return defaultValue == null ? "" : defaultValue;
+        }
+
+        return value.trim();
+    }
+
+    private String trimToNull(String value) {
+        return hasText(value) ? value.trim() : null;
+    }
+
     private boolean hasText(String value) {
         return value != null && !value.trim().isEmpty();
+    }
+
+    private record VehicleInfo(
+            String hasVehicle,
+            String vehicleModel,
+            String vehicleYear,
+            Integer drivingDistance
+    ) {
     }
 }
