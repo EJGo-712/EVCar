@@ -7,9 +7,7 @@ import java.util.List;
 
 public interface AdminUserService {
 
-    List<AdminUserListResponseDto> getUserList(String status, String keyword, int page, int size);
-
-    long getUserCount(String status, String keyword);
+    List<AdminUserListResponseDto> getUserList(String status, String keyword);
 
     AdminUserDetailResponseDto getUserDetail(String userId);
 }

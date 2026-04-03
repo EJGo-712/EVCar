@@ -17,17 +17,8 @@ public class AdminUserServiceImpl implements AdminUserService {
     private final AdminUserQueryRepository adminUserQueryRepository;
 
     @Override
-    public List<AdminUserListResponseDto> getUserList(String status, String keyword, int page, int size) {
-        int validatedPage = Math.max(page, 1);
-        int validatedSize = Math.max(size, 1);
-        int offset = (validatedPage - 1) * validatedSize;
-
-        return adminUserQueryRepository.findUserList(status, keyword, offset, validatedSize);
-    }
-
-    @Override
-    public long getUserCount(String status, String keyword) {
-        return adminUserQueryRepository.countUserList(status, keyword);
+    public List<AdminUserListResponseDto> getUserList(String status, String keyword) {
+        return adminUserQueryRepository.findUserList(status, keyword);
     }
 
     @Override

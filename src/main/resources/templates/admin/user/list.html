@@ -32,36 +32,15 @@
 								<div class="ev-admin-toolbar">
 									<div class="ev-admin-toolbar__row">
 										<div class="ev-admin-filter-group">
-											<button type="button"
-												class="ev-admin-chip"
-												th:classappend="${currentStatus == 'ALL'} ? ' is-active'"
-												data-status="ALL">
-												전체
-											</button>
-											<button type="button"
-												class="ev-admin-chip"
-												th:classappend="${currentStatus == 'ACTIVE'} ? ' is-active'"
-												data-status="ACTIVE">
-												활성
-											</button>
-											<button type="button"
-												class="ev-admin-chip"
-												th:classappend="${currentStatus == 'WITHDRAWN'} ? ' is-active'"
-												data-status="WITHDRAWN">
-												탈퇴
-											</button>
+											<button type="button" class="ev-admin-chip is-active">전체</button>
+											<button type="button" class="ev-admin-chip">활성</button>
+											<button type="button" class="ev-admin-chip">탈퇴</button>
 										</div>
 									</div>
 									<div class="ev-admin-toolbar__row ev-admin-user-search">
-										<input type="text"
-											class="ev-admin-input js-user-search-input"
-											placeholder="이름 또는 전화번호 검색"
-											aria-label="이름 또는 전화번호 검색"
-											th:value="${currentKeyword}">
-										<button type="button"
-											class="ev-admin-btn ev-admin-btn--primary js-user-search-btn">
-											검색
-										</button>
+										<input type="text" class="ev-admin-input" placeholder="이름 또는 전화번호 검색"
+											aria-label="이름 또는 전화번호 검색">
+										<button type="button" class="ev-admin-btn ev-admin-btn--primary">검색</button>
 									</div>
 								</div>
 
@@ -81,9 +60,9 @@
 										</thead>
 										<tbody>
 											<tr th:each="user, stat : ${userList}">
-												<td th:text="${(currentPage - 1) * pageSize + stat.count}">1</td>
+												<td th:text="${stat.count}">1</td>
 												<td th:text="${user.name}">홍길동</td>
-												<td class="js-user-phone" th:text="${user.phone}">01000000000</td>
+												<td th:text="${user.phone}">010-0000-0000</td>
 												<td th:text="${user.email}">sample@evcar.com</td>
 												<td th:text="${user.createdAt}">2026-03-01</td>
 												<td>
@@ -95,45 +74,13 @@
 												</td>
 												<td>
 													<button type="button"
-														class="ev-admin-btn ev-admin-btn--secondary ev-admin-btn--sm js-user-detail-btn"
-														th:attr="data-user-id=${user.userId},
-                                                                 data-status=${currentStatus},
-                                                                 data-keyword=${currentKeyword},
-                                                                 data-page=${currentPage}">
+														class="ev-admin-btn ev-admin-btn--secondary ev-admin-btn--sm">
 														상세
 													</button>
 												</td>
 											</tr>
 										</tbody>
 									</table>
-								</div>
-
-								<div class="ev-admin-pagination" th:if="${totalPages > 1}">
-									<ul class="pagination justify-content-center">
-										<li class="page-item" th:if="${hasPreviousBlock}">
-											<a class="page-link"
-												th:href="@{/admin/user(page=${previousBlockPage}, status=${currentStatus}, keyword=${currentKeyword})}">
-												&lt;
-											</a>
-										</li>
-
-										<li class="page-item"
-											th:each="p : ${#numbers.sequence(startPage, endPage)}"
-											th:classappend="${p == currentPage} ? ' active'">
-											<a class="page-link"
-												th:href="@{/admin/user(page=${p}, status=${currentStatus}, keyword=${currentKeyword})}"
-												th:text="${p}">
-												1
-											</a>
-										</li>
-
-										<li class="page-item" th:if="${hasNextBlock}">
-											<a class="page-link"
-												th:href="@{/admin/user(page=${nextBlockPage}, status=${currentStatus}, keyword=${currentKeyword})}">
-												&gt;
-											</a>
-										</li>
-									</ul>
 								</div>
 
 								<div class="ev-admin-empty" th:if="${userList == null or #lists.isEmpty(userList)}">
@@ -154,7 +101,7 @@
 										</div>
 										<div class="ev-admin-detail-item">
 											<dt>전화번호</dt>
-											<dd class="js-user-detail-phone" th:text="${selectedUser.phone}">01000000000</dd>
+											<dd th:text="${selectedUser.phone}">010-0000-0000</dd>
 										</div>
 										<div class="ev-admin-detail-item">
 											<dt>이메일</dt>
@@ -180,18 +127,19 @@
 											<dd th:text="${selectedUser.withdrawnAt}">2026-03-12 14:30</dd>
 										</div>
 										<div class="ev-admin-detail-item">
-											<!-- 관심차량 추후 연결 예정 -->
+											<!--관심차량-->
+											<!-- th:text="${selectedUser.wishlistVehicleName}">아이오닉 5-->
 										</div>
 										<div class="ev-admin-detail-item">
-											<!-- 상담이력 추후 연결 예정 -->
+											<!--상담이력-->
+											<!-- th:text="${selectedUser.consultationCount} + '건'">-->
 										</div>
 									</dl>
 
 									<div class="ev-admin-divider"></div>
 
 									<div class="ev-admin-actions">
-										<button type="button"
-											class="ev-admin-btn ev-admin-btn--primary"
+										<button type="button" class="ev-admin-btn ev-admin-btn--primary"
 											th:if="${selectedUser.userStatus != 'WITHDRAWN'}">
 											수정
 										</button>

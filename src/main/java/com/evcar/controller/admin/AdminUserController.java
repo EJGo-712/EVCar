@@ -17,10 +17,6 @@ import java.util.List;
 @RequestMapping("/admin/user")
 public class AdminUserController {
 
-    private static final int DEFAULT_PAGE = 1;
-    private static final int DEFAULT_SIZE = 10;
-    private static final int PAGE_BLOCK_SIZE = 10;
-
     private final AdminUserService adminUserService;
 
     @GetMapping("")
@@ -28,34 +24,9 @@ public class AdminUserController {
             @RequestParam(name = "status", defaultValue = "ALL") String status,
             @RequestParam(name = "keyword", defaultValue = "") String keyword,
             @RequestParam(name = "selectedUserId", required = false) String selectedUserId,
-            @RequestParam(name = "page", defaultValue = "1") int page,
             Model model
     ) {
-        int currentPage = Math.max(page, DEFAULT_PAGE);
-
-        List<AdminUserListResponseDto> userList =
-                adminUserService.getUserList(status, keyword, currentPage, DEFAULT_SIZE);
-
-        long totalCount = adminUserService.getUserCount(status, keyword);
-        int totalPages = (int) Math.ceil((double) totalCount / DEFAULT_SIZE);
-
-        if (totalPages == 0) {
-            totalPages = 1;
-        }
-
-        if (currentPage > totalPages) {
-            currentPage = totalPages;
-            userList = adminUserService.getUserList(status, keyword, currentPage, DEFAULT_SIZE);
-        }
-
-        int startPage = ((currentPage - 1) / PAGE_BLOCK_SIZE) * PAGE_BLOCK_SIZE + 1;
-        int endPage = Math.min(startPage + PAGE_BLOCK_SIZE - 1, totalPages);
-
-        boolean hasPreviousBlock = startPage > 1;
-        boolean hasNextBlock = endPage < totalPages;
-
-        int previousBlockPage = Math.max(startPage - 1, 1);
-        int nextBlockPage = Math.min(endPage + 1, totalPages);
+        List<AdminUserListResponseDto> userList = adminUserService.getUserList(status, keyword);
 
         String resolvedSelectedUserId = selectedUserId;
         if (resolvedSelectedUserId == null && !userList.isEmpty()) {
@@ -69,22 +40,9 @@ public class AdminUserController {
 
         model.addAttribute("userList", userList);
         model.addAttribute("selectedUser", selectedUser);
-        model.addAttribute("selectedUserId", resolvedSelectedUserId);
-
         model.addAttribute("currentStatus", status);
         model.addAttribute("currentKeyword", keyword);
-        model.addAttribute("currentPage", currentPage);
-
-        model.addAttribute("pageSize", DEFAULT_SIZE);
-        model.addAttribute("totalCount", totalCount);
-        model.addAttribute("totalPages", totalPages);
-
-        model.addAttribute("startPage", startPage);
-        model.addAttribute("endPage", endPage);
-        model.addAttribute("hasPreviousBlock", hasPreviousBlock);
-        model.addAttribute("hasNextBlock", hasNextBlock);
-        model.addAttribute("previousBlockPage", previousBlockPage);
-        model.addAttribute("nextBlockPage", nextBlockPage);
+        model.addAttribute("selectedUserId", resolvedSelectedUserId);
 
         return "admin/user/list";
     }

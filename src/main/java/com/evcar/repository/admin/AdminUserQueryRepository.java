@@ -7,9 +7,7 @@ import java.util.List;
 
 public interface AdminUserQueryRepository {
 
-    List<AdminUserListResponseDto> findUserList(String status, String keyword, int offset, int size);
-
-    long countUserList(String status, String keyword);
+    List<AdminUserListResponseDto> findUserList(String status, String keyword);
 
     AdminUserDetailResponseDto findUserDetail(String userId);
 }
