@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface VehicleImageRepository extends JpaRepository<VehicleImage, Long> {
 
-    List<VehicleImage> findByVehicleIdOrderByImageOrderAsc(Long vehicleId);
+    List<VehicleImage> findByVehicleIdOrderByImageOrderAsc(String vehicleId);
 }
