@@ -37,41 +37,38 @@ public class ChargingStationApiService {
         ObjectMapper mapper = new ObjectMapper();
         JsonNode root = mapper.readTree(json);
 
-        // 🔥🔥🔥 여기 수정 (핵심)
         JsonNode items = root
                 .path("response")
                 .path("body")
                 .path("items")
                 .path("item");
 
-        // 🔥 디버깅
-        System.out.println("items size = " + items.size());
-
         for (JsonNode node : items) {
 
             String stationId = node.path("statId").asText();
 
-            // 🔥 충전소 조회 or 생성
-            ChargingStation station = repository.findById(stationId)
-                    .orElseGet(() -> {
-                        ChargingStation s = ChargingStation.builder()
-                                .stationId(stationId)
-                                .stationName(node.path("statNm").asText())
-                                .address(node.path("addr").asText())
-                                .lat(node.path("lat").asDouble())
-                                .lng(node.path("lng").asDouble())
-                                .useTime(node.path("useTime").asText())
-                                .zcode(node.path("zcode").asText())
-                                .operatorName(node.path("busiNm").asText())
-                                .operatorCall(node.path("busiCall").asText())
-                                .parkingFree(node.path("parkingFree").asText())
-                                .note(node.path("note").asText())
-                                .build();
+            // 🔥 비고 처리
+            String note = node.path("limitDetail").asText();
+            if (note == null || note.isBlank()) {
+                note = "이용 안내 없음";
+            }
 
-                        return repository.save(s);
-                    });
+            ChargingStation station = ChargingStation.builder()
+                    .stationId(stationId)
+                    .stationName(node.path("statNm").asText())
+                    .address(node.path("addr").asText())
+                    .lat(node.path("lat").asDouble())
+                    .lng(node.path("lng").asDouble())
+                    .useTime(node.path("useTime").asText())
+                    .zcode(node.path("zcode").asText())
+                    .operatorName(node.path("busiNm").asText())
+                    .operatorCall(node.path("busiCall").asText())
+                    .parkingFree(node.path("parkingFree").asText())
+                    .note(note)
+                    .build();
 
-            // 🔥🔥🔥 충전기 저장
+            repository.save(station);
+
             Charger charger = Charger.builder()
                     .chargerId(node.path("chgerId").asText())
                     .chargerType(node.path("chgerType").asText())

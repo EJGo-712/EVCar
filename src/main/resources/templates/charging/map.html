@@ -306,7 +306,6 @@
             <div class="detail-row"><span class="label">연락처</span><span class="value">${s.operatorCall || '-'}</span></div>
             <div class="detail-row"><span class="label">운영시간</span><span class="value">${s.useTime || '-'}</span></div>
             <div class="detail-row"><span class="label">주차요금</span><span class="value">${s.parkingFree || '-'}</span></div>
-            <div class="detail-row"><span class="label">비고</span><span class="value">${s.note || '-'}</span></div>
         `;
 
         fetch(`/charging/chargers?stationId=${encodeURIComponent(s.stationId)}`)
@@ -322,6 +321,7 @@
         }
         let html = '<h3>충전기 목록</h3>';
         chargers.forEach((c, i) => {
+        	 console.log("status 값:", c.status); // 🔥 이거 추가
             html += `
                 <div class="charger-item">
                     <span class="charger-type">${i+1}번 ${c.chargerType || '-'}</span>
@@ -341,11 +341,15 @@
 
     function getStatusText(status) {
         if (!status) return '알 수 없음';
-        if (status === '2') return '사용가능';
-        if (status === '3') return '충전중';
-        if (status === '4') return '운영중지';
-        if (status === '9') return '고장';
-        return status;
+
+        const s = String(status); // 🔥 핵심 (이거 없으면 계속 틀림)
+
+        if (s === '2') return '사용가능';
+        if (s === '3') return '충전중';
+        if (s === '4') return '운영중지';
+        if (s === '9') return '고장';
+
+        return s;
     }
 </script>
 

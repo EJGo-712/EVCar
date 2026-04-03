@@ -26,6 +26,30 @@ public class ChargingStationServiceImpl implements ChargingStationService {
         return List.of();
     }
 
+    // 🔥 공통 변환 메서드 (핵심)
+    private ChargingStationResponseDto toDto(ChargingStation c) {
+        return ChargingStationResponseDto.builder()
+                .stationId(c.getStationId())
+                .stationName(c.getStationName())
+                .address(c.getAddress())
+                .lat(c.getLat())
+                .lng(c.getLng())
+                .operatorName(c.getOperatorName())
+                .operatorCall(c.getOperatorCall())
+                .useTime(c.getUseTime())
+                .parkingFree(
+                        c.getParkingFree() != null && c.getParkingFree().equalsIgnoreCase("Y")
+                                ? "무료"
+                                : "유료"
+                )
+                .note(
+                        (c.getNote() == null || c.getNote().isBlank())
+                                ? "이용 안내 없음"   // 🔥 핵심 수정
+                                : c.getNote()
+                )
+                .build();
+    }
+
     // 🔥 지역 검색
     @Override
     public List<ChargingStationResponseDto> getStationsByRegion(String sido, String sigungu) {
@@ -35,72 +59,22 @@ public class ChargingStationServiceImpl implements ChargingStationService {
         List<ChargingStation> list = chargingStationRepository.findByAddressContaining(keyword);
 
         return list.stream()
-                .map(c -> ChargingStationResponseDto.builder()
-                        .stationId(c.getStationId())
-                        .stationName(c.getStationName())
-                        .address(c.getAddress())
-                        .lat(c.getLat())
-                        .lng(c.getLng())
-
-                        // 🔥 그대로
-                        .operatorName(c.getOperatorName())
-                        .operatorCall(c.getOperatorCall())
-                        .useTime(c.getUseTime())
-
-                        // 🔥🔥🔥 핵심 수정 (여기)
-                        .parkingFree(
-                                c.getParkingFree() != null && c.getParkingFree().equalsIgnoreCase("Y")
-                                        ? "무료"
-                                        : "유료"
-                        )
-
-                        // 🔥🔥🔥 핵심 수정 (여기)
-                        .note(
-                                (c.getNote() == null || c.getNote().isBlank())
-                                        ? "-"
-                                        : c.getNote()
-                        )
-
-                        .build())
+                .map(this::toDto)
                 .toList();
     }
 
-    // 🔥 시도 검색
+    // 🔥 zcode 검색
     @Override
     public List<ChargingStationResponseDto> getStationsByZcode(String zcode) {
 
-        List<ChargingStation> list = chargingStationRepository.findByZcode(zcode);
+        List<ChargingStation> list = chargingStationRepository.findByZcodeWithChargers(zcode);
 
         return list.stream()
-                .map(c -> ChargingStationResponseDto.builder()
-                        .stationId(c.getStationId())
-                        .stationName(c.getStationName())
-                        .address(c.getAddress())
-                        .lat(c.getLat())
-                        .lng(c.getLng())
-
-                        .operatorName(c.getOperatorName())
-                        .operatorCall(c.getOperatorCall())
-                        .useTime(c.getUseTime())
-
-                        // 🔥 동일하게 적용
-                        .parkingFree(
-                                c.getParkingFree() != null && c.getParkingFree().equalsIgnoreCase("Y")
-                                        ? "무료"
-                                        : "유료"
-                        )
-
-                        .note(
-                                (c.getNote() == null || c.getNote().isBlank())
-                                        ? "-"
-                                        : c.getNote()
-                        )
-
-                        .build())
+                .map(this::toDto)
                 .toList();
     }
 
-    // 🔥 지역 목록 (그대로)
+    // 🔥 지역 목록
     @Override
     public Map<String, List<String>> getAllRegions() {
 
