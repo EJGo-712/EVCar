@@ -2,7 +2,7 @@ package com.evcar.domain.mypage;
 
 public class MyInquiryVO {
 	
-	private String inquiryId;
+	private Long inquiryId;
 	private String title;
 	private String content;
 	private String answerYn;
@@ -12,11 +12,11 @@ public class MyInquiryVO {
 		super();
 	}
 
-	public String getInquiryId() {
+	public Long getInquiryId() {
 		return inquiryId;
 	}
 
-	public void setInquiryId(String inquiryId) {
+	public void setInquiryId(Long inquiryId) {
 		this.inquiryId = inquiryId;
 	}
 
@@ -51,8 +51,6 @@ public class MyInquiryVO {
 	public void setCreatedAt(String createdAt) {
 		this.createdAt = createdAt;
 	}
-
-	
 	
 	
 }

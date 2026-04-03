@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class MyConsultationResponseDto {
 
-    private String consultId;
+    private Integer consultId;
     private LocalDateTime preferredDatetime;
     private Integer budget;
     private String purchasePlan;
@@ -37,25 +37,5 @@ public class MyConsultationResponseDto {
                 .createdAt(consultation.getCreatedAt())
                 .cancelable(consultation.canBeCanceled())
                 .build();
-    }
-
-    public String getConsultStatusLabel() {
-        return switch (consultStatus) {
-            case "PENDING" -> "대기";
-            case "IN_PROGRESS" -> "진행중";
-            case "COMPLETED" -> "완료";
-            case "CANCELED" -> "취소";
-            default -> consultStatus;
-        };
-    }
-    public String getPurchasePlanLabel() {
-        return switch (purchasePlan) {
-            case "IMMEDIATE" -> "즉시";
-            case "1_MONTH" -> "1개월 이내";
-            case "3_MONTH" -> "3개월 이내";
-            case "6_MONTH" -> "6개월 이내";
-            case "UNDECIDED" -> "미정";
-            default -> purchasePlan;
-        };
     }
 }
