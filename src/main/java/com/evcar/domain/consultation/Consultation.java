@@ -39,7 +39,7 @@ public class Consultation {
     private User user;
 
     @Column(name = "preferred_datetime", nullable = false)
-    private LocalDateTime preferredDatetime;
+    private String preferredDatetime;
 
     @Column(name = "budget", nullable = false)
     private Integer budget;
