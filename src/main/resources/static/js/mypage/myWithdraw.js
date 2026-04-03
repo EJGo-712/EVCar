@@ -28,10 +28,18 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    const updateButtonState = () => {
-        const isValid = passwordInput.value.trim().length > 0 && agreeCheckbox.checked;
-        withdrawSubmitButton.disabled = !isValid;
-    };
+	const updateButtonState = () => {
+	    const selectedReason = document.querySelector('input[name="withdrawReason"]:checked');
+	    const isOtherSelected = selectedReason && selectedReason.value === '기타';
+
+	    const hasPassword = passwordInput.value.trim().length > 0;
+	    const hasReason = !!selectedReason;
+	    const hasAgree = agreeCheckbox.checked;
+	    const hasOtherDetail = !isOtherSelected || reasonDetailInput.value.trim().length > 0;
+
+	    const isValid = hasPassword && hasReason && hasAgree && hasOtherDetail;
+	    withdrawSubmitButton.disabled = !isValid;
+	};
 
     const showError = (message) => {
         if (errorMessage) {
@@ -45,12 +53,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    reasonRadios.forEach((radio) => {
-        radio.addEventListener('change', () => {
-            toggleOtherReason();
-            clearError();
-        });
-    });
+	reasonRadios.forEach((radio) => {
+	    radio.addEventListener('change', () => {
+	        toggleOtherReason();
+	        clearError();
+	        updateButtonState();
+	    });
+	});
 
     passwordInput.addEventListener('input', () => {
         clearError();
@@ -62,9 +71,12 @@ document.addEventListener('DOMContentLoaded', () => {
         updateButtonState();
     });
 
-    if (reasonDetailInput) {
-        reasonDetailInput.addEventListener('input', clearError);
-    }
+	if (reasonDetailInput) {
+	    reasonDetailInput.addEventListener('input', () => {
+	        clearError();
+	        updateButtonState();
+	    });
+	}
 
     toggleOtherReason();
     updateButtonState();

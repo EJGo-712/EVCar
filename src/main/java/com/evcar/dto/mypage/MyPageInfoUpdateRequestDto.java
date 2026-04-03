@@ -44,7 +44,11 @@ public class MyPageInfoUpdateRequestDto {
                 && hasText(newPasswordConfirm)
                 && !newPassword.equals(newPasswordConfirm);
     }
-
+    public boolean isInvalidPhone() {
+        return phone != null
+                && !phone.trim().isEmpty()
+                && !phone.matches("^\\d{11}$");
+    }
     private boolean hasText(String value) {
         return value != null && !value.trim().isEmpty();
     }

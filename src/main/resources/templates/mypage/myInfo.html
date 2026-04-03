@@ -77,11 +77,15 @@
 
                             <div class="ev-myinfo-field">
                                 <label class="ev-myinfo-label">전화번호</label>
-                                <input type="text"
-                                       class="ev-input ev-myinfo-input"
-                                       th:field="*{phone}"
-                                       data-editable="true"
-                                       readonly>
+                               <input type="text"
+       class="ev-input ev-myinfo-input"
+       th:field="*{phone}"
+       id="phone"
+       data-editable="true"
+       inputmode="numeric"
+       maxlength="11"
+       pattern="[0-9]{11}"
+       readonly>
                             </div>
 
                             <div class="ev-myinfo-field ev-myinfo-field--full">

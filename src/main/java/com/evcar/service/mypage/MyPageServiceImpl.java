@@ -79,10 +79,13 @@ public class MyPageServiceImpl implements MyPageService {
         String addressDetail = getTrimmedOrDefault(requestDto.getAddressDetail(), user.getAddressDetail());
         String email = getOrDefault(requestDto.getEmail(), user.getEmail());
 
+        if (requestDto.isInvalidPhone()) {
+            throw new IllegalArgumentException("전화번호는 숫자 11자리로 입력해주세요.");
+        }
+
         validateBasicInfo(name, birthDate, gender, phone, address, addressDetail, email);
 
         VehicleInfo vehicleInfo = resolveVehicleInfo(requestDto);
-
         validatePasswordChangeRequest(requestDto);
 
         if (isPasswordChangeRequested(requestDto)) {

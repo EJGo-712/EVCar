@@ -22,6 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
         birthDate: form.querySelector('input[name="birthDate"]'),
         phone: form.querySelector('input[name="phone"]'),
         address: form.querySelector('input[name="address"]'),
+        addressDetail: form.querySelector('input[name="addressDetail"]'),
         email: form.querySelector('input[name="email"]'),
         currentPassword: form.querySelector('input[name="currentPassword"]'),
         newPassword: form.querySelector('input[name="newPassword"]'),
@@ -31,6 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
         drivingDistance: form.querySelector('input[name="drivingDistance"]')
     };
 
+    const phoneInput = document.getElementById('phone');
     const initialValues = new Map();
 
     const alertAndFocus = (message, element) => {
@@ -148,6 +150,20 @@ document.addEventListener('DOMContentLoaded', () => {
         return alertAndFocus(message, input);
     };
 
+    const validatePhone = () => {
+        const phone = getInputValue(fields.phone);
+
+        if (!phone) {
+            return alertAndFocus('전화번호를 입력해주세요.', fields.phone);
+        }
+
+        if (!/^\d{11}$/.test(phone)) {
+            return alertAndFocus('전화번호는 숫자 11자리로 입력해주세요.', fields.phone);
+        }
+
+        return true;
+    };
+
     const validateBasicFields = () => {
         if (!validateRequiredField(fields.name, '이름을 입력해주세요.')) {
             return false;
@@ -157,7 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return false;
         }
 
-        if (!validateRequiredField(fields.phone, '전화번호를 입력해주세요.')) {
+        if (!validatePhone()) {
             return false;
         }
 
@@ -296,6 +312,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         return true;
     };
+
+    if (phoneInput) {
+        phoneInput.addEventListener('input', () => {
+            phoneInput.value = phoneInput.value
+                .replace(/[^0-9]/g, '')
+                .slice(0, 11);
+        });
+    }
 
     hasVehicleInputs.forEach((input) => {
         input.addEventListener('change', () => {
