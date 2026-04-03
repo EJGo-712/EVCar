@@ -1,21 +1,51 @@
 package com.evcar.repository.vehicle;
 
+import com.evcar.domain.vehicle.Vehicle;
+import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import com.evcar.domain.vehicle.Vehicle;
 
-import java.util.List;
-import java.util.Optional;
+public interface VehicleRepository extends JpaRepository<Vehicle, String> {
 
-public interface VehicleRepository extends JpaRepository<Vehicle, Long> {
+    List<Vehicle> findByVehicleStatusOrderByCreatedAtDesc(String vehicleStatus);
 
-    @Query("SELECT v FROM Vehicle v WHERE v.vehicleStatus = 'ACTIVE' " +
-           "AND (:brand IS NULL OR v.brand = :brand) " +
-           "AND (:vehicleClass IS NULL OR v.vehicleClass = :vehicleClass) " +
-           "ORDER BY v.vehicleId ASC")
-    List<Vehicle> findByFilter(@Param("brand") String brand,
-                              @Param("vehicleClass") String vehicleClass);
+    List<Vehicle> findByVehicleStatusAndBrandOrderByCreatedAtDesc(String vehicleStatus, String brand);
 
-    Optional<Vehicle> findByVehicleId(int vehicleId);
+    List<Vehicle> findByVehicleStatusAndVehicleClassOrderByCreatedAtDesc(String vehicleStatus, String vehicleClass);
+
+    List<Vehicle> findByVehicleStatusAndBrandAndVehicleClassOrderByCreatedAtDesc(
+            String vehicleStatus,
+            String brand,
+            String vehicleClass
+    );
+
+    @Query("""
+            select v
+            from Vehicle v
+            where (:vehicleStatus is null or v.vehicleStatus = :vehicleStatus)
+              and (
+                    :keyword is null
+                    or trim(:keyword) = ''
+                    or lower(v.brand) like lower(concat('%', :keyword, '%'))
+                    or lower(v.modelName) like lower(concat('%', :keyword, '%'))
+                    or (:normalizedKeyword is not null and lower(v.modelName) like lower(concat('%', :normalizedKeyword, '%')))
+                  )
+            order by v.createdAt desc
+            """)
+    List<Vehicle> searchAdminVehicleList(
+            @Param("vehicleStatus") String vehicleStatus,
+            @Param("keyword") String keyword,
+            @Param("normalizedKeyword") String normalizedKeyword
+    );
+
+    @Query("""
+            select v.vehicleId
+            from Vehicle v
+            where v.vehicleId like concat(:prefix, '%')
+            order by v.vehicleId desc
+            limit 1
+            """)
+    Optional<String> findTopVehicleIdByPrefix(@Param("prefix") String prefix);
 }

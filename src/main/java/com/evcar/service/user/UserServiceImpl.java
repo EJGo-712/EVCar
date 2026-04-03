@@ -3,12 +3,11 @@ package com.evcar.service.user;
 import com.evcar.domain.user.User;
 import com.evcar.dto.user.UserSignupDto;
 import com.evcar.repository.user.UserRepository;
+import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDate;
 
 @Service
 @RequiredArgsConstructor
@@ -18,10 +17,18 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
+    private String generateUserId() {
+        return userRepository.findLastUserId()
+                .map(last -> {
+                    int num = Integer.parseInt(last.replace("user", "")) + 1;
+                    return String.format("user%04d", num);
+                })
+                .orElse("user0001");
+    }
+
     @Override
     @Transactional
     public void signup(UserSignupDto dto) {
-
         if (!dto.isAgreeTerms() || !dto.isAgreePrivacy()) {
             throw new IllegalArgumentException("필수 약관 동의가 필요합니다.");
         }
@@ -38,7 +45,12 @@ public class UserServiceImpl implements UserService {
             throw new IllegalArgumentException("비밀번호 확인이 일치하지 않습니다.");
         }
 
+        String vehicleModel = dto.getVehicleModel() == null ? "" : dto.getVehicleModel().trim();
+        String vehicleYear = dto.getVehicleYear() == null ? "" : dto.getVehicleYear().trim();
+        Integer drivingDistance = dto.getDrivingDistance() == null ? 0 : dto.getDrivingDistance();
+
         User user = User.builder()
+                .userId(generateUserId())
                 .loginId(dto.getLoginId())
                 .password(passwordEncoder.encode(dto.getPassword()))
                 .name(dto.getName())
@@ -50,25 +62,11 @@ public class UserServiceImpl implements UserService {
                 .gender(dto.getGender())
                 .phone(dto.getPhone())
                 .address(dto.getAddress())
-                .addressDetail(
-                	    dto.getAddressDetail() != null && !dto.getAddressDetail().isEmpty()
-                	        ? dto.getAddressDetail()
-                	        : null
-                	)
+                .addressDetail(dto.getAddressDetail() == null ? "" : dto.getAddressDetail().trim())
                 .email(dto.getEmail())
-                .vehicleModel(
-                	    dto.getVehicleModel() != null && !dto.getVehicleModel().isEmpty()
-                	        ? dto.getVehicleModel()
-                	        : null
-                	)
-                	.vehicleYear(
-                	    dto.getVehicleYear() != null && !dto.getVehicleYear().isEmpty()
-                	        ? dto.getVehicleYear()
-                	        : null
-                	)
-                	.drivingDistance(
-                	    dto.getDrivingDistance() != null ? dto.getDrivingDistance() : 0
-                	)
+                .vehicleModel(vehicleModel)
+                .vehicleYear(vehicleYear)
+                .drivingDistance(drivingDistance)
                 .build();
 
         userRepository.save(user);
@@ -76,18 +74,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean isUserLoginIdDuplicate(String loginId) {
-
-        System.out.println("===== DB 확인 =====");
-        System.out.println("loginId = " + loginId);
-
-        boolean result = userRepository.existsByLoginId(loginId);
-
-        System.out.println("중복 여부 = " + result);
-
-        return result;
+        return userRepository.existsByLoginId(loginId);
     }
+
     @Override
-    @Transactional(readOnly = true)
     public boolean isUserEmailDuplicate(String email) {
         return userRepository.existsByEmail(email);
     }

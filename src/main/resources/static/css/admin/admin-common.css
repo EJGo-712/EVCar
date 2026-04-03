@@ -516,4 +516,51 @@ textarea {
     .ev-admin-sidebar__logo-image {
         width: 72px;
     }
+	
+	.ev-admin-pagination {
+	    display: flex;
+	    justify-content: center;
+	    align-items: center;
+	    gap: 8px;
+	    margin-top: 24px;
+	}
+
+	.ev-admin-pagination__link {
+	    display: inline-flex;
+	    align-items: center;
+	    justify-content: center;
+	    min-width: 40px;
+	    height: 40px;
+	    padding: 0 10px;
+	    border: 1px solid rgba(255, 255, 255, 0.14);
+	    border-radius: 8px;
+	    background: rgba(255, 255, 255, 0.06);
+	    color: var(--ev-admin-text);
+	    text-decoration: none;
+	    font-size: 14px;
+	    font-weight: 500;
+	    transition: all 0.2s ease;
+	}
+
+	.ev-admin-pagination__link:hover {
+	    border-color: var(--ev-admin-accent);
+	    color: var(--ev-admin-accent);
+	    background: rgba(255, 255, 255, 0.1);
+	}
+
+	.ev-admin-pagination__link.is-active {
+	    background: linear-gradient(135deg, #8ee8ff 0%, var(--ev-admin-accent) 100%);
+	    border-color: transparent;
+	    color: #071a2f;
+	    font-weight: 700;
+	}
+
+	.ev-admin-pagination__link.is-disabled {
+	    pointer-events: none;
+	    opacity: 0.35;
+	}
+
+	.ev-admin-pagination__link--arrow {
+	    min-width: 36px;
+	}
 }

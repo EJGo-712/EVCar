@@ -1,7 +1,7 @@
 package com.evcar.dto.mypage;
 
 import com.evcar.domain.consultation.Consultation;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,15 +13,15 @@ import lombok.NoArgsConstructor;
 @Builder
 public class MyConsultationResponseDto {
 
-    private Integer consultId;
-    private LocalDateTime preferredDatetime;
+    private String consultId;
+    private String preferredDatetime;
     private Integer budget;
     private String purchasePlan;
     private String consultContent;
     private String consultStatus;
     private String consultResult;
     private String adminReply;
-    private LocalDateTime createdAt;
+    private LocalDate createdAt;
     private boolean cancelable;
 
     public static MyConsultationResponseDto from(Consultation consultation) {
@@ -34,8 +34,18 @@ public class MyConsultationResponseDto {
                 .consultStatus(consultation.getConsultStatus())
                 .consultResult(consultation.getConsultResult())
                 .adminReply(consultation.getAdminReply())
-                .createdAt(consultation.getCreatedAt())
+                .createdAt(consultation.getCreatedAt() == null ? null : consultation.getCreatedAt().toLocalDate())
                 .cancelable(consultation.canBeCanceled())
                 .build();
+    }
+
+    public String getConsultStatusLabel() {
+        return switch (consultStatus) {
+            case "PENDING" -> "대기";
+            case "IN_PROGRESS" -> "진행중";
+            case "COMPLETED" -> "완료";
+            case "CANCELED" -> "취소";
+            default -> consultStatus;
+        };
     }
 }

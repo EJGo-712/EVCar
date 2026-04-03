@@ -1,7 +1,14 @@
 package com.evcar.domain.vehicle;
 
-import jakarta.persistence.*;
-import lombok.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "vehicle_image")
@@ -12,15 +19,15 @@ import lombok.*;
 public class VehicleImage {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long imageId;
+    @Column(name = "image_id", nullable = false, length = 20)
+    private String imageId;
 
-    @Column(nullable = false)
-    private Long vehicleId;
+    @Column(name = "vehicle_id", nullable = false, length = 20)
+    private String vehicleId;
 
-    @Column(nullable = false, length = 255)
+    @Column(name = "image_url", nullable = false, length = 255)
     private String imageUrl;
 
-    @Column(nullable = false)
+    @Column(name = "image_order", nullable = false)
     private Integer imageOrder;
 }

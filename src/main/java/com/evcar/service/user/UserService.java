@@ -8,8 +8,8 @@ public interface UserService {
     void signup(UserSignupDto dto);
 
     // 아이디 중복 체크
-    boolean isUserLoginIdDuplicate(String userLoginId);
+    boolean isUserLoginIdDuplicate(String loginId);
 
-    // 이메일 중복 체크 🔥 추가
+    // 이메일 중복 체크
     boolean isUserEmailDuplicate(String email);
 }
