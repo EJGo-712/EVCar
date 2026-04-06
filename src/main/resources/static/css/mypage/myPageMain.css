@@ -1,3 +1,4 @@
+
 .ev-mypage-main-page {
     min-height: 100vh;
     background: var(--bg-primary);
@@ -227,4 +228,5 @@
         flex-direction: column;
         align-items: flex-start;
     }
+
 }

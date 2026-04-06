@@ -72,7 +72,7 @@ public class MyPageServiceImpl implements MyPageService {
         validateCurrentPassword(user, requestDto.getCurrentPassword());
 
         String name = getOrDefault(requestDto.getName(), user.getName());
-        LocalDate birthDate = user.getBirthDate();
+        LocalDate birthDate = requestDto.getBirthDate() != null ? requestDto.getBirthDate() : user.getBirthDate();
         String gender = getOrDefault(requestDto.getGender(), user.getGender());
         String phone = getOrDefault(requestDto.getPhone(), user.getPhone());
         String address = getOrDefault(requestDto.getAddress(), user.getAddress());

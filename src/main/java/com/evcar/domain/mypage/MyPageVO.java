@@ -1,7 +1,7 @@
 package com.evcar.domain.mypage;
 
 public class MyPageVO {
-	private String UserId;             //회원고유번호
+	private Long UserId;             //회원고유번호
 	private String loginId;          //아이디
 	private String name;             //이름
 	private String birthDate;        //생년월일
@@ -18,11 +18,12 @@ public class MyPageVO {
 		super();
 	}
 
-	public String getUserId() {
+
+	public Long getUserId() {
 		return UserId;
 	}
 
-	public void setUserId(String userId) {
+	public void setUserId(Long userId) {
 		UserId = userId;
 	}
 
@@ -112,8 +113,5 @@ public class MyPageVO {
 
 	public void setDrivingDistance(Integer drivingDistance) {
 		this.drivingDistance = drivingDistance;
-	}
-
-
-		
+	}		
 }

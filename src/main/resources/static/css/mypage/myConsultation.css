@@ -1,3 +1,4 @@
+
 .ev-consultation-page {
     padding-top: 120px;
     background: var(--bg-secondary);
@@ -262,4 +263,5 @@
     .ev-consultation-card {
         padding: 28px 24px;
     }
+
 }

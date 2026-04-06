@@ -1,7 +1,6 @@
 package com.evcar.dto.mypage;
 
 import java.time.LocalDate;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,40 +14,59 @@ import lombok.Setter;
 @Builder
 public class MyPageInfoUpdateRequestDto {
 
-    private LocalDate birthDate;
     private String name;
+    private LocalDate birthDate;
     private String gender;
     private String phone;
     private String address;
     private String addressDetail;
     private String email;
-    private String currentPassword;
-    private String newPassword;
-    private String newPasswordConfirm;
     private String hasVehicle;
     private String vehicleModel;
     private String vehicleYear;
     private Integer drivingDistance;
 
+    private String currentPassword;
+    private String newPassword;
+    private String newPasswordConfirm;
+
+    public boolean isNovehicle() {
+        return hasVehicle == null
+                || "no".equalsIgnoreCase(hasVehicle)
+                || "n".equalsIgnoreCase(hasVehicle);
+    }
+
     public boolean hasPasswordChangeRequest() {
-        return hasText(newPassword) || hasText(newPasswordConfirm);
+        return hasText(currentPassword)
+                || hasText(newPassword)
+                || hasText(newPasswordConfirm);
     }
 
     public boolean hasInvalidPasswordChangeInput() {
         return hasPasswordChangeRequest()
-                && (!hasText(newPassword) || !hasText(newPasswordConfirm));
+                && (!hasText(currentPassword)
+                || !hasText(newPassword)
+                || !hasText(newPasswordConfirm));
     }
 
     public boolean isNewPasswordMismatch() {
-        return hasText(newPassword)
-                && hasText(newPasswordConfirm)
-                && !newPassword.equals(newPasswordConfirm);
+        if (!hasText(newPassword) && !hasText(newPasswordConfirm)) {
+            return false;
+        }
+
+        if (newPassword == null) {
+            return newPasswordConfirm != null;
+        }
+
+        return !newPassword.equals(newPasswordConfirm);
     }
+
     public boolean isInvalidPhone() {
         return phone != null
                 && !phone.trim().isEmpty()
                 && !phone.matches("^\\d{11}$");
     }
+
     private boolean hasText(String value) {
         return value != null && !value.trim().isEmpty();
     }

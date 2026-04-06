@@ -81,7 +81,8 @@ public class Consultation {
     }
 
     public boolean canBeCanceled() {
-        return STATUS_PENDING.equals(this.consultStatus) || STATUS_IN_PROGRESS.equals(this.consultStatus);
+        return STATUS_PENDING.equals(this.consultStatus)
+                || STATUS_IN_PROGRESS.equals(this.consultStatus);
     }
 
     public void cancel() {

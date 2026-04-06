@@ -1,3 +1,4 @@
+
 'use strict';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -352,4 +353,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
     saveInitialValues();
     setEditMode(false);
+
 });

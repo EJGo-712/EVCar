@@ -2,7 +2,7 @@ package com.evcar.domain.mypage;
 
 public class MyConsultationVO {
 	
-	private String consultId;
+	private Long consultId;
 	private String preferredDatetime;
 	private Integer budget;
 	private String purchasePlan;
@@ -16,11 +16,11 @@ public class MyConsultationVO {
 		super();
 	}
 
-	public String getConsultId() {
+	public Long getConsultId() {
 		return consultId;
 	}
 
-	public void setConsultId(String consultId) {
+	public void setConsultId(Long consultId) {
 		this.consultId = consultId;
 	}
 

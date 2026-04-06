@@ -2,7 +2,7 @@ package com.evcar.domain.mypage;
 
 public class UserVO {
 
-	private String userId;
+	private Long userId;
 	private String loginId;
 	private String password;
 	private String name;
@@ -19,11 +19,11 @@ public class UserVO {
 		super();
 	}
 
-	public String getUserId() {
+	public Long getUserId() {
 		return userId;
 	}
 
-	public void setUserId(String userId) {
+	public void setUserId(Long userId) {
 		this.userId = userId;
 	}
 
@@ -114,7 +114,7 @@ public class UserVO {
 	public void setDrivingDistance(Integer drivingDistance) {
 		this.drivingDistance = drivingDistance;
 	}
-
+	
 	
 
 	

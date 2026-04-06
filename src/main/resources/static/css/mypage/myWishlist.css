@@ -1,3 +1,4 @@
+
 .ev-wishlist-page {
     padding-top: 120px;
     background: var(--bg-secondary);
@@ -244,4 +245,5 @@
     .ev-wishlist-grid {
         grid-template-columns: repeat(3, minmax(0, 1fr));
     }
+
 }

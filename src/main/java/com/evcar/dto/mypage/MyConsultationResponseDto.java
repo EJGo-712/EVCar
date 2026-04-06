@@ -48,6 +48,7 @@ public class MyConsultationResponseDto {
             default -> consultStatus;
         };
     }
+
     public String getPurchasePlanLabel() {
         return switch (purchasePlan) {
             case "IMMEDIATE" -> "즉시";

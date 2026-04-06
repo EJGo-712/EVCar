@@ -1,3 +1,4 @@
+
 .ev-inquiry-page {
     background: var(--bg-secondary);
     min-height: 100vh;
@@ -206,4 +207,5 @@
     .ev-inquiry-card__actions form button {
         width: 100%;
     }
+
 }

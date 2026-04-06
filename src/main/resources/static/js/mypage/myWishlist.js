@@ -1,3 +1,4 @@
+
 'use strict';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -199,4 +200,5 @@ document.addEventListener('DOMContentLoaded', () => {
     renderWishlist().catch(() => {
         window.alert('관심 차량 정보를 불러오는 중 오류가 발생했습니다.');
     });
+
 });
