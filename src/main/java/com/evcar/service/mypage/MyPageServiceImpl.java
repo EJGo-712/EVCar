@@ -3,7 +3,7 @@ package com.evcar.service.mypage;
 import com.evcar.domain.consultation.Consultation;
 import com.evcar.domain.inquiry.Inquiry;
 import com.evcar.domain.user.User;
-import com.evcar.domain.user.UserStatus;
+
 import com.evcar.dto.mypage.MyConsultationResponseDto;
 import com.evcar.dto.mypage.MyInquiryResponseDto;
 import com.evcar.dto.mypage.MyPageInfoResponseDto;
@@ -165,7 +165,7 @@ public class MyPageServiceImpl implements MyPageService {
 
         User user = getUserByUserId(userId);
 
-        if (user.getUserStatus() == UserStatus.WITHDRAWN) {
+        if ("WITHDRAWN".equalsIgnoreCase(user.getUserStatus())) {
             throw new IllegalArgumentException("이미 탈퇴 처리된 회원입니다.");
         }
 
