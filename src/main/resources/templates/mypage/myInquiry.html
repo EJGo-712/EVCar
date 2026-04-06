@@ -27,7 +27,9 @@
                         <h1 class="ev-inquiry-title">문의 내역</h1>
                         <p class="ev-inquiry-description">작성한 문의글과 답변 상태를 확인할 수 있습니다.</p>
                     </div>
-                    <a class="btn btn-ev-primary" th:href="@{/inquiry/form}">문의 작성하기</a>
+                    <a class="btn btn-ev-primary ev-inquiry-write-btn" th:href="@{/inquiry/form}">
+                        문의 작성하기
+                    </a>
                 </div>
 
                 <div class="alert alert-success"
@@ -115,7 +117,9 @@
                     <div class="ev-inquiry-empty__icon">✉️</div>
                     <h2 class="ev-inquiry-empty__title">문의 내역이 없습니다</h2>
                     <p class="ev-inquiry-empty__text">궁금한 점이 있다면 문의를 작성해보세요.</p>
-                    <a class="btn btn-ev-primary" th:href="@{/inquiry/form}">문의 작성하기</a>
+                    <a class="btn btn-ev-primary ev-inquiry-write-btn" th:href="@{/inquiry/form}">
+                        문의 작성하기
+                    </a>
                 </div>
             </div>
         </div>

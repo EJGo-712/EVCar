@@ -23,10 +23,13 @@
 
             <div class="ev-inquiry-form-content">
                 <div class="ev-inquiry-form-header">
-                    <p class="ev-inquiry-form-eyebrow">Customer Center</p>
+                   
                     <h1 class="ev-inquiry-form-title">문의 글쓰기</h1>
                     <p class="ev-inquiry-form-description">
                         궁금한 내용을 남겨주시면 확인 후 답변드리겠습니다.
+                    </p>
+                    <p class="ev-inquiry-form-required-info">
+                        <span class="ev-required">(필수)</span> 표시된 항목은 반드시 입력해주세요.
                     </p>
                 </div>
 
@@ -46,13 +49,15 @@
                         <input type="text"
                                id="writer"
                                class="ev-input ev-inquiry-form-input"
-                               th:value="${currentUserId}"
+                               th:value="${currentUserName + ' (' + currentLoginId + ')'}"
                                readonly>
-                        <p class="ev-inquiry-form-help">로그인 회원 아이디가 자동 표시됩니다.</p>
+                        <p class="ev-inquiry-form-help">이름과 로그인 아이디가 자동 표시됩니다.</p>
                     </div>
 
                     <div class="ev-inquiry-form-group">
-                        <label for="title" class="ev-inquiry-form-label">제목 <span class="ev-required">*</span></label>
+                        <label for="title" class="ev-inquiry-form-label">
+                            제목 <span class="ev-required">(필수)</span>
+                        </label>
                         <input type="text"
                                id="title"
                                class="ev-input ev-inquiry-form-input"
@@ -62,7 +67,9 @@
                     </div>
 
                     <div class="ev-inquiry-form-group">
-                        <label for="content" class="ev-inquiry-form-label">내용 <span class="ev-required">*</span></label>
+                        <label for="content" class="ev-inquiry-form-label">
+                            내용 <span class="ev-required">(필수)</span>
+                        </label>
                         <textarea id="content"
                                   class="ev-input ev-inquiry-form-textarea"
                                   th:field="*{content}"
@@ -71,7 +78,9 @@
                     </div>
 
                     <div class="ev-inquiry-form-group">
-                        <label for="password" class="ev-inquiry-form-label">비밀번호 <span class="ev-required">*</span></label>
+                        <label for="password" class="ev-inquiry-form-label">
+                            비밀번호 <span class="ev-required">(필수)</span>
+                        </label>
                         <input type="password"
                                id="password"
                                class="ev-input ev-inquiry-form-input"

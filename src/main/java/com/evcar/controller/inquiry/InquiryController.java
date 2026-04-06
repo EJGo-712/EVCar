@@ -1,6 +1,8 @@
 package com.evcar.controller.inquiry;
 
+import com.evcar.domain.user.User;
 import com.evcar.dto.inquiry.InquiryCreateRequestDto;
+import com.evcar.repository.user.UserRepository;
 import com.evcar.service.inquiry.InquiryService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +21,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class InquiryController {
 
     private final InquiryService inquiryService;
+    private final UserRepository userRepository;
 
     @GetMapping("/form")
     public String inquiryForm(HttpSession session, Model model) {
@@ -27,11 +30,17 @@ public class InquiryController {
             return "redirect:/login";
         }
 
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+
         if (!model.containsAttribute("inquiryCreateRequestDto")) {
             model.addAttribute("inquiryCreateRequestDto", InquiryCreateRequestDto.builder().build());
         }
 
-        model.addAttribute("currentUserId", userId);
+        model.addAttribute("currentUserId", user.getUserId());
+        model.addAttribute("currentLoginId", user.getLoginId());
+        model.addAttribute("currentUserName", user.getName());
+
         return "inquiry/form";
     }
 
