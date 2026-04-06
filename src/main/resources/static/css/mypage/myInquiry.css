@@ -177,3 +177,14 @@
         padding: 28px 24px;
     }
 }
+.ev-inquiry-card__actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+}
+
+.ev-inquiry-card__actions form {
+    margin: 0;
+}

@@ -1,0 +1,127 @@
+.ev-inquiry-form-page {
+    background: var(--bg-secondary);
+    min-height: 100vh;
+    padding: 120px 24px 80px;
+}
+
+.ev-inquiry-form-section {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.ev-inquiry-form-container {
+    display: grid;
+    grid-template-columns: 280px minmax(0, 1fr);
+    gap: 32px;
+    align-items: start;
+}
+
+.ev-inquiry-form-content {
+    background: var(--bg-primary);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 40px;
+    box-shadow: 0 16px 40px rgba(15, 23, 42, 0.06);
+}
+
+.ev-inquiry-form-header {
+    margin-bottom: 32px;
+}
+
+.ev-inquiry-form-eyebrow {
+    margin: 0 0 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.ev-inquiry-form-title {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.ev-inquiry-form-description {
+    margin: 12px 0 0;
+    color: var(--text-secondary);
+}
+
+.ev-inquiry-form-alert {
+    margin-bottom: 20px;
+    border-radius: 12px;
+}
+
+.ev-inquiry-form {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.ev-inquiry-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.ev-inquiry-form-label {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.ev-required {
+    color: var(--error);
+}
+
+.ev-inquiry-form-input,
+.ev-inquiry-form-textarea {
+    background: #fff;
+}
+
+.ev-inquiry-form-textarea {
+    min-height: 240px;
+    resize: vertical;
+}
+
+.ev-inquiry-form-help {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--text-light);
+}
+
+.ev-inquiry-form-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    padding-top: 8px;
+}
+
+@media (max-width: 991.98px) {
+    .ev-inquiry-form-page {
+        padding: 100px 16px 64px;
+    }
+
+    .ev-inquiry-form-container {
+        grid-template-columns: 1fr;
+    }
+
+    .ev-inquiry-form-content {
+        padding: 28px 20px;
+        border-radius: 20px;
+    }
+
+    .ev-inquiry-form-title {
+        font-size: 1.6rem;
+    }
+
+    .ev-inquiry-form-actions {
+        flex-direction: column;
+    }
+
+    .ev-inquiry-form-actions .btn {
+        width: 100%;
+    }
+}
