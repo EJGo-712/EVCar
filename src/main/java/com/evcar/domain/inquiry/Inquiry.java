@@ -4,8 +4,6 @@ import com.evcar.domain.user.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -20,7 +18,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "INQUIRY")
+@Table(name = "inquiry")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
@@ -28,15 +26,14 @@ import lombok.NoArgsConstructor;
 public class Inquiry {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "inquiry_id", nullable = false)
-    private Integer inquiryId;
+    @Column(name = "inquiry_id", nullable = false, length = 20)
+    private String inquiryId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false, referencedColumnName = "user_id")
     private User user;
 
-    @Column(name = "title", nullable = false, length = 255)
+    @Column(name = "title", nullable = false, length = 200)
     private String title;
 
     @Column(name = "content", nullable = false, columnDefinition = "TEXT")
@@ -44,6 +41,10 @@ public class Inquiry {
 
     @Column(name = "reply_content", columnDefinition = "TEXT")
     private String replyContent;
+
+    @Column(name = "reply_status", nullable = false, length = 20)
+    @Builder.Default
+    private String replyStatus = "WAITING";
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -53,13 +54,22 @@ public class Inquiry {
 
     @PrePersist
     protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now();
+        this.createdAt = now;
+        this.updatedAt = now;
+
+        if (this.replyStatus == null || this.replyStatus.isBlank()) {
+            this.replyStatus = "WAITING";
+        }
     }
 
     @PreUpdate
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
+
+        if (this.replyStatus == null || this.replyStatus.isBlank()) {
+            this.replyStatus = isAnswered() ? "REPLIED" : "WAITING";
+        }
     }
 
     public boolean isAnswered() {

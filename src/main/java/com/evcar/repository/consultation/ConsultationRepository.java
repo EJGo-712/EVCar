@@ -1,17 +1,12 @@
 package com.evcar.repository.consultation;
 
-
+import com.evcar.domain.consultation.Consultation;
 import java.util.List;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 
+public interface ConsultationRepository extends JpaRepository<Consultation, String> {
 
+    boolean existsByUserUserIdAndConsultStatusIn(String userId, List<String> consultStatuses);
 
-import com.evcar.domain.consultation.Consultation;
-
-public interface ConsultationRepository extends JpaRepository<Consultation, Integer>{
-	
-	boolean existsByUserUserIdAndConsultStatus(Integer userId,String consultStatus);
-	
-	List<Consultation> findByUserUserIdOrderByCreatedAtDesc(Integer userId);
+    List<Consultation> findByUserUserIdOrderByCreatedAtDesc(String userId);
 }

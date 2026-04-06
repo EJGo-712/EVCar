@@ -18,10 +18,9 @@ public class LoginController {
 
     private final LoginService loginService;
 
-    // 로그인 화면
     @GetMapping
     public String loginPage(@RequestParam(value = "error", required = false) String error,
-                            Model model) {
+                           Model model) {
 
         model.addAttribute("loginRequestDto", new LoginRequestDto());
 
@@ -32,37 +31,36 @@ public class LoginController {
         return "login/login";
     }
 
-    // 로그인 성공 후 메인 페이지 이동
     @GetMapping("/main")
     public String index() {
-    	return "main/index";
+        return "main/index";
     }
- // 로그인 처리
+
     @PostMapping
     public String login(@ModelAttribute LoginRequestDto dto,
                         HttpSession session) {
         try {
-        	User loginUser = loginService.login(dto);
+            User loginUser = loginService.login(dto);
 
-        	if (loginUser == null) {
-        	    return "redirect:/login";
-        	}
+            if (loginUser == null) {
+                return "redirect:/login";
+            }
 
-        	session.setAttribute("loginUser", loginUser);
-        	return "redirect:/login/main";
+            session.setAttribute("loginUser", loginUser);
+            session.setAttribute("userId", loginUser.getUserId()); // 🔥 핵심 (유지)
+
+            return "redirect:/login/main";
         } catch (IllegalArgumentException e) {
             return "redirect:/login?error=true";
         }
     }
 
-    // 아이디 찾기 화면
     @GetMapping("/find-id")
     public String idRecoveryPage(Model model) {
         model.addAttribute("idRecoveryDto", new IdRecoveryDto());
         return "login/idrecovery";
     }
 
-    // 아이디 찾기 처리
     @PostMapping("/find-id")
     public String findUserLoginId(@ModelAttribute IdRecoveryDto dto, Model model) {
         try {
@@ -74,13 +72,12 @@ public class LoginController {
         return "login/idrecovery";
     }
 
-    // 비밀번호 재설정 화면
     @GetMapping("/reset-pw")
     public String pwResetPage(Model model) {
         model.addAttribute("passwordResetDto", new PasswordResetDto());
         return "login/pwreset";
     }
-    // 비밀번호 검증
+
     @PostMapping("/reset-pw")
     public String resetPassword(@RequestParam("loginId") String loginId,
                                 @RequestParam("name") String name,
@@ -111,13 +108,12 @@ public class LoginController {
         }
     }
 
-    // 로그아웃
     @GetMapping("/logout")
     public String logout(HttpSession session) {
         session.invalidate();
         return "redirect:/login";
     }
-    // 비밀번호 변경
+
     @PostMapping("/change-pw")
     public String changePassword(@ModelAttribute PasswordResetDto dto, Model model) {
 

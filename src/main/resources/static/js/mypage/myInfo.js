@@ -1,3 +1,4 @@
+
 'use strict';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -6,278 +7,119 @@ document.addEventListener('DOMContentLoaded', () => {
     const saveButton = document.getElementById('saveButton');
     const cancelButton = document.getElementById('cancelButton');
 
-    const birthDateDisplay = document.getElementById('birthDateDisplay');
-    const birthDateInput = document.getElementById('birthDateInput');
-
-    const vehicleYearDisplay = document.getElementById('vehicleYearDisplay');
-    const vehicleYearInput = document.getElementById('vehicleYearInput');
-
-    if (
-        !form ||
-        !editModeButton ||
-        !saveButton ||
-        !cancelButton ||
-        !birthDateDisplay ||
-        !birthDateInput ||
-        !vehicleYearDisplay ||
-        !vehicleYearInput
-    ) {
+    if (!form || !editModeButton || !saveButton || !cancelButton) {
         return;
     }
 
+    const MIN_VEHICLE_YEAR = 1900;
+
     const editableInputs = Array.from(form.querySelectorAll('[data-editable="true"]'));
+    const genderInputs = Array.from(form.querySelectorAll('input[name="gender"]'));
     const hasVehicleInputs = Array.from(form.querySelectorAll('input[name="hasVehicle"]'));
     const ownedVehicleFields = Array.from(form.querySelectorAll('.ev-vehicle-owned-field'));
-    const editableGroups = Array.from(form.querySelectorAll('[data-editable-group]'));
-    const fixedRadioGroups = Array.from(form.querySelectorAll('.ev-myinfo-radio-group--fixed'));
 
+    const fields = {
+        name: form.querySelector('input[name="name"]'),
+        birthDate: form.querySelector('input[name="birthDate"]'),
+        phone: form.querySelector('input[name="phone"]'),
+        address: form.querySelector('input[name="address"]'),
+        addressDetail: form.querySelector('input[name="addressDetail"]'),
+        email: form.querySelector('input[name="email"]'),
+        currentPassword: form.querySelector('input[name="currentPassword"]'),
+        newPassword: form.querySelector('input[name="newPassword"]'),
+        newPasswordConfirm: form.querySelector('input[name="newPasswordConfirm"]'),
+        vehicleModel: form.querySelector('input[name="vehicleModel"]'),
+        vehicleYear: form.querySelector('input[name="vehicleYear"]'),
+        drivingDistance: form.querySelector('input[name="drivingDistance"]')
+    };
+
+    const phoneInput = document.getElementById('phone');
     const initialValues = new Map();
-    const initialPlaceholders = new Map();
 
-    const isOwnedVehicleField = (input) => input.classList.contains('ev-vehicle-owned-field');
-
-    const pad2 = (value) => String(value).padStart(2, '0');
-
-    const normalizeDateValue = (value) => {
-        if (!value) {
-            return '';
+    const alertAndFocus = (message, element) => {
+        window.alert(message);
+        if (element) {
+            element.focus();
         }
-
-        const trimmed = String(value).trim();
-
-        if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
-            return trimmed;
-        }
-
-        const numericParts = trimmed.match(/\d+/g);
-
-        if (!numericParts || numericParts.length < 3) {
-            return '';
-        }
-
-        let [year, month, day] = numericParts;
-
-        if (year.length === 2) {
-            year = Number(year) >= 30 ? `19${year}` : `20${year}`;
-        }
-
-        return `${year}-${pad2(month)}-${pad2(day)}`;
+        return false;
     };
 
-    const normalizeMonthValue = (value) => {
-        if (!value) {
-            return '';
-        }
+    const getInputValue = (input) => input?.value?.trim() ?? '';
 
-        const trimmed = String(value).trim();
-
-        if (/^\d{4}-\d{2}$/.test(trimmed)) {
-            return trimmed;
-        }
-
-        const numericParts = trimmed.match(/\d+/g);
-
-        if (!numericParts || numericParts.length < 2) {
-            return '';
-        }
-
-        let [year, month] = numericParts;
-
-        if (year.length === 2) {
-            year = Number(year) >= 30 ? `19${year}` : `20${year}`;
-        }
-
-        return `${year}-${pad2(month)}`;
+    const getHasVehicleValue = () => {
+        const checked = form.querySelector('input[name="hasVehicle"]:checked');
+        return checked ? checked.value : '';
     };
 
-    const formatDateDisplayValue = (value) => {
-        return normalizeDateValue(value);
+    const isVehicleOwned = () => {
+        const value = getHasVehicleValue();
+        return value === 'yes' || value === 'Y' || value === 'y';
     };
 
-    const formatMonthDisplayValue = (value) => {
-        const normalized = normalizeMonthValue(value);
-
-        if (!normalized) {
-            return '';
-        }
-
-        const [year, month] = normalized.split('-');
-        return `${year}-${month}`;
-    };
-
-    const syncBirthDateInputFromDisplay = () => {
-        const normalized = normalizeDateValue(birthDateDisplay.value);
-        birthDateInput.value = normalized;
-        birthDateDisplay.value = normalized;
-    };
-
-    const syncBirthDateDisplayFromInput = () => {
-        const normalized = normalizeDateValue(birthDateInput.value);
-        birthDateInput.value = normalized;
-        birthDateDisplay.value = normalized;
-    };
-
-    const syncVehicleYearInputFromDisplay = () => {
-        const normalized = normalizeMonthValue(vehicleYearDisplay.value);
-        vehicleYearInput.value = normalized;
-        vehicleYearDisplay.value = formatMonthDisplayValue(normalized);
-    };
-
-    const syncVehicleYearDisplayFromInput = () => {
-        const normalized = normalizeMonthValue(vehicleYearInput.value);
-        vehicleYearInput.value = normalized;
-        vehicleYearDisplay.value = formatMonthDisplayValue(normalized);
-    };
+    const isEditing = () => !saveButton.classList.contains('ev-myinfo-hidden');
 
     const saveInitialValues = () => {
-        editableInputs.forEach((input) => {
+        form.querySelectorAll('input').forEach((input) => {
+            if (input.type === 'radio') {
+                initialValues.set(`${input.name}:${input.value}`, input.checked);
+                return;
+            }
+
             initialValues.set(input.name, input.value ?? '');
-            initialPlaceholders.set(input.name, input.placeholder || '');
         });
-
-        hasVehicleInputs.forEach((input) => {
-            initialValues.set(`hasVehicle:${input.value}`, input.checked);
-        });
-
-        initialValues.set('birthDateDisplay', birthDateDisplay.value ?? '');
-        initialValues.set('vehicleYearDisplay', vehicleYearDisplay.value ?? '');
     };
 
     const restoreInitialValues = () => {
-        editableInputs.forEach((input) => {
+        form.querySelectorAll('input').forEach((input) => {
+            if (input.type === 'radio') {
+                input.checked = Boolean(initialValues.get(`${input.name}:${input.value}`));
+                return;
+            }
+
             input.value = initialValues.get(input.name) ?? '';
-            input.placeholder = initialPlaceholders.get(input.name) ?? '';
         });
 
-        hasVehicleInputs.forEach((input) => {
-            input.checked = Boolean(initialValues.get(`hasVehicle:${input.value}`));
-        });
-
-        birthDateDisplay.value = initialValues.get('birthDateDisplay') ?? '';
-        vehicleYearDisplay.value = initialValues.get('vehicleYearDisplay') ?? '';
-
-        syncBirthDateInputFromDisplay();
-        syncVehicleYearInputFromDisplay();
-    };
-
-    const setBirthDateEditMode = (editing) => {
-        if (editing) {
-            syncBirthDateInputFromDisplay();
-            birthDateDisplay.classList.add('ev-myinfo-hidden');
-            birthDateInput.classList.remove('ev-myinfo-hidden');
-            birthDateInput.disabled = false;
-            birthDateInput.readOnly = false;
-            return;
-        }
-
-        syncBirthDateDisplayFromInput();
-        birthDateDisplay.classList.remove('ev-myinfo-hidden');
-        birthDateInput.classList.add('ev-myinfo-hidden');
-        birthDateInput.disabled = true;
-        birthDateInput.readOnly = true;
-    };
-
-    const setVehicleYearEditMode = (editing) => {
-        if (editing) {
-            syncVehicleYearInputFromDisplay();
-            vehicleYearDisplay.classList.add('ev-myinfo-hidden');
-            vehicleYearInput.classList.remove('ev-myinfo-hidden');
-            vehicleYearInput.disabled = false;
-            vehicleYearInput.readOnly = false;
-            return;
-        }
-
-        syncVehicleYearDisplayFromInput();
-        vehicleYearDisplay.classList.remove('ev-myinfo-hidden');
-        vehicleYearInput.classList.add('ev-myinfo-hidden');
-        vehicleYearInput.disabled = true;
-        vehicleYearInput.readOnly = true;
-    };
-
-    const getHasVehicleValue = () => {
-        const checkedInput = form.querySelector('input[name="hasVehicle"]:checked');
-        return checkedInput ? checkedInput.value : '';
-    };
-
-    const hasVehicleSelected = () => {
-        const value = getHasVehicleValue();
-        return value === 'yes' || value === 'Y';
+        updateOwnedVehicleFieldsState();
     };
 
     const clearOwnedVehicleFields = () => {
         ownedVehicleFields.forEach((field) => {
             field.value = '';
         });
-
-        vehicleYearDisplay.value = '';
-        vehicleYearInput.value = '';
     };
 
-    const restoreOwnedVehicleFields = () => {
+    const updateOwnedVehicleFieldsState = () => {
+        const vehicleOwned = isVehicleOwned();
+        const editing = isEditing();
+
         ownedVehicleFields.forEach((field) => {
-            field.value = initialValues.get(field.name) ?? '';
-            field.placeholder = initialPlaceholders.get(field.name) ?? '';
-        });
-
-        vehicleYearDisplay.value = initialValues.get('vehicleYearDisplay') ?? '';
-        syncVehicleYearInputFromDisplay();
-    };
-
-    const updateOwnedVehicleFields = (editing) => {
-        if (!editing) {
-            ownedVehicleFields.forEach((field) => {
-                if (field === vehicleYearInput) {
-                    return;
-                }
-
+            if (!editing) {
                 field.readOnly = true;
                 field.disabled = false;
-            });
+                return;
+            }
 
-            setVehicleYearEditMode(false);
-            return;
-        }
-
-        if (!hasVehicleSelected()) {
-            clearOwnedVehicleFields();
-
-            ownedVehicleFields.forEach((field) => {
-                if (field === vehicleYearInput) {
-                    return;
-                }
-
+            if (!vehicleOwned) {
+                field.value = '';
                 field.readOnly = true;
                 field.disabled = true;
-            });
-
-            vehicleYearDisplay.classList.remove('ev-myinfo-hidden');
-            vehicleYearInput.classList.add('ev-myinfo-hidden');
-            vehicleYearInput.disabled = true;
-            vehicleYearInput.readOnly = true;
-            return;
-        }
-
-        restoreOwnedVehicleFields();
-
-        ownedVehicleFields.forEach((field) => {
-            if (field === vehicleYearInput) {
                 return;
             }
 
             field.readOnly = false;
             field.disabled = false;
         });
-
-        setVehicleYearEditMode(true);
     };
 
-    const setEditableInputState = (editing) => {
+    const toggleActionButtons = (editing) => {
+        editModeButton.classList.toggle('ev-myinfo-hidden', editing);
+        saveButton.classList.toggle('ev-myinfo-hidden', !editing);
+        cancelButton.classList.toggle('ev-myinfo-hidden', !editing);
+    };
+
+    const updateEditableFieldsState = (editing) => {
         editableInputs.forEach((input) => {
-            if (
-                isOwnedVehicleField(input) ||
-                input === birthDateInput ||
-                input === vehicleYearInput
-            ) {
+            if (ownedVehicleFields.includes(input)) {
                 return;
             }
 
@@ -285,61 +127,131 @@ document.addEventListener('DOMContentLoaded', () => {
             input.disabled = false;
         });
 
+        genderInputs.forEach((input) => {
+            input.disabled = true;
+        });
+
         hasVehicleInputs.forEach((input) => {
-            input.disabled = !editing;
+            input.disabled = false;
         });
 
-        editableGroups.forEach((group) => {
-            group.classList.toggle('is-disabled', !editing);
-        });
-
-        fixedRadioGroups.forEach((group) => {
-            group.classList.add('is-disabled');
-        });
-
-        setBirthDateEditMode(editing);
-        updateOwnedVehicleFields(editing);
-    };
-
-    const setButtonState = (editing) => {
-        editModeButton.classList.toggle('ev-myinfo-hidden', editing);
-        saveButton.classList.toggle('ev-myinfo-hidden', !editing);
-        cancelButton.classList.toggle('ev-myinfo-hidden', !editing);
+        updateOwnedVehicleFieldsState();
     };
 
     const setEditMode = (editing) => {
-        setEditableInputState(editing);
-        setButtonState(editing);
+        toggleActionButtons(editing);
+        updateEditableFieldsState(editing);
     };
 
-    const validateRequiredFields = () => {
-        const phoneInput = form.querySelector('input[name="phone"]');
-        const addressInput = form.querySelector('input[name="address"]');
-        const emailInput = form.querySelector('input[name="email"]');
+    const validateRequiredField = (input, message) => {
+        if (!input || getInputValue(input)) {
+            return true;
+        }
 
-        syncBirthDateInputFromDisplay();
+        return alertAndFocus(message, input);
+    };
 
-        if (!birthDateInput.value) {
-            window.alert('생년월일을 입력해주세요.');
-            birthDateInput.focus();
+    const validatePhone = () => {
+        const phone = getInputValue(fields.phone);
+
+        if (!phone) {
+            return alertAndFocus('전화번호를 입력해주세요.', fields.phone);
+        }
+
+        if (!/^\d{11}$/.test(phone)) {
+            return alertAndFocus('전화번호는 숫자 11자리로 입력해주세요.', fields.phone);
+        }
+
+        return true;
+    };
+
+    const validateBasicFields = () => {
+        if (!validateRequiredField(fields.name, '이름을 입력해주세요.')) {
             return false;
         }
 
-        if (phoneInput && !phoneInput.value.trim()) {
-            window.alert('전화번호를 입력해주세요.');
-            phoneInput.focus();
+        if (!validateRequiredField(fields.birthDate, '생년월일을 입력해주세요.')) {
             return false;
         }
 
-        if (addressInput && !addressInput.value.trim()) {
-            window.alert('주소를 입력해주세요.');
-            addressInput.focus();
+        if (!validatePhone()) {
             return false;
         }
 
-        if (emailInput && !emailInput.value.trim()) {
-            window.alert('이메일을 입력해주세요.');
-            emailInput.focus();
+        if (!validateRequiredField(fields.address, '주소를 입력해주세요.')) {
+            return false;
+        }
+
+        if (!validateRequiredField(fields.email, '이메일을 입력해주세요.')) {
+            return false;
+        }
+
+        return true;
+    };
+
+    const validateVehicleYear = () => {
+        const vehicleYear = getInputValue(fields.vehicleYear);
+        const currentYear = new Date().getFullYear();
+
+        if (!vehicleYear) {
+            return alertAndFocus('보유차량 연식을 입력해주세요.', fields.vehicleYear);
+        }
+
+        if (!/^\d{4}$/.test(vehicleYear)) {
+            return alertAndFocus('보유차량 연식은 4자리 숫자(YYYY)로 입력해주세요.', fields.vehicleYear);
+        }
+
+        const parsedYear = Number(vehicleYear);
+
+        if (Number.isNaN(parsedYear)) {
+            return alertAndFocus('보유차량 연식은 숫자로 입력해주세요.', fields.vehicleYear);
+        }
+
+        if (parsedYear < MIN_VEHICLE_YEAR) {
+            return alertAndFocus('보유차량 연식이 올바르지 않습니다.', fields.vehicleYear);
+        }
+
+        if (parsedYear > currentYear) {
+            return alertAndFocus('보유차량 연식은 현재 연도보다 클 수 없습니다.', fields.vehicleYear);
+        }
+
+        return true;
+    };
+
+    const validateDrivingDistance = () => {
+        const drivingDistance = getInputValue(fields.drivingDistance);
+
+        if (!drivingDistance) {
+            return alertAndFocus('주행거리를 입력해주세요.', fields.drivingDistance);
+        }
+
+        const parsedDistance = Number(fields.drivingDistance.value);
+
+        if (Number.isNaN(parsedDistance)) {
+            return alertAndFocus('주행거리는 숫자로 입력해주세요.', fields.drivingDistance);
+        }
+
+        if (parsedDistance < 0) {
+            return alertAndFocus('주행거리는 0 이상이어야 합니다.', fields.drivingDistance);
+        }
+
+        return true;
+    };
+
+    const validateOwnedVehicleFields = () => {
+        if (!isVehicleOwned()) {
+            return true;
+        }
+
+        if (!validateRequiredField(fields.vehicleModel, '보유 차량명을 입력해주세요.')) {
+            return false;
+        }
+
+        if (!validateVehicleYear()) {
+            return false;
+        }
+
+        if (!validateDrivingDistance()) {
             return false;
         }
 
@@ -347,75 +259,78 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const validatePasswordChange = () => {
-        const currentPasswordInput = form.querySelector('input[name="currentPassword"]');
-        const newPasswordInput = form.querySelector('input[name="newPassword"]');
-        const newPasswordConfirmInput = form.querySelector('input[name="newPasswordConfirm"]');
+        const currentPassword = getInputValue(fields.currentPassword);
+        const newPassword = getInputValue(fields.newPassword);
+        const newPasswordConfirm = getInputValue(fields.newPasswordConfirm);
+        const isPasswordChangeRequested = Boolean(newPassword || newPasswordConfirm);
 
-        const hasPasswordInput =
-            (currentPasswordInput && currentPasswordInput.value.trim()) ||
-            (newPasswordInput && newPasswordInput.value.trim()) ||
-            (newPasswordConfirmInput && newPasswordConfirmInput.value.trim());
+        if (!currentPassword) {
+            return alertAndFocus('현재 비밀번호를 입력해주세요.', fields.currentPassword);
+        }
 
-        if (!hasPasswordInput) {
+        if (!isPasswordChangeRequested) {
             return true;
         }
 
-        if (!currentPasswordInput.value.trim()) {
-            window.alert('현재 비밀번호를 입력해주세요.');
-            currentPasswordInput.focus();
+        if (!newPassword || !newPasswordConfirm) {
+            return alertAndFocus('새 비밀번호와 새 비밀번호 확인을 모두 입력해주세요.', fields.newPassword);
+        }
+
+        if (newPassword !== newPasswordConfirm) {
+            return alertAndFocus('새 비밀번호와 새 비밀번호 확인이 일치하지 않습니다.', fields.newPasswordConfirm);
+        }
+
+        return true;
+    };
+
+    const prepareSubmit = () => {
+        form.querySelectorAll('input').forEach((input) => {
+            if (input.name === 'gender') {
+                input.disabled = true;
+                return;
+            }
+
+            input.disabled = false;
+        });
+
+        if (!isVehicleOwned()) {
+            clearOwnedVehicleFields();
+        }
+    };
+
+    const validateForm = () => {
+        if (!validateBasicFields()) {
             return false;
         }
 
-        if (!newPasswordInput.value.trim()) {
-            window.alert('새 비밀번호를 입력해주세요.');
-            newPasswordInput.focus();
+        if (!validateOwnedVehicleFields()) {
             return false;
         }
 
-        if (!newPasswordConfirmInput.value.trim()) {
-            window.alert('새 비밀번호 확인을 입력해주세요.');
-            newPasswordConfirmInput.focus();
-            return false;
-        }
-
-        if (newPasswordInput.value !== newPasswordConfirmInput.value) {
-            window.alert('새 비밀번호와 새 비밀번호 확인이 일치하지 않습니다.');
-            newPasswordConfirmInput.focus();
+        if (!validatePasswordChange()) {
             return false;
         }
 
         return true;
     };
 
-    const prepareOwnedVehicleValuesForSubmit = () => {
-        if (!hasVehicleSelected()) {
-            clearOwnedVehicleFields();
-        }
-
-        syncVehicleYearInputFromDisplay();
-
-        ownedVehicleFields.forEach((field) => {
-            field.disabled = false;
-            field.readOnly = false;
+    if (phoneInput) {
+        phoneInput.addEventListener('input', () => {
+            phoneInput.value = phoneInput.value
+                .replace(/[^0-9]/g, '')
+                .slice(0, 11);
         });
-    };
-
-    const enableAllInputsBeforeSubmit = () => {
-        form.querySelectorAll('input').forEach((input) => {
-            input.disabled = false;
-        });
-    };
+    }
 
     hasVehicleInputs.forEach((input) => {
         input.addEventListener('change', () => {
-            if (!input.disabled) {
-                updateOwnedVehicleFields(true);
+            if (!isVehicleOwned()) {
+                clearOwnedVehicleFields();
             }
+
+            updateOwnedVehicleFieldsState();
         });
     });
-
-    birthDateInput.addEventListener('change', syncBirthDateDisplayFromInput);
-    vehicleYearInput.addEventListener('change', syncVehicleYearDisplayFromInput);
 
     editModeButton.addEventListener('click', () => {
         saveInitialValues();
@@ -428,30 +343,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     form.addEventListener('submit', (event) => {
-        if (!validateRequiredFields()) {
+        if (!validateForm()) {
             event.preventDefault();
             return;
         }
 
-        if (!validatePasswordChange()) {
-            event.preventDefault();
-            return;
-        }
-
-        prepareOwnedVehicleValuesForSubmit();
-        syncBirthDateInputFromDisplay();
-        syncBirthDateDisplayFromInput();
-        syncVehicleYearInputFromDisplay();
-        syncVehicleYearDisplayFromInput();
-        enableAllInputsBeforeSubmit();
+        prepareSubmit();
     });
-
-    birthDateDisplay.value = formatDateDisplayValue(birthDateDisplay.value);
-    syncBirthDateInputFromDisplay();
-
-    vehicleYearDisplay.value = formatMonthDisplayValue(vehicleYearDisplay.value);
-    syncVehicleYearInputFromDisplay();
 
     saveInitialValues();
     setEditMode(false);
+
 });

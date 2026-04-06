@@ -58,7 +58,7 @@ public class VehicleController {
 
 	// 🔥 상세 페이지 (수정 완료)
 	@GetMapping("/{id}")
-	public String detail(@PathVariable("id") Long id, Model model) {
+	public String detail(@PathVariable("id") String id, Model model) {
 
 		// 차량 정보
 		VehicleDetailDto dto = vehicleService.getDetail(id);

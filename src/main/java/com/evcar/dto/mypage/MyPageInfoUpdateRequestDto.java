@@ -5,8 +5,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -31,7 +33,7 @@ public class MyPageInfoUpdateRequestDto {
     public boolean isNovehicle() {
         return hasVehicle == null
                 || "no".equalsIgnoreCase(hasVehicle)
-                || "N".equalsIgnoreCase(hasVehicle);
+                || "n".equalsIgnoreCase(hasVehicle);
     }
 
     public boolean hasPasswordChangeRequest() {
@@ -57,6 +59,12 @@ public class MyPageInfoUpdateRequestDto {
         }
 
         return !newPassword.equals(newPasswordConfirm);
+    }
+
+    public boolean isInvalidPhone() {
+        return phone != null
+                && !phone.trim().isEmpty()
+                && !phone.matches("^\\d{11}$");
     }
 
     private boolean hasText(String value) {

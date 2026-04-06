@@ -7,17 +7,17 @@ import java.time.LocalDateTime;
 
 @Entity
 @Getter @Setter
-@Table(name = "wishlist", uniqueConstraints = {
-        @UniqueConstraint(columnNames = "vehicle_id")
-})
+@Table(name = "wishlist")
 public class Wishlist {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long wishlistId;
+    private String wishlistId;
 
     @Column(name = "vehicle_id", nullable = false)
-    private Long vehicleId;
+    private String vehicleId;
 
     private LocalDateTime createdAt = LocalDateTime.now();
+    
+    @Column(name = "user_id", nullable = false, length = 20)
+    private String userId;
 }
