@@ -5,6 +5,7 @@ import com.evcar.domain.user.User;
 import com.evcar.dto.inquiry.InquiryCreateRequestDto;
 import com.evcar.repository.inquiry.InquiryRepository;
 import com.evcar.repository.user.UserRepository;
+import java.util.Comparator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -16,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class InquiryServiceImpl implements InquiryService {
 
     private static final String DEFAULT_REPLY_STATUS = "WAITING";
-    private static final String INQUIRY_PREFIX = "inq";
+    private static final String INQUIRY_PREFIX = "IQ";
     private static final int INQUIRY_NUMBER_LENGTH = 4;
 
     private final InquiryRepository inquiryRepository;
@@ -87,24 +88,21 @@ public class InquiryServiceImpl implements InquiryService {
     }
 
     private String generateInquiryId() {
-        return inquiryRepository.findTopByOrderByInquiryIdDesc()
+        int nextNumber = inquiryRepository.findAll().stream()
                 .map(Inquiry::getInquiryId)
-                .map(this::extractNextId)
-                .orElse(INQUIRY_PREFIX + String.format("%0" + INQUIRY_NUMBER_LENGTH + "d", 1));
+                .filter(this::isInquiryIdPattern)
+                .map(this::extractNumber)
+                .max(Comparator.naturalOrder())
+                .orElse(0) + 1;
+
+        return INQUIRY_PREFIX + String.format("%0" + INQUIRY_NUMBER_LENGTH + "d", nextNumber);
     }
 
-    private String extractNextId(String lastInquiryId) {
-        if (lastInquiryId == null || !lastInquiryId.startsWith(INQUIRY_PREFIX)) {
-            return INQUIRY_PREFIX + String.format("%0" + INQUIRY_NUMBER_LENGTH + "d", 1);
-        }
+    private boolean isInquiryIdPattern(String inquiryId) {
+        return inquiryId != null && inquiryId.matches("^[A-Za-z]{2}\\d{4}$");
+    }
 
-        String numberPart = lastInquiryId.substring(INQUIRY_PREFIX.length());
-
-        try {
-            int nextNumber = Integer.parseInt(numberPart) + 1;
-            return INQUIRY_PREFIX + String.format("%0" + INQUIRY_NUMBER_LENGTH + "d", nextNumber);
-        } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("문의 번호 생성 중 오류가 발생했습니다.");
-        }
+    private int extractNumber(String inquiryId) {
+        return Integer.parseInt(inquiryId.substring(2));
     }
 }

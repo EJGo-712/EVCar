@@ -12,6 +12,4 @@ public interface InquiryRepository extends JpaRepository<Inquiry, String> {
     Optional<Inquiry> findByInquiryIdAndUserUserId(String inquiryId, String userId);
 
     boolean existsByUserUserIdAndReplyStatus(String userId, String replyStatus);
-
-    Optional<Inquiry> findTopByOrderByInquiryIdDesc();
 }
