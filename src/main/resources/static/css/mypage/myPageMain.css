@@ -1,28 +1,4 @@
 
-.ev-mypage-main-page {
-    min-height: 100vh;
-    background: var(--bg-primary);
-    padding: 120px 0 80px;
-}
-
-.ev-mypage-main-section {
-    width: 100%;
-}
-
-.ev-mypage-main-container {
-    max-width: 1400px;
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: 280px minmax(0, 1fr);
-    gap: 24px;
-    align-items: start;
-    padding: 0 24px;
-}
-
-.ev-mypage-main-content {
-    min-width: 0;
-}
-
 .ev-mypage-main-hero {
     margin-bottom: 24px;
 }

@@ -10,30 +10,33 @@
     rel="stylesheet">
 <link rel="stylesheet" th:href="@{/css/common/common.css}">
 <link rel="stylesheet" th:href="@{/css/mypage/mypageSidebar.css}">
+<link rel="stylesheet" th:href="@{/css/mypage/mypageLayout.css}">
 <link rel="stylesheet" th:href="@{/css/mypage/myWithdraw.css}">
 </head>
 <body>
     <div th:replace="~{layout/header :: header}"></div>
 
-    <main class="ev-withdraw-page">
-        <section class="ev-withdraw-section">
-            <div class="ev-withdraw-container">
+    <main class="ev-mypage-page">
+        <section class="ev-mypage-section">
+            <div class="ev-mypage-container">
                 <div th:replace="~{mypage/sidebar :: sidebar('withdraw')}"></div>
 
-                <div class="ev-withdraw-content">
-                    <div class="ev-withdraw-header">
-                        <h1 class="ev-withdraw-title">회원탈퇴</h1>
-                        <p class="ev-withdraw-description">탈퇴 전 아래 안내사항을 반드시 확인해주세요.</p>
+                <div class="ev-mypage-content">
+                    <div class="ev-mypage-header">
+                        <div class="ev-mypage-header__text">
+                            <h1 class="ev-mypage-title">회원탈퇴</h1>
+                            <p class="ev-mypage-description">탈퇴 전 아래 안내사항을 반드시 확인해주세요.</p>
+                        </div>
                     </div>
 
                     <section class="ev-withdraw-warning-card">
                         <h2 class="ev-withdraw-warning-card__title">탈퇴 전 확인사항</h2>
                         <ul class="ev-withdraw-warning-list">
-    <li>회원탈퇴 후 계정 정보는 복구할 수 없습니다.</li>
-    <li>진행 중인 상담이 있거나 답변 대기 중인 문의가 있으면 회원탈퇴가 제한될 수 있습니다.</li>
-    <li>관심 차량, 문의 내역 등 일부 이용 기록은 관련 법령 및 내부 정책에 따라 처리됩니다.</li>
-    <li>탈퇴 후 동일 계정 정보로 재이용 시 제한이 있을 수 있습니다.</li>
-</ul>
+                            <li>회원탈퇴 후 계정 정보는 복구할 수 없습니다.</li>
+                            <li>진행 중인 상담이 있거나 답변 대기 중인 문의가 있으면 회원탈퇴가 제한될 수 있습니다.</li>
+                            <li>관심 차량, 문의 내역 등 일부 이용 기록은 관련 법령 및 내부 정책에 따라 처리됩니다.</li>
+                            <li>탈퇴 후 동일 계정 정보로 재이용 시 제한이 있을 수 있습니다.</li>
+                        </ul>
                     </section>
 
                     <section class="ev-withdraw-form-card">
@@ -101,20 +104,20 @@
                             </div>
 
                             <div class="ev-withdraw-error"
-     id="withdrawErrorMessage"
-     aria-live="polite"
-     th:if="${withdrawErrorMessage != null}"
-     th:text="${withdrawErrorMessage}">
-</div>
+                                 id="withdrawErrorMessage"
+                                 aria-live="polite"
+                                 th:if="${withdrawErrorMessage != null}"
+                                 th:text="${withdrawErrorMessage}">
+                            </div>
 
                             <div class="ev-withdraw-actions">
                                 <a class="btn btn-ev-secondary" th:href="@{/mypage/main}">취소</a>
-                               <button type="submit"
-        class="btn btn-ev-danger"
-        id="withdrawSubmitButton"
-        disabled>
-    회원탈퇴
-</button>
+                                <button type="submit"
+                                        class="btn btn-ev-danger"
+                                        id="withdrawSubmitButton"
+                                        disabled>
+                                    회원탈퇴
+                                </button>
                             </div>
                         </form>
                     </section>
@@ -134,7 +137,6 @@
     if (errorMessage !== null) {
         alert(errorMessage);
     }
-</script>
+    </script>
 </body>
-
 </html>

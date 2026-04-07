@@ -1,62 +1,4 @@
 
-.ev-wishlist-page {
-    padding-top: 120px;
-    background: var(--bg-secondary);
-    min-height: 100vh;
-}
-
-.ev-wishlist-section {
-    padding: 32px 16px 80px;
-}
-
-.ev-wishlist-container {
-    max-width: 1400px;
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: 280px minmax(0, 1fr);
-    gap: 24px;
-    align-items: start;
-}
-
-.ev-wishlist-content {
-    min-width: 0;
-}
-
-.ev-wishlist-header {
-    margin-bottom: 24px;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
-
-.ev-wishlist-header-actions {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-}
-
-.ev-wishlist-eyebrow {
-    margin: 0 0 6px;
-    color: var(--accent);
-    font-size: 0.875rem;
-    font-weight: 600;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-}
-
-.ev-wishlist-title {
-    margin: 0 0 10px;
-    font-size: 2rem;
-    font-weight: 700;
-    color: var(--text-primary);
-}
-
-.ev-wishlist-description {
-    margin: 0;
-    color: var(--text-secondary);
-    font-size: 1rem;
-    line-height: 1.6;
-}
 .ev-wishlist-grid {
     display: grid;
     grid-template-columns: 1fr;
@@ -68,7 +10,7 @@
     display: flex;
     flex-direction: column;
     height: 100%;
-    background: var(--bg-primary);
+    background: #fff;
     border: 1px solid var(--border);
     border-radius: 24px;
     overflow: hidden;
@@ -166,9 +108,6 @@
 }
 
 .ev-wishlist-empty {
-    background: var(--bg-primary);
-    border: 1px dashed var(--border);
-    border-radius: 24px;
     padding: 56px 24px;
     text-align: center;
 }
@@ -212,38 +151,13 @@
 }
 
 @media (min-width: 768px) {
-    .ev-wishlist-section {
-        padding: 40px 24px 96px;
-    }
-
-    .ev-wishlist-header {
-        flex-direction: row;
-        align-items: flex-end;
-        justify-content: space-between;
-    }
-
-    .ev-wishlist-header-actions {
-        justify-content: flex-end;
-    }
-
     .ev-wishlist-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
 
-@media (max-width: 1023px) {
-    .ev-wishlist-container {
-        grid-template-columns: 1fr;
-    }
-}
-
 @media (min-width: 1024px) {
-    .ev-wishlist-section {
-        padding: 48px 32px 120px;
-    }
-
     .ev-wishlist-grid {
         grid-template-columns: repeat(3, minmax(0, 1fr));
     }
-
 }
