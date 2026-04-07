@@ -3,7 +3,7 @@ package com.evcar.service.mypage;
 import com.evcar.domain.consultation.Consultation;
 import com.evcar.domain.inquiry.Inquiry;
 import com.evcar.domain.user.User;
-
+import com.evcar.domain.vehicle.Wishlist;
 import com.evcar.dto.mypage.MyConsultationResponseDto;
 import com.evcar.dto.mypage.MyInquiryResponseDto;
 import com.evcar.dto.mypage.MyPageInfoResponseDto;
@@ -13,11 +13,14 @@ import com.evcar.dto.mypage.MyWishlistResponseDto;
 import com.evcar.dto.mypage.WithdrawRequestDto;
 import com.evcar.repository.consultation.ConsultationRepository;
 import com.evcar.repository.inquiry.InquiryRepository;
-import com.evcar.repository.mypage.MyWishlistQueryRepository;
 import com.evcar.repository.user.UserRepository;
+import com.evcar.repository.vehicle.VehicleRepository;
+import com.evcar.repository.vehicle.WishlistRepository;
 import java.time.LocalDate;
-import java.time.Year;
+import java.time.YearMonth;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -30,12 +33,17 @@ import org.springframework.transaction.annotation.Transactional;
 public class MyPageServiceImpl implements MyPageService {
 
     private static final ZoneId KOREA_ZONE_ID = ZoneId.of("Asia/Seoul");
+    private static final int MIN_PHONE_DIGITS = 10;
+    private static final int MAX_PHONE_DIGITS = 15;
+    private static final int MAX_PHONE_LENGTH = 16;
+    private static final DateTimeFormatter VEHICLE_YEAR_MONTH_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM");
     private static final int MIN_VEHICLE_YEAR = 1900;
-
+    
     private final UserRepository userRepository;
     private final ConsultationRepository consultationRepository;
     private final InquiryRepository inquiryRepository;
-    private final MyWishlistQueryRepository myWishlistQueryRepository;
+    private final WishlistRepository wishlistRepository;
+    private final VehicleRepository vehicleRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Override
@@ -78,10 +86,6 @@ public class MyPageServiceImpl implements MyPageService {
         String address = getOrDefault(requestDto.getAddress(), user.getAddress());
         String addressDetail = getTrimmedOrDefault(requestDto.getAddressDetail(), user.getAddressDetail());
         String email = getOrDefault(requestDto.getEmail(), user.getEmail());
-
-        if (requestDto.isInvalidPhone()) {
-            throw new IllegalArgumentException("전화번호는 숫자 11자리로 입력해주세요.");
-        }
 
         validateBasicInfo(name, birthDate, gender, phone, address, addressDetail, email);
 
@@ -196,7 +200,21 @@ public class MyPageServiceImpl implements MyPageService {
     @Override
     public List<MyWishlistResponseDto> getMyWishlist(String userId) {
         getUserByUserId(userId);
-        return myWishlistQueryRepository.findMyWishlistByUserId(userId);
+
+        return wishlistRepository.findByUserId(userId).stream()
+                .map(wishlist -> vehicleRepository.findById(wishlist.getVehicleId())
+                        .map(vehicle -> MyWishlistResponseDto.builder()
+                                .wishlistId(wishlist.getWishlistId())
+                                .brand(vehicle.getBrand())
+                                .modelName(vehicle.getModelName())
+                                .vehicleClass(vehicle.getVehicleClass())
+                                .priceBasic(vehicle.getPriceBasic())
+                                .imageUrl(vehicle.getImageUrl())
+                                .detailUrl("/vehicle/" + vehicle.getVehicleId())
+                                .build())
+                        .orElse(null))
+                .filter(java.util.Objects::nonNull)
+                .toList();
     }
 
     @Override
@@ -208,7 +226,14 @@ public class MyPageServiceImpl implements MyPageService {
             throw new IllegalArgumentException("관심차량 식별값이 없습니다.");
         }
 
-        myWishlistQueryRepository.deleteMyWishlistByUserIdAndWishlistId(userId, wishlistId);
+        Wishlist wishlist = wishlistRepository.findById(wishlistId)
+                .orElseThrow(() -> new IllegalArgumentException("관심차량 정보를 찾을 수 없습니다."));
+
+        if (!wishlist.getUserId().equals(userId)) {
+            throw new IllegalArgumentException("본인의 관심차량만 삭제할 수 있습니다.");
+        }
+
+        wishlistRepository.delete(wishlist);
     }
 
     private User getUserByUserId(String userId) {
@@ -304,6 +329,8 @@ public class MyPageServiceImpl implements MyPageService {
             throw new IllegalArgumentException("전화번호를 입력해주세요.");
         }
 
+        validatePhone(phone);
+
         if (address == null || address.isBlank()) {
             throw new IllegalArgumentException("주소를 입력해주세요.");
         }
@@ -311,6 +338,42 @@ public class MyPageServiceImpl implements MyPageService {
         if (email == null || email.isBlank()) {
             throw new IllegalArgumentException("이메일을 입력해주세요.");
         }
+    }
+
+    private void validatePhone(String phone) {
+        String normalizedPhone = normalizePhone(phone);
+        String phoneDigits = extractPhoneDigits(normalizedPhone);
+
+        if (!normalizedPhone.matches("^\\+?\\d+$")) {
+            throw new IllegalArgumentException("전화번호는 숫자와 맨 앞의 + 기호만 사용할 수 있습니다.");
+        }
+
+        if (phoneDigits.length() < MIN_PHONE_DIGITS || phoneDigits.length() > MAX_PHONE_DIGITS) {
+            throw new IllegalArgumentException("전화번호는 국가번호 포함 10~15자리 숫자로 입력해주세요.");
+        }
+
+        if (normalizedPhone.length() > MAX_PHONE_LENGTH) {
+            throw new IllegalArgumentException("전화번호는 최대 16자까지 입력할 수 있습니다.");
+        }
+    }
+
+    private String normalizePhone(String phone) {
+        if (!hasText(phone)) {
+            return "";
+        }
+
+        String trimmed = phone.trim();
+        boolean hasPlusPrefix = trimmed.startsWith("+");
+        String digitsOnly = trimmed.replaceAll("\\D", "");
+
+        return hasPlusPrefix ? "+" + digitsOnly : digitsOnly;
+    }
+
+    private String extractPhoneDigits(String phone) {
+        if (phone == null) {
+            return "";
+        }
+        return phone.replaceAll("\\D", "");
     }
 
     private void validateOwnedVehicleInfo(String vehicleModel, String vehicleYear, Integer drivingDistance) {
@@ -322,19 +385,19 @@ public class MyPageServiceImpl implements MyPageService {
             throw new IllegalArgumentException("보유차량 연식을 입력해주세요.");
         }
 
-        if (!vehicleYear.matches("^\\d{4}$")) {
-            throw new IllegalArgumentException("보유차량 연식은 4자리 숫자(YYYY)로 입력해주세요.");
+        if (!vehicleYear.matches("^\\d{4}-(0[1-9]|1[0-2])$")) {
+            throw new IllegalArgumentException("보유차량 연식은 YYYY-MM 형식으로 입력해주세요.");
         }
 
-        int currentYear = Year.now(KOREA_ZONE_ID).getValue();
-        int year = Integer.parseInt(vehicleYear);
+        YearMonth currentYearMonth = YearMonth.now(KOREA_ZONE_ID);
+        YearMonth inputYearMonth = parseVehicleYearMonth(vehicleYear);
 
-        if (year < MIN_VEHICLE_YEAR) {
+        if (inputYearMonth.getYear() < MIN_VEHICLE_YEAR) {
             throw new IllegalArgumentException("보유차량 연식이 올바르지 않습니다.");
         }
 
-        if (year > currentYear) {
-            throw new IllegalArgumentException("보유차량 연식은 현재 연도보다 클 수 없습니다.");
+        if (inputYearMonth.isAfter(currentYearMonth)) {
+            throw new IllegalArgumentException("보유차량 연식은 현재 연월보다 클 수 없습니다.");
         }
 
         if (drivingDistance == null) {
@@ -343,6 +406,14 @@ public class MyPageServiceImpl implements MyPageService {
 
         if (drivingDistance < 0) {
             throw new IllegalArgumentException("주행거리는 0 이상이어야 합니다.");
+        }
+    }
+
+    private YearMonth parseVehicleYearMonth(String vehicleYear) {
+        try {
+            return YearMonth.parse(vehicleYear, VEHICLE_YEAR_MONTH_FORMATTER);
+        } catch (DateTimeParseException e) {
+            throw new IllegalArgumentException("보유차량 연식은 YYYY-MM 형식으로 입력해주세요.");
         }
     }
 

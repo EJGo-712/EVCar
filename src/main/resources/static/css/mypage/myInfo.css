@@ -1,68 +1,9 @@
-
-.ev-myinfo-page {
-    min-height: 100vh;
-    padding-top: 120px;
-    background: var(--bg-secondary);
-}
-
-.ev-myinfo-section {
-    padding: 32px 16px 80px;
-}
-
-.ev-myinfo-container {
-    max-width: 1400px;
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: 280px minmax(0, 1fr);
-    gap: 24px;
-    align-items: start;
-}
-
-.ev-myinfo-content {
-    min-width: 0;
-}
-
-.ev-myinfo-header {
-    margin-bottom: 24px;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
-
-.ev-myinfo-header-actions {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-}
-
-.ev-myinfo-eyebrow {
-    margin: 0 0 6px;
-    color: var(--accent);
-    font-size: 0.875rem;
-    font-weight: 600;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-}
-
-.ev-myinfo-title {
-    margin: 0 0 10px;
-    color: var(--text-primary);
-    font-size: 2rem;
-    font-weight: 700;
-}
-
-.ev-myinfo-description {
-    margin: 0;
-    color: var(--text-secondary);
-    font-size: 1rem;
-    line-height: 1.6;
-}
-
 .ev-myinfo-card {
-    padding: 24px 20px;
-    background: var(--bg-primary);
+    padding: 28px 24px;
+    background: #fff;
     border: 1px solid var(--border);
     border-radius: 24px;
+    box-shadow: 0 12px 24px rgba(15, 23, 42, 0.04);
 }
 
 .ev-myinfo-grid {
@@ -206,35 +147,13 @@
     -moz-appearance: textfield;
 }
 
-.ev-myinfo-footer {
-    margin-top: 32px;
-    display: flex;
-    justify-content: flex-end;
-}
-
 @media (min-width: 768px) {
-    .ev-myinfo-section {
-        padding: 40px 24px 96px;
-    }
-
-    .ev-myinfo-header {
-        flex-direction: row;
-        align-items: flex-end;
-        justify-content: space-between;
+    .ev-myinfo-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
     .ev-myinfo-card {
         padding: 32px 28px;
-    }
-
-    .ev-myinfo-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-}
-
-@media (max-width: 1023px) {
-    .ev-myinfo-container {
-        grid-template-columns: 1fr;
     }
 }
 
@@ -245,13 +164,7 @@
 }
 
 @media (min-width: 1024px) {
-    .ev-myinfo-section {
-        padding: 48px 32px 120px;
-    }
-
     .ev-myinfo-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 24px;
     }
-
 }

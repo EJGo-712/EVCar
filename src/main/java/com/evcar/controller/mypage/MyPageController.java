@@ -1,5 +1,6 @@
 package com.evcar.controller.mypage;
 
+import com.evcar.domain.user.User;
 import com.evcar.domain.user.UserStatus;
 import com.evcar.dto.mypage.MyConsultationResponseDto;
 import com.evcar.dto.mypage.MyInquiryResponseDto;
@@ -15,7 +16,13 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
@@ -35,11 +42,7 @@ public class MyPageController {
     @GetMapping("/main")
     public String myPageMain(HttpSession session, Model model) {
         return handlePage(session, model, userId -> {
-            MyPageInfoResponseDto info = myPageService.getMyPageInfo(userId);
             MyPageSummaryResponseDto summary = myPageService.getMyPageSummary(userId);
-
-            model.addAttribute("currentUserId", userId);
-            model.addAttribute("myPageInfo", info);
             model.addAttribute("summary", summary);
             return "mypage/myPageMain";
         });
@@ -48,10 +51,7 @@ public class MyPageController {
     @GetMapping("/info")
     public String myInfo(HttpSession session, Model model) {
         return handlePage(session, model, userId -> {
-            MyPageInfoResponseDto info = myPageService.getMyPageInfo(userId);
-
-            model.addAttribute("currentUserId", userId);
-            model.addAttribute("myPageInfo", info);
+            MyPageInfoResponseDto info = getRequiredMyPageInfo(model, userId);
 
             if (!model.containsAttribute("myPageInfoUpdateRequestDto")) {
                 model.addAttribute("myPageInfoUpdateRequestDto", toUpdateRequestDto(info));
@@ -77,26 +77,23 @@ public class MyPageController {
             redirectAttributes.addFlashAttribute("message", "내 정보가 정상적으로 수정되었습니다.");
             return "redirect:/mypage/info";
         } catch (IllegalArgumentException e) {
-            MyPageInfoResponseDto info = myPageService.getMyPageInfo(userId);
+            try {
+                MyPageInfoResponseDto info = myPageService.getMyPageInfo(userId);
+                model.addAttribute("currentUserId", userId);
+                model.addAttribute("myPageInfo", info);
+            } catch (IllegalArgumentException ignored) {
+                model.addAttribute("currentUserId", userId);
+            }
 
-            model.addAttribute("currentUserId", userId);
-            model.addAttribute("myPageInfo", info);
-            model.addAttribute("myPageInfoUpdateRequestDto", toUpdateRequestDto(info));
+            model.addAttribute("myPageInfoUpdateRequestDto", dto);
             model.addAttribute("infoErrorMessage", e.getMessage());
-
             return "mypage/myInfo";
         }
     }
 
     @GetMapping("/wishlist")
     public String myWishlist(HttpSession session, Model model) {
-        return handlePage(session, model, userId -> {
-            MyPageInfoResponseDto info = myPageService.getMyPageInfo(userId);
-
-            model.addAttribute("currentUserId", userId);
-            model.addAttribute("myPageInfo", info);
-            return "mypage/myWishlist";
-        });
+        return handlePage(session, model, userId -> "mypage/myWishlist");
     }
 
     @GetMapping("/wishlist/api")
@@ -107,7 +104,11 @@ public class MyPageController {
             return Collections.emptyList();
         }
 
-        return myPageService.getMyWishlist(userId);
+        try {
+            return myPageService.getMyWishlist(userId);
+        } catch (IllegalArgumentException e) {
+            return Collections.emptyList();
+        }
     }
 
     @PostMapping("/wishlist/delete")
@@ -126,34 +127,37 @@ public class MyPageController {
     @GetMapping("/consultation")
     public String myConsultation(HttpSession session, Model model) {
         return handlePage(session, model, userId -> {
-            List<MyConsultationResponseDto> list = myPageService.getMyConsultations(userId);
-
-            model.addAttribute("currentUserId", userId);
-            model.addAttribute("consultations", list);
+            List<MyConsultationResponseDto> consultations = myPageService.getMyConsultations(userId);
+            model.addAttribute("consultations", consultations);
             return "mypage/myConsultation";
         });
     }
 
     @PostMapping("/consultation/cancel")
     public String cancelConsult(HttpSession session,
-                                @RequestParam("consultId") String consultId) {
+                                @RequestParam("consultId") String consultId,
+                                RedirectAttributes redirectAttributes) {
 
         String userId = getUserId(session);
         if (userId == null) {
             return "redirect:/login";
         }
 
-        myPageService.cancelMyConsultation(userId, consultId);
+        try {
+            myPageService.cancelMyConsultation(userId, consultId);
+            redirectAttributes.addFlashAttribute("message", "상담이 정상적으로 취소되었습니다.");
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("message", e.getMessage());
+        }
+
         return "redirect:/mypage/consultation";
     }
 
     @GetMapping("/inquiry")
     public String myInquiry(HttpSession session, Model model) {
         return handlePage(session, model, userId -> {
-            List<MyInquiryResponseDto> list = myPageService.getMyInquiries(userId);
-
-            model.addAttribute("currentUserId", userId);
-            model.addAttribute("inquiries", list);
+            List<MyInquiryResponseDto> inquiries = myPageService.getMyInquiries(userId);
+            model.addAttribute("inquiries", inquiries);
             return "mypage/myInquiry";
         });
     }
@@ -165,8 +169,6 @@ public class MyPageController {
 
         return handlePage(session, model, userId -> {
             MyInquiryResponseDto inquiry = myPageService.getMyInquiryDetail(userId, id);
-
-            model.addAttribute("currentUserId", userId);
             model.addAttribute("inquiry", inquiry);
             return "mypage/myInquiryDetail";
         });
@@ -175,15 +177,9 @@ public class MyPageController {
     @GetMapping("/withdraw")
     public String myWithdraw(HttpSession session, Model model) {
         return handlePage(session, model, userId -> {
-            MyPageInfoResponseDto info = myPageService.getMyPageInfo(userId);
-
-            model.addAttribute("currentUserId", userId);
-            model.addAttribute("myPageInfo", info);
-
             if (!model.containsAttribute("withdrawRequestDto")) {
                 model.addAttribute("withdrawRequestDto", WithdrawRequestDto.builder().build());
             }
-
             return "mypage/myWithdraw";
         });
     }
@@ -226,6 +222,9 @@ public class MyPageController {
                 return ACCESS_DENIED_VIEW;
             }
 
+            model.addAttribute("currentUserId", userId);
+            model.addAttribute("myPageInfo", info);
+
             return handler.handle(userId);
         } catch (IllegalArgumentException e) {
             model.addAttribute("message", "존재하지 않는 회원입니다.");
@@ -235,7 +234,24 @@ public class MyPageController {
 
     private String getUserId(HttpSession session) {
         Object userId = session.getAttribute("userId");
-        return userId != null ? String.valueOf(userId) : null;
+        if (userId != null) {
+            return String.valueOf(userId);
+        }
+
+        Object loginUser = session.getAttribute("loginUser");
+        if (loginUser instanceof User user) {
+            return user.getUserId();
+        }
+
+        return null;
+    }
+
+    private MyPageInfoResponseDto getRequiredMyPageInfo(Model model, String userId) {
+        Object info = model.getAttribute("myPageInfo");
+        if (info instanceof MyPageInfoResponseDto responseDto) {
+            return responseDto;
+        }
+        return myPageService.getMyPageInfo(userId);
     }
 
     private MyPageInfoUpdateRequestDto toUpdateRequestDto(MyPageInfoResponseDto dto) {

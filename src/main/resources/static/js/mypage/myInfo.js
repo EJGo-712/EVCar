@@ -1,4 +1,3 @@
-
 'use strict';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -12,11 +11,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const MIN_VEHICLE_YEAR = 1900;
+    const MIN_PHONE_DIGITS = 10;
+    const MAX_PHONE_DIGITS = 15;
+    const MAX_PHONE_LENGTH = 16;
 
     const editableInputs = Array.from(form.querySelectorAll('[data-editable="true"]'));
     const genderInputs = Array.from(form.querySelectorAll('input[name="gender"]'));
     const hasVehicleInputs = Array.from(form.querySelectorAll('input[name="hasVehicle"]'));
     const ownedVehicleFields = Array.from(form.querySelectorAll('.ev-vehicle-owned-field'));
+    const hasVehicleGroup = document.getElementById('hasVehicleGroup');
 
     const fields = {
         name: form.querySelector('input[name="name"]'),
@@ -45,6 +48,92 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const getInputValue = (input) => input?.value?.trim() ?? '';
+
+    const sanitizePhoneInput = (value) => {
+        let raw = (value ?? '').trim();
+        raw = raw.replace(/[^\d+]/g, '');
+
+        if (raw.startsWith('+')) {
+            const digitsOnly = raw.substring(1).replace(/\D/g, '');
+            return `+${digitsOnly}`.slice(0, MAX_PHONE_LENGTH);
+        }
+
+        return raw.replace(/\D/g, '').slice(0, MAX_PHONE_DIGITS);
+    };
+
+    const normalizePhoneForValidation = (value) => {
+        const raw = (value ?? '').trim();
+
+        if (!raw) {
+            return '';
+        }
+
+        if (raw.startsWith('+')) {
+            const digitsOnly = raw.substring(1).replace(/\D/g, '');
+            return `+${digitsOnly}`;
+        }
+
+        return raw.replace(/\D/g, '');
+    };
+
+    const getPhoneDigits = (value) => {
+        return (value ?? '').replace(/\D/g, '');
+    };
+
+    const isValidPhoneFormat = (value) => {
+        return /^\+?\d+$/.test(value);
+    };
+
+    const isValidVehicleYearMonthFormat = (value) => {
+        return /^\d{4}-(0[1-9]|1[0-2])$/.test(value);
+    };
+
+    const getCurrentYearMonth = () => {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        return `${year}-${month}`;
+    };
+
+    const sanitizeVehicleYearInput = (value) => {
+        const digitsOnly = (value ?? '').replace(/\D/g, '').slice(0, 6);
+
+        if (digitsOnly.length <= 4) {
+            return digitsOnly;
+        }
+
+        return `${digitsOnly.slice(0, 4)}-${digitsOnly.slice(4, 6)}`;
+    };
+
+    const clampVehicleYearToCurrentMonth = () => {
+        if (!fields.vehicleYear) {
+            return;
+        }
+
+        const currentYearMonth = getCurrentYearMonth();
+        const value = getInputValue(fields.vehicleYear);
+
+        if (isValidVehicleYearMonthFormat(value) && value > currentYearMonth) {
+            fields.vehicleYear.value = currentYearMonth;
+        }
+    };
+
+    const isFutureVehicleYearMonth = (value) => {
+        if (!isValidVehicleYearMonthFormat(value)) {
+            return false;
+        }
+
+        return value > getCurrentYearMonth();
+    };
+
+    const isTooEarlyVehicleYearMonth = (value) => {
+        if (!isValidVehicleYearMonthFormat(value)) {
+            return false;
+        }
+
+        const year = Number(value.substring(0, 4));
+        return year < MIN_VEHICLE_YEAR;
+    };
 
     const getHasVehicleValue = () => {
         const checked = form.querySelector('input[name="hasVehicle"]:checked');
@@ -132,8 +221,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         hasVehicleInputs.forEach((input) => {
-            input.disabled = false;
+            input.disabled = !editing;
         });
+
+        if (hasVehicleGroup) {
+            hasVehicleGroup.classList.toggle('is-disabled', !editing);
+        }
 
         updateOwnedVehicleFieldsState();
     };
@@ -152,14 +245,24 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const validatePhone = () => {
-        const phone = getInputValue(fields.phone);
+        const rawPhone = getInputValue(fields.phone);
+        const normalizedPhone = normalizePhoneForValidation(rawPhone);
+        const phoneDigits = getPhoneDigits(normalizedPhone);
 
-        if (!phone) {
+        if (!rawPhone) {
             return alertAndFocus('전화번호를 입력해주세요.', fields.phone);
         }
 
-        if (!/^\d{11}$/.test(phone)) {
-            return alertAndFocus('전화번호는 숫자 11자리로 입력해주세요.', fields.phone);
+        if (!isValidPhoneFormat(normalizedPhone)) {
+            return alertAndFocus('전화번호는 숫자와 맨 앞의 + 기호만 사용할 수 있습니다.', fields.phone);
+        }
+
+        if (phoneDigits.length < MIN_PHONE_DIGITS || phoneDigits.length > MAX_PHONE_DIGITS) {
+            return alertAndFocus('전화번호는 국가번호 포함 10~15자리 숫자로 입력해주세요.', fields.phone);
+        }
+
+        if (normalizedPhone.length > MAX_PHONE_LENGTH) {
+            return alertAndFocus('전화번호는 최대 16자까지 입력할 수 있습니다.', fields.phone);
         }
 
         return true;
@@ -191,28 +294,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const validateVehicleYear = () => {
         const vehicleYear = getInputValue(fields.vehicleYear);
-        const currentYear = new Date().getFullYear();
 
         if (!vehicleYear) {
             return alertAndFocus('보유차량 연식을 입력해주세요.', fields.vehicleYear);
         }
 
-        if (!/^\d{4}$/.test(vehicleYear)) {
-            return alertAndFocus('보유차량 연식은 4자리 숫자(YYYY)로 입력해주세요.', fields.vehicleYear);
+        if (!isValidVehicleYearMonthFormat(vehicleYear)) {
+            return alertAndFocus('보유차량 연식은 YYYY-MM 형식으로 입력해주세요.', fields.vehicleYear);
         }
 
-        const parsedYear = Number(vehicleYear);
-
-        if (Number.isNaN(parsedYear)) {
-            return alertAndFocus('보유차량 연식은 숫자로 입력해주세요.', fields.vehicleYear);
-        }
-
-        if (parsedYear < MIN_VEHICLE_YEAR) {
+        if (isTooEarlyVehicleYearMonth(vehicleYear)) {
             return alertAndFocus('보유차량 연식이 올바르지 않습니다.', fields.vehicleYear);
         }
 
-        if (parsedYear > currentYear) {
-            return alertAndFocus('보유차량 연식은 현재 연도보다 클 수 없습니다.', fields.vehicleYear);
+        if (isFutureVehicleYearMonth(vehicleYear)) {
+            return alertAndFocus('보유차량 연식은 현재 연월보다 클 수 없습니다.', fields.vehicleYear);
         }
 
         return true;
@@ -258,14 +354,35 @@ document.addEventListener('DOMContentLoaded', () => {
         return true;
     };
 
+    const isAnyFieldChanged = () => {
+        return Array.from(form.querySelectorAll('input')).some((input) => {
+            if (input.type === 'password') {
+                return false;
+            }
+
+            if (input.type === 'radio') {
+                return Boolean(initialValues.get(`${input.name}:${input.value}`)) !== input.checked;
+            }
+
+            return (initialValues.get(input.name) ?? '') !== (input.value ?? '');
+        });
+    };
+
     const validatePasswordChange = () => {
         const currentPassword = getInputValue(fields.currentPassword);
         const newPassword = getInputValue(fields.newPassword);
         const newPasswordConfirm = getInputValue(fields.newPasswordConfirm);
         const isPasswordChangeRequested = Boolean(newPassword || newPasswordConfirm);
+        const isInfoChanged = isAnyFieldChanged();
 
-        if (!currentPassword) {
-            return alertAndFocus('현재 비밀번호를 입력해주세요.', fields.currentPassword);
+        if (!isPasswordChangeRequested && !isInfoChanged) {
+            return alertAndFocus('변경된 정보가 없습니다.', null);
+        }
+
+        if (isPasswordChangeRequested || isInfoChanged) {
+            if (!currentPassword) {
+                return alertAndFocus('현재 비밀번호를 입력해주세요.', fields.currentPassword);
+            }
         }
 
         if (!isPasswordChangeRequested) {
@@ -293,12 +410,24 @@ document.addEventListener('DOMContentLoaded', () => {
             input.disabled = false;
         });
 
+        if (fields.phone) {
+            fields.phone.value = getInputValue(fields.phone);
+        }
+
+        if (fields.vehicleYear) {
+            fields.vehicleYear.value = getInputValue(fields.vehicleYear);
+        }
+
         if (!isVehicleOwned()) {
             clearOwnedVehicleFields();
         }
     };
 
     const validateForm = () => {
+        if (!validatePasswordChange()) {
+            return false;
+        }
+
         if (!validateBasicFields()) {
             return false;
         }
@@ -307,18 +436,34 @@ document.addEventListener('DOMContentLoaded', () => {
             return false;
         }
 
-        if (!validatePasswordChange()) {
-            return false;
-        }
-
         return true;
     };
 
     if (phoneInput) {
         phoneInput.addEventListener('input', () => {
-            phoneInput.value = phoneInput.value
-                .replace(/[^0-9]/g, '')
-                .slice(0, 11);
+            phoneInput.value = sanitizePhoneInput(phoneInput.value);
+        });
+
+        phoneInput.addEventListener('blur', () => {
+            phoneInput.value = sanitizePhoneInput(phoneInput.value);
+        });
+    }
+
+    if (fields.vehicleYear) {
+        fields.vehicleYear.addEventListener('input', () => {
+            fields.vehicleYear.value = sanitizeVehicleYearInput(fields.vehicleYear.value);
+        });
+
+        fields.vehicleYear.addEventListener('blur', () => {
+            const value = getInputValue(fields.vehicleYear);
+
+            if (!value) {
+                return;
+            }
+
+            if (isValidVehicleYearMonthFormat(value)) {
+                clampVehicleYearToCurrentMonth();
+            }
         });
     }
 
@@ -353,5 +498,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
     saveInitialValues();
     setEditMode(false);
-
 });

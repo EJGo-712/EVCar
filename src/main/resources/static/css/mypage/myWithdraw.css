@@ -1,52 +1,4 @@
 
-.ev-withdraw-page {
-    min-height: 100vh;
-    background: var(--bg-primary);
-    padding: 120px 0 80px;
-}
-.ev-withdraw-section {
-    width: 100%;
-    padding: 32px 16px 80px;
-}
-
-.ev-withdraw-container {
-    max-width: 1400px;
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: 280px minmax(0, 1fr);
-    gap: 24px;
-    align-items: start;
-}
-
-.ev-withdraw-content {
-    min-width: 0;
-}
-
-.ev-withdraw-header {
-    margin-bottom: 24px;
-}
-.ev-withdraw-eyebrow {
-    margin: 0 0 8px;
-    color: var(--text-secondary);
-    font-size: 0.875rem;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-}
-
-.ev-withdraw-title {
-    margin: 0 0 10px;
-    color: var(--text-primary);
-    font-size: 2rem;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-}
-
-.ev-withdraw-description {
-    margin: 0;
-    color: var(--text-secondary);
-    font-size: 1rem;
-}
-
 .ev-withdraw-warning-card,
 .ev-withdraw-form-card {
     border: 1px solid var(--border);
@@ -134,6 +86,7 @@
     gap: 12px;
     margin-top: 28px;
 }
+
 .ev-withdraw-actions .btn {
     min-width: 120px;
     height: 48px;
@@ -143,6 +96,7 @@
     padding: 0 20px;
     line-height: 1;
 }
+
 .btn.btn-ev-danger {
     background: #ef4444;
     color: #ffffff;
@@ -153,12 +107,14 @@
     font-size: 0.95rem;
     transition: all 0.2s ease;
 }
+
 .btn.btn-ev-danger:hover {
     background: #dc2626;
     border-color: #dc2626;
     color: #ffffff;
     transform: translateY(-1px);
 }
+
 .btn.btn-ev-danger:disabled {
     opacity: 1;
     background: #f1b5b5;
@@ -167,6 +123,7 @@
     cursor: not-allowed;
     transform: none;
 }
+
 .ev-withdraw-hidden {
     display: none;
 }
@@ -203,25 +160,7 @@
     margin-top: 16px;
 }
 
-@media (max-width: 1023px) {
-    .ev-withdraw-container {
-        grid-template-columns: 1fr;
-    }
-}
-
 @media (max-width: 767px) {
-    .ev-withdraw-page {
-        padding: 104px 0 64px;
-    }
-
-    .ev-withdraw-container {
-        padding: 0 16px;
-    }
-
-    .ev-withdraw-title {
-        font-size: 2rem;
-    }
-
     .ev-withdraw-warning-card,
     .ev-withdraw-form-card {
         padding: 24px 20px;
@@ -235,9 +174,3 @@
         width: 100%;
     }
 }
-@media (min-width: 1024px) {
-    .ev-withdraw-section {
-        padding: 48px 32px 120px;
-    }
-}
-
