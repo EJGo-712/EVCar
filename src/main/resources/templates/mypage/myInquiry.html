@@ -33,9 +33,9 @@
                     <div class="ev-mypage-header__actions"
                          th:if="${inquiries != null and !#lists.isEmpty(inquiries)}">
                         <a class="btn btn-ev-primary ev-inquiry-write-btn"
-                           th:href="@{/inquiry/form}">
-                            문의 작성하기
-                        </a>
+   th:href="@{/inquiry}">
+    문의게시판으로 이동
+</a>
                     </div>
                 </div>
 
@@ -124,8 +124,9 @@
                     <div class="ev-inquiry-empty__icon">✉️</div>
                     <h2 class="ev-inquiry-empty__title">문의 내역이 없습니다</h2>
                     <p class="ev-inquiry-empty__text">궁금한 점이 있다면 문의를 작성해보세요.</p>
-                    <a class="btn btn-ev-primary ev-inquiry-write-btn" th:href="@{/inquiry/form}">
-                        문의 작성하기
+               <a class="btn btn-ev-primary ev-inquiry-write-btn" th:href="@{/inquiry}">
+    문의게시판으로 이동
+</a>
                     </a>
                 </div>
             </div>
