@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface ConsultationRepository extends JpaRepository<Consultation, String> {
 
@@ -16,15 +17,26 @@ public interface ConsultationRepository extends JpaRepository<Consultation, Stri
 
     long countByConsultResult(String consultResult);
 
+    long countByConsultResultAndCreatedAtBetween(String consultResult, LocalDateTime startDateTime, LocalDateTime endDateTime);
+
+    @Query("""
+            select max(c.createdAt)
+            from Consultation c
+            """)
+    LocalDateTime findLatestCreatedAt();
+
     @Query(value = """
             SELECT DATE_FORMAT(c.created_at, '%Y-%m') AS monthLabel,
                    COUNT(*) AS consultationCount
             FROM consultation c
-            WHERE c.created_at >= :startDateTime
+            WHERE c.created_at BETWEEN :startDateTime AND :endDateTime
             GROUP BY DATE_FORMAT(c.created_at, '%Y-%m')
             ORDER BY monthLabel ASC
             """, nativeQuery = true)
-    List<MonthlyConsultationProjection> findMonthlyConsultationStats(LocalDateTime startDateTime);
+    List<MonthlyConsultationProjection> findMonthlyConsultationStats(
+            @Param("startDateTime") LocalDateTime startDateTime,
+            @Param("endDateTime") LocalDateTime endDateTime
+    );
 
     @Query(value = """
             SELECT v.model_name AS modelName,
@@ -57,6 +69,38 @@ public interface ConsultationRepository extends JpaRepository<Consultation, Stri
             """, nativeQuery = true)
     List<ConsultationResultProjection> findConsultationResultStats();
 
+    @Query(value = """
+            SELECT v.model_name AS modelName,
+                   COUNT(*) AS consultationCount
+            FROM consultation c
+            INNER JOIN vehicle v
+                    ON c.vehicle_id = v.vehicle_id
+            WHERE c.created_at BETWEEN :startDateTime AND :endDateTime
+            GROUP BY v.model_name
+            ORDER BY consultationCount DESC, modelName ASC
+            LIMIT 1
+            """, nativeQuery = true)
+    TopVehicleProjection findTopVehicleDemandStats(
+            @Param("startDateTime") LocalDateTime startDateTime,
+            @Param("endDateTime") LocalDateTime endDateTime
+    );
+    
+    @Query(value = """
+            SELECT u.address AS regionName,
+                   COUNT(*) AS consultationCount
+            FROM consultation c
+            INNER JOIN user u
+                    ON c.user_id = u.user_id
+            WHERE c.created_at BETWEEN :startDateTime AND :endDateTime
+            GROUP BY u.address
+            ORDER BY consultationCount DESC, regionName ASC
+            LIMIT 1
+            """, nativeQuery = true)
+    TopRegionProjection findTopRegionConsultationStats(
+            @Param("startDateTime") LocalDateTime startDateTime,
+            @Param("endDateTime") LocalDateTime endDateTime
+    );
+
     interface MonthlyConsultationProjection {
         String getMonthLabel();
         Long getConsultationCount();
@@ -74,6 +118,16 @@ public interface ConsultationRepository extends JpaRepository<Consultation, Stri
 
     interface ConsultationResultProjection {
         String getResultName();
+        Long getConsultationCount();
+    }
+
+    interface TopVehicleProjection {
+        String getModelName();
+        Long getConsultationCount();
+    }
+
+    interface TopRegionProjection {
+        String getRegionName();
         Long getConsultationCount();
     }
 }

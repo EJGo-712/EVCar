@@ -59,42 +59,59 @@
                                 </div>
                             </form>
 
-                            <div class="ev-admin-table-wrap"
-                                 th:if="${userList != null and !#lists.isEmpty(userList)}">
-                                <table class="ev-admin-table">
-                                    <thead>
-                                    <tr>
-                                        <th>No</th>
-                                        <th>이름</th>
-                                        <th>전화번호</th>
-                                        <th>이메일</th>
-                                        <th>가입일</th>
-                                        <th>상태</th>
-                                        <th>관리</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    <tr th:each="user, stat : ${userList}">
-                                        <td th:text="${(currentPage - 1) * 10 + stat.count}">1</td>
-                                        <td th:text="${user.name}">홍길동</td>
-                                        <td th:text="${user.formattedPhone}">010-1234-5678</td>
-                                        <td th:text="${user.email}">hong@example.com</td>
-                                        <td th:text="${user.createdAt}">2025-01-01</td>
-                                        <td th:switch="${user != null ? user.userStatus : ''}">
-                                            <span class="ev-admin-badge ev-admin-badge--active" th:case="'ACTIVE'">활성</span>
-                                            <span class="ev-admin-badge ev-admin-badge--withdrawn" th:case="'WITHDRAWN'">탈퇴</span>
-                                            <span th:case="*">-</span>
-                                        </td>
-                                        <td>
-                                            <a th:href="@{/admin/user(status=${selectedStatus}, keyword=${keyword}, page=${currentPage}, userId=${user.userId})}"
-                                               class="ev-admin-btn ev-admin-btn--secondary ev-admin-btn--sm">
-                                                상세
-                                            </a>
-                                        </td>
-                                    </tr>
-                                    </tbody>
-                                </table>
-                            </div>
+							<div class="ev-admin-table-wrap"
+							     th:if="${userList != null and !#lists.isEmpty(userList)}">
+							    <table class="ev-admin-table ev-admin-user-table">
+							        <colgroup>
+							            <col style="width: 6%">
+							            <col style="width: 14%">
+							            <col style="width: 18%">
+							            <col style="width: 22%">
+							            <col style="width: 20%">
+							            <col style="width: 10%">
+							            <col style="width: 10%">
+							        </colgroup>
+
+							        <thead>
+							        <tr>
+							            <th>No</th>
+							            <th>이름</th>
+							            <th>전화번호</th>
+							            <th>이메일</th>
+							            <th>가입일</th>
+							            <th>상태</th>
+							            <th>관리</th>
+							        </tr>
+							        </thead>
+
+							        <tbody>
+							        <tr th:each="user, stat : ${userList}">
+							            <td th:text="${(currentPage - 1) * 10 + stat.count}">1</td>
+							            <td th:text="${user.name}">홍길동</td>
+							            <td th:text="${user.formattedPhoneWithCountry}">+82 010-1234-5678</td>
+							            <td th:text="${user.email}">hong@example.com</td>
+							            <td th:text="${#temporals.format(user.createdAt, 'yyyy-MM-dd')}">2025-01-01</td>
+							            <td>
+							                <span th:if="${user.userStatus == 'ACTIVE'}"
+							                      class="ev-admin-badge ev-admin-badge--active">
+							                    활성
+							                </span>
+							                <span th:if="${user.userStatus == 'WITHDRAWN'}"
+							                      class="ev-admin-badge ev-admin-badge--withdrawn">
+							                    탈퇴
+							                </span>
+							                <span th:if="${user.userStatus != 'ACTIVE' and user.userStatus != 'WITHDRAWN'}">-</span>
+							            </td>
+							            <td>
+							                <a th:href="@{/admin/user(status=${selectedStatus}, keyword=${keyword}, page=${currentPage}, userId=${user.userId})}"
+							                   class="ev-admin-btn ev-admin-btn--secondary ev-admin-btn--sm">
+							                    상세
+							                </a>
+							            </td>
+							        </tr>
+							        </tbody>
+							    </table>
+							</div>
 
                             <div class="ev-admin-empty" th:if="${userList == null or #lists.isEmpty(userList)}">
                                 조회된 회원 데이터가 없습니다.
@@ -163,10 +180,10 @@
                                         <dt>이름</dt>
                                         <dd th:text="${selectedUser.name}">홍길동</dd>
                                     </div>
-                                    <div class="ev-admin-detail-item">
-                                        <dt>전화번호</dt>
-                                        <dd th:text="${selectedUser.phone}">01012345678</dd>
-                                    </div>
+									<div class="ev-admin-detail-item">
+									    <dt>전화번호</dt>
+									    <dd th:text="${selectedUser.formattedPhoneWithCountry}">+82 10-1234-5678</dd>
+									</div>
                                     <div class="ev-admin-detail-item">
                                         <dt>이메일</dt>
                                         <dd th:text="${selectedUser.email}">hong@example.com</dd>

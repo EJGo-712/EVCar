@@ -6,6 +6,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -25,7 +26,7 @@ public class AdminUserQueryRepositoryImpl implements AdminUserQueryRepository {
     public Page<AdminUserListResponseDto> findUserPage(String status, String keyword, Pageable pageable) {
         StringBuilder whereClause = new StringBuilder(" WHERE 1 = 1 ");
 
-        if (StringUtils.hasText(status)) {
+        if (StringUtils.hasText(status) && !"ALL".equalsIgnoreCase(status)) {
             whereClause.append(" AND u.user_status = :status ");
         }
 
@@ -46,7 +47,7 @@ public class AdminUserQueryRepositoryImpl implements AdminUserQueryRepository {
                     u.phone,
                     u.email,
                     u.user_status,
-                    CAST(u.created_at AS CHAR)
+                    u.created_at
                 FROM user u
                 """
                 + whereClause
@@ -61,7 +62,7 @@ public class AdminUserQueryRepositoryImpl implements AdminUserQueryRepository {
         Query dataQuery = entityManager.createNativeQuery(dataSql);
         Query countQuery = entityManager.createNativeQuery(countSql);
 
-        if (StringUtils.hasText(status)) {
+        if (StringUtils.hasText(status) && !"ALL".equalsIgnoreCase(status)) {
             dataQuery.setParameter("status", status);
             countQuery.setParameter("status", status);
         }
@@ -88,7 +89,7 @@ public class AdminUserQueryRepositoryImpl implements AdminUserQueryRepository {
                     .phone((String) row[3])
                     .email((String) row[4])
                     .userStatus((String) row[5])
-                    .createdAt(row[6] == null ? "" : row[6].toString())
+                    .createdAt(toLocalDateTime(row[6]))
                     .build());
         }
 
@@ -106,18 +107,21 @@ public class AdminUserQueryRepositoryImpl implements AdminUserQueryRepository {
                     u.birth_date,
                     u.gender,
                     u.phone,
-                    CONCAT(u.address, CASE
-                        WHEN u.address_detail IS NULL OR TRIM(u.address_detail) = '' THEN ''
-                        ELSE CONCAT(' ', u.address_detail)
-                    END) AS full_address,
+                    CONCAT(
+                        u.address,
+                        CASE
+                            WHEN u.address_detail IS NULL OR TRIM(u.address_detail) = '' THEN ''
+                            ELSE CONCAT(' ', u.address_detail)
+                        END
+                    ) AS full_address,
                     u.email,
                     u.user_status,
                     u.role,
                     u.vehicle_model,
                     u.vehicle_year,
                     u.driving_distance,
-                    CAST(u.created_at AS CHAR),
-                    CAST(u.updated_at AS CHAR)
+                    u.created_at,
+                    u.updated_at
                 FROM user u
                 WHERE u.user_id = :userId
                 """;
@@ -148,8 +152,8 @@ public class AdminUserQueryRepositoryImpl implements AdminUserQueryRepository {
                 .vehicleModel((String) row[10])
                 .vehicleYear((String) row[11])
                 .drivingDistance(row[12] == null ? null : ((Number) row[12]).intValue())
-                .createdAt(row[13] == null ? null : row[13].toString())
-                .updatedAt(row[14] == null ? null : row[14].toString())
+                .createdAt(toLocalDateTime(row[13]))
+                .updatedAt(toLocalDateTime(row[14]))
                 .build());
     }
 
@@ -166,7 +170,22 @@ public class AdminUserQueryRepositoryImpl implements AdminUserQueryRepository {
             return localDate;
         }
 
-        String text = value.toString();
-        return LocalDate.parse(text.length() >= 10 ? text.substring(0, 10) : text);
+        return LocalDate.parse(value.toString().substring(0, 10));
+    }
+
+    private LocalDateTime toLocalDateTime(Object value) {
+        if (value == null) {
+            return null;
+        }
+
+        if (value instanceof java.sql.Timestamp timestamp) {
+            return timestamp.toLocalDateTime();
+        }
+
+        if (value instanceof LocalDateTime localDateTime) {
+            return localDateTime;
+        }
+
+        return LocalDateTime.parse(value.toString().replace(" ", "T"));
     }
 }

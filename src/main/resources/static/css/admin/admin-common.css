@@ -72,29 +72,38 @@ textarea {
 }
 
 .ev-admin-sidebar__brand {
-    padding: 8px 6px 28px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 32px 8px 36px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    margin-bottom: 24px;
+    margin-bottom: 0;
 }
 
 .ev-admin-sidebar__brand-link {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    width: 100%;
 }
 
 .ev-admin-sidebar__logo-image {
-    width: 60px;
+    width: 132px;
     height: auto;
     display: block;
+    margin: 0 auto;
+    filter: drop-shadow(0 18px 40px rgba(0, 180, 216, 0.35));
 }
 
 .ev-admin-sidebar__logo-text {
     display: block;
-    font-size: 1.6rem;
+    margin: 0;
+    font-size: 2rem;
     font-weight: 700;
-    color: var(--ev-admin-accent);
+    color: var(--ev-admin-text);
     letter-spacing: -0.03em;
     line-height: 1;
 }
@@ -102,17 +111,25 @@ textarea {
 .ev-admin-sidebar__nav {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 14px;
+    margin-top: 28px;
+    padding-top: 8px;
+    padding-left: 18px; /* 메뉴 전체 들여쓰기 */
+    padding-right: 10px;
 }
 
 .ev-admin-sidebar__link {
     display: flex;
     align-items: center;
+    justify-content: flex-start;
     min-height: 48px;
-    padding: 0 16px;
+    padding: 0 14px;
     border: 1px solid transparent;
     border-radius: 14px;
     color: var(--ev-admin-text-muted);
+    font-size: 0.93rem;
+    font-weight: 600;
+    text-align: left;
     transition: all 0.2s ease;
 }
 
@@ -123,12 +140,12 @@ textarea {
 }
 
 .ev-admin-sidebar__link.is-active {
+    width: calc(100% - 10px);
     color: #071a2f;
     font-weight: 700;
     background: linear-gradient(135deg, #8ee8ff 0%, var(--ev-admin-accent) 100%);
     box-shadow: 0 12px 30px rgba(83, 216, 255, 0.28);
 }
-
 .ev-admin-main {
     flex: 1;
     padding: 24px 16px 40px;
@@ -226,7 +243,7 @@ textarea {
 .ev-admin-textarea:focus,
 .ev-admin-file:focus {
     border-color: rgba(83, 216, 255, 0.7);
-    box-shadow: 0 0 0 4px rgba(83, 216, 255, 0.12);
+    box-shadow: 0 0 0 2px rgba(83, 216, 255, 0.12);
     background: rgba(255, 255, 255, 0.08);
 }
 
@@ -522,8 +539,28 @@ textarea {
         grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 
+    .ev-admin-sidebar__brand {
+        padding: 36px 8px 40px;
+    }
+
     .ev-admin-sidebar__logo-image {
-        width: 72px;
+        width: 148px;
+    }
+
+    .ev-admin-sidebar__logo-text {
+        font-size: 2.1rem;
+    }
+
+    .ev-admin-sidebar__nav {
+        gap: 18px;
+        margin-top: 34px;
+        padding-top: 10px;
+    }
+
+    .ev-admin-sidebar__link {
+        min-height: 48px;
+        padding: 0 18px;
+        font-size: 1.1rem;
     }
 
     .ev-admin-pagination {

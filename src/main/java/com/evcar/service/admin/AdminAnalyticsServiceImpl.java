@@ -1,5 +1,6 @@
 package com.evcar.service.admin;
 
+import com.evcar.dto.admin.AdminAnalyticsComparisonResponseDto;
 import com.evcar.dto.admin.AdminConsultationResultResponseDto;
 import com.evcar.dto.admin.AdminMonthlyConsultationResponseDto;
 import com.evcar.dto.admin.AdminRegionConsultationResponseDto;
@@ -9,7 +10,11 @@ import com.evcar.repository.consultation.ConsultationRepository;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.YearMonth;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.ArrayList;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,18 +52,48 @@ public class AdminAnalyticsServiceImpl implements AdminAnalyticsService {
 
     @Override
     public List<AdminMonthlyConsultationResponseDto> getMonthlyConsultationStats() {
-        LocalDateTime startDateTime = LocalDate.now()
-                .minusMonths(11L)
-                .withDayOfMonth(1)
-                .atStartOfDay();
+        LocalDateTime latestCreatedAt = consultationRepository.findLatestCreatedAt();
 
-        return consultationRepository.findMonthlyConsultationStats(startDateTime)
-                .stream()
-                .map(item -> AdminMonthlyConsultationResponseDto.builder()
-                        .monthLabel(item.getMonthLabel())
-                        .consultationCount(item.getConsultationCount() == null ? 0L : item.getConsultationCount())
-                        .build())
-                .toList();
+        YearMonth baseYearMonth = latestCreatedAt == null
+                ? YearMonth.now()
+                : YearMonth.from(latestCreatedAt);
+
+        YearMonth startYearMonth = baseYearMonth.minusMonths(11L);
+
+        LocalDateTime startDateTime = startYearMonth.atDay(1).atStartOfDay();
+        LocalDateTime endDateTime = baseYearMonth.atEndOfMonth().atTime(LocalTime.MAX);
+
+        List<ConsultationRepository.MonthlyConsultationProjection> rawStats =
+                consultationRepository.findMonthlyConsultationStats(startDateTime, endDateTime);
+
+        Map<String, Long> monthlyCountMap = new HashMap<>();
+        for (ConsultationRepository.MonthlyConsultationProjection item : rawStats) {
+            monthlyCountMap.put(
+                    item.getMonthLabel(),
+                    item.getConsultationCount() == null ? 0L : item.getConsultationCount()
+            );
+        }
+
+        List<AdminMonthlyConsultationResponseDto> result = new ArrayList<>();
+
+        YearMonth current = startYearMonth;
+
+        while (!current.isAfter(baseYearMonth)) {
+
+            String monthLabel = current.toString();
+            long consultationCount = monthlyCountMap.getOrDefault(monthLabel, 0L);
+
+            result.add(
+                AdminMonthlyConsultationResponseDto.builder()
+                    .monthLabel(monthLabel)
+                    .consultationCount(consultationCount)
+                    .build()
+            );
+
+            current = current.plusMonths(1);
+        }
+
+        return result;
     }
 
     @Override
@@ -92,5 +127,57 @@ public class AdminAnalyticsServiceImpl implements AdminAnalyticsService {
                         .consultationCount(item.getConsultationCount() == null ? 0L : item.getConsultationCount())
                         .build())
                 .toList();
+    }
+
+    @Override
+    public AdminAnalyticsComparisonResponseDto getComparison() {
+        LocalDate now = LocalDate.now();
+
+        LocalDateTime currentStartDateTime = now.minusMonths(11L).withDayOfMonth(1).atStartOfDay();
+        LocalDateTime currentEndDateTime = now.withDayOfMonth(now.lengthOfMonth()).atTime(LocalTime.MAX);
+
+        LocalDateTime previousStartDateTime = currentStartDateTime.minusYears(1L);
+        LocalDateTime previousEndDateTime = currentEndDateTime.minusYears(1L);
+
+        long currentConsultationCount = consultationRepository.countByCreatedAtBetween(currentStartDateTime, currentEndDateTime);
+        long previousConsultationCount = consultationRepository.countByCreatedAtBetween(previousStartDateTime, previousEndDateTime);
+
+        long currentPurchaseCount = consultationRepository.countByConsultResultAndCreatedAtBetween(
+                CONSULT_RESULT_PURCHASE, currentStartDateTime, currentEndDateTime
+        );
+        long previousPurchaseCount = consultationRepository.countByConsultResultAndCreatedAtBetween(
+                CONSULT_RESULT_PURCHASE, previousStartDateTime, previousEndDateTime
+        );
+
+        int currentConversionRate = currentConsultationCount == 0
+                ? 0
+                : (int) Math.round((double) currentPurchaseCount * 100 / currentConsultationCount);
+
+        int previousConversionRate = previousConsultationCount == 0
+                ? 0
+                : (int) Math.round((double) previousPurchaseCount * 100 / previousConsultationCount);
+
+        int consultationChangeRate = previousConsultationCount == 0
+                ? 0
+                : (int) Math.round(((double) (currentConsultationCount - previousConsultationCount) / previousConsultationCount) * 100);
+
+        int conversionRateGap = currentConversionRate - previousConversionRate;
+
+        ConsultationRepository.TopVehicleProjection topVehicleProjection =
+                consultationRepository.findTopVehicleDemandStats(currentStartDateTime, currentEndDateTime);
+
+        ConsultationRepository.TopRegionProjection topRegionProjection =
+                consultationRepository.findTopRegionConsultationStats(currentStartDateTime, currentEndDateTime);
+
+        return AdminAnalyticsComparisonResponseDto.builder()
+                .currentConsultationCount(currentConsultationCount)
+                .previousConsultationCount(previousConsultationCount)
+                .consultationChangeRate(consultationChangeRate)
+                .currentConversionRate(currentConversionRate)
+                .previousConversionRate(previousConversionRate)
+                .conversionRateGap(conversionRateGap)
+                .topModelName(topVehicleProjection == null ? "-" : topVehicleProjection.getModelName())
+                .topRegionName(topRegionProjection == null ? "-" : topRegionProjection.getRegionName())
+                .build();
     }
 }

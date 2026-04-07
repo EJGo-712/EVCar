@@ -1,5 +1,6 @@
 package com.evcar.controller.admin;
 
+import com.evcar.dto.admin.AdminAnalyticsComparisonResponseDto;
 import com.evcar.dto.admin.AdminConsultationResultResponseDto;
 import com.evcar.dto.admin.AdminMonthlyConsultationResponseDto;
 import com.evcar.dto.admin.AdminRegionConsultationResponseDto;
@@ -53,5 +54,11 @@ public class AdminAnalyticsController {
     @ResponseBody
     public List<AdminConsultationResultResponseDto> getResultStats() {
         return adminAnalyticsService.getConsultationResultStats();
+    }
+
+    @GetMapping("/api/comparison")
+    @ResponseBody
+    public AdminAnalyticsComparisonResponseDto getComparison() {
+        return adminAnalyticsService.getComparison();
     }
 }

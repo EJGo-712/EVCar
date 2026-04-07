@@ -6,23 +6,31 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchButton = document.querySelector('.js-user-search-btn');
     const searchInput = document.querySelector('.js-user-search-input');
 
-    const formatPhoneNumber = (phone) => {
-        if (!phone) {
-            return '';
-        }
+	const formatPhoneNumber = (phone) => {
+	    if (!phone) {
+	        return '';
+	    }
 
-        const numbers = phone.replace(/[^0-9]/g, '');
+	    let numbers = phone.replace(/[^0-9]/g, '');
 
-        if (numbers.length === 11) {
-            return numbers.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
-        }
+	    if (numbers.startsWith('82')) {
+	        numbers = numbers.substring(2);
+	    }
 
-        if (numbers.length === 10) {
-            return numbers.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3');
-        }
+	    if (!numbers.startsWith('0')) {
+	        numbers = `0${numbers}`;
+	    }
 
-        return phone;
-    };
+	    if (numbers.length === 11) {
+	        return `+82 ${numbers.substring(1, 3)}-${numbers.substring(3, 7)}-${numbers.substring(7)}`;
+	    }
+
+	    if (numbers.length === 10) {
+	        return `+82 ${numbers.substring(1, 3)}-${numbers.substring(3, 6)}-${numbers.substring(6)}`;
+	    }
+
+	    return phone;
+	};
 
     const applyPhoneFormat = () => {
         const phoneCells = document.querySelectorAll('.js-user-phone');

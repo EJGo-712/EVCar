@@ -1,26 +1,32 @@
-.ev-admin-faq-table th:nth-child(1),
-.ev-admin-faq-table td:nth-child(1) {
-    width: 8%;
-    text-align: center;
+/* 상담 테이블 컬럼 비율 조정 */
+.ev-admin-consultation-table th:nth-child(1),
+.ev-admin-consultation-table td:nth-child(1) {
+    width: 5%; /* No 줄이기 */
 }
 
-.ev-admin-faq-table th:nth-child(2),
-.ev-admin-faq-table td:nth-child(2) {
-    width: 52%;
+.ev-admin-consultation-table th:nth-child(2),
+.ev-admin-consultation-table td:nth-child(2) {
+    width: 15%; /* 회원명 */
 }
 
-.ev-admin-faq-table th:nth-child(3),
-.ev-admin-faq-table td:nth-child(3),
-.ev-admin-faq-table th:nth-child(4),
-.ev-admin-faq-table td:nth-child(4) {
-    width: 14%;
-    text-align: center;
+.ev-admin-consultation-table th:nth-child(3),
+.ev-admin-consultation-table td:nth-child(3) {
+    width: 20%; /* 희망차량 */
 }
 
-.ev-admin-faq-table th:nth-child(5),
-.ev-admin-faq-table td:nth-child(5) {
-    width: 12%;
-    text-align: center;
+.ev-admin-consultation-table th:nth-child(4),
+.ev-admin-consultation-table td:nth-child(4) {
+    width: 25%; /* 희망일시 (넉넉하게) */
+}
+
+.ev-admin-consultation-table th:nth-child(5),
+.ev-admin-consultation-table td:nth-child(5) {
+    width: 15%; /* 상태 */
+}
+
+.ev-admin-consultation-table th:nth-child(6),
+.ev-admin-consultation-table td:nth-child(6) {
+    width: 10%; /* 관리 */
 }
 
 .ev-admin-faq-question {
@@ -104,6 +110,41 @@
     flex-shrink: 0;
 }
 
+.ev-admin-consultation-table {
+    width: 100%;
+    table-layout: fixed;
+}
+
+.ev-admin-consultation-table th,
+.ev-admin-consultation-table td {
+    text-align: center;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.ev-admin-consultation-table .ev-admin-badge,
+.ev-admin-consultation-table .ev-admin-btn,
+.ev-admin-consultation-table a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ev-admin-consultation-table .ev-admin-badge {
+    min-width: 80px;
+}
+
+.ev-admin-consultation-table .ev-admin-btn--sm {
+    min-width: 56px;
+}
+
+.ev-admin-consultation-table td:nth-child(3) {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 0; 
+}
+
 @media (min-width: 1280px) {
     .ev-admin-consultation-grid {
         grid-template-columns: minmax(0, 1.35fr) minmax(380px, 460px);
@@ -127,4 +168,5 @@
     .ev-admin-actions > * {
         flex: 1 1 auto;
     }
+	
 }

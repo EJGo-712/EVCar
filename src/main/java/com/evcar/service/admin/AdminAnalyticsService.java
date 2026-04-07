@@ -1,5 +1,6 @@
 package com.evcar.service.admin;
 
+import com.evcar.dto.admin.AdminAnalyticsComparisonResponseDto;
 import com.evcar.dto.admin.AdminConsultationResultResponseDto;
 import com.evcar.dto.admin.AdminMonthlyConsultationResponseDto;
 import com.evcar.dto.admin.AdminRegionConsultationResponseDto;
@@ -18,4 +19,6 @@ public interface AdminAnalyticsService {
     List<AdminRegionConsultationResponseDto> getRegionConsultationStats();
 
     List<AdminConsultationResultResponseDto> getConsultationResultStats();
+
+    AdminAnalyticsComparisonResponseDto getComparison();
 }

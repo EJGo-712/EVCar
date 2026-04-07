@@ -76,8 +76,41 @@
                     <section class="ev-admin-card">
                         <div class="ev-admin-card__body">
                             <h2 class="ev-admin-section-title">상담 결과 현황</h2>
-                            <div class="ev-admin-chart-box">
-                                <canvas id="consultationResultChart"></canvas>
+
+                            <div class="ev-admin-result-layout">
+                                <div class="ev-admin-chart-box ev-admin-chart-box--result">
+                                    <canvas id="consultationResultChart"></canvas>
+                                </div>
+
+                                <div class="ev-admin-result-compare">
+                                    <h3 class="ev-admin-result-compare__title">전년 동기 비교</h3>
+
+                                    <div class="ev-admin-result-compare__grid">
+                                        <div class="ev-admin-result-compare__item">
+                                            <span class="ev-admin-result-compare__label">상담량 증감</span>
+                                            <strong class="ev-admin-result-compare__value" id="comparisonConsultationChangeRate">0%</strong>
+                                            <small class="ev-admin-result-compare__sub" id="comparisonConsultationCountText">최근 1년 0건 / 전년 0건</small>
+                                        </div>
+
+                                        <div class="ev-admin-result-compare__item">
+                                            <span class="ev-admin-result-compare__label">계약 전환율 증감</span>
+                                            <strong class="ev-admin-result-compare__value" id="comparisonConversionRateGap">0%p</strong>
+                                            <small class="ev-admin-result-compare__sub" id="comparisonConversionRateText">최근 1년 0% / 전년 0%</small>
+                                        </div>
+
+                                        <div class="ev-admin-result-compare__item">
+                                            <span class="ev-admin-result-compare__label">최다 수요 모델</span>
+                                            <strong class="ev-admin-result-compare__value" id="comparisonTopModelName">-</strong>
+                                            <small class="ev-admin-result-compare__sub">최근 1년 상담 기준</small>
+                                        </div>
+
+                                        <div class="ev-admin-result-compare__item">
+                                            <span class="ev-admin-result-compare__label">최다 상담 지역</span>
+                                            <strong class="ev-admin-result-compare__value" id="comparisonTopRegionName">-</strong>
+                                            <small class="ev-admin-result-compare__sub">최근 1년 상담 기준</small>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </section>

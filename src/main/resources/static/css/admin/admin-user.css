@@ -6,6 +6,49 @@
     min-width: 0;
 }
 
+.ev-admin-user-table {
+    width: 100%;
+    table-layout: fixed;
+}
+
+.ev-admin-user-table th,
+.ev-admin-user-table td {
+    text-align: center;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+	
+.ev-admin-user-table td:nth-child(3) {
+    padding-left: 50px;
+	text-align: left;
+	font-variant-numeric: tabular-nums;
+}
+.ev-admin-user-table td:nth-child(4) {
+	padding-left: 25px;
+	font-variant-numeric: tabular-nums;
+}
+.ev-admin-user-table td:nth-child(5) {
+	text-align: left;
+    padding-left: 85px;
+	font-variant-numeric: tabular-nums;
+}
+
+.ev-admin-user-table .ev-admin-badge,
+.ev-admin-user-table .ev-admin-btn,
+.ev-admin-user-table a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ev-admin-user-table .ev-admin-badge {
+    min-width: 74px;
+}
+
+.ev-admin-user-table .ev-admin-btn--sm {
+    min-width: 56px;
+}
+
 .ev-admin-detail-header {
     display: flex;
     flex-direction: column;
@@ -78,6 +121,34 @@
 .ev-admin-badge--error {
     background-color: rgba(239, 68, 68, 0.15);
     color: #ef4444;
+}
+
+.ev-admin-user-table {
+    width: 100%;
+    table-layout: fixed;
+}
+
+.ev-admin-user-table th,
+.ev-admin-user-table td {
+    text-align: center;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.ev-admin-user-table .ev-admin-badge,
+.ev-admin-user-table .ev-admin-btn,
+.ev-admin-user-table a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ev-admin-user-table .ev-admin-badge {
+    min-width: 74px;
+}
+
+.ev-admin-user-table .ev-admin-btn--sm {
+    min-width: 56px;
 }
 
 @media (min-width: 768px) {
