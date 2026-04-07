@@ -159,8 +159,8 @@
 }
 
 .status-charging {
-	background: #fef9c3;
-	color: #ca8a04;
+    background: #e0f2fe;
+    color: #0284c7;
 }
 
 .status-broken {
@@ -333,16 +333,20 @@
 
     function getStatusClass(status) {
         if (!status) return 'status-unknown';
-        if (status === '2') return 'status-available';
-        if (status === '3') return 'status-charging';
-        if (status === '9') return 'status-broken';
+
+        const s = String(status); // 🔥 추가
+
+        if (s === '2') return 'status-available';
+        if (s === '3') return 'status-charging';
+        if (s === '9') return 'status-broken';
+
         return 'status-unknown';
     }
 
     function getStatusText(status) {
         if (!status) return '알 수 없음';
 
-        const s = String(status); // 🔥 핵심 (이거 없으면 계속 틀림)
+        const s = String(status); // 🔥 추가
 
         if (s === '2') return '사용가능';
         if (s === '3') return '충전중';
