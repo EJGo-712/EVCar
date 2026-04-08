@@ -87,7 +87,11 @@ public class MyPageServiceImpl implements MyPageService {
 		validatePasswordChangeRequest(requestDto);
 
 		if (isPasswordChangeRequested(requestDto)) {
-			user.changePassword(passwordEncoder.encode(requestDto.getNewPassword().trim()));
+		    if (passwordEncoder.matches(requestDto.getNewPassword().trim(), user.getPassword())) {
+		        throw new IllegalArgumentException("새 비밀번호는 현재 비밀번호와 다르게 입력해주세요.");
+		    }
+
+		    user.changePassword(passwordEncoder.encode(requestDto.getNewPassword().trim()));
 		}
 
 		user.updateMyPageInfo(name, birthDate, gender, phone, address, addressDetail, email, vehicleInfo.hasVehicle(),
@@ -267,7 +271,7 @@ public class MyPageServiceImpl implements MyPageService {
 		}
 
 		if (requestDto.isInvalidNewPasswordFormat()) {
-			throw new IllegalArgumentException("새 비밀번호는 영문/숫자만 사용하여 8~20자로 입력해주세요.");
+			throw new IllegalArgumentException("새 비밀번호는 영문, 숫자만 사용하여 8~20자로 입력해주세요.");
 		}
 
 		if (requestDto.isNewPasswordMismatch()) {

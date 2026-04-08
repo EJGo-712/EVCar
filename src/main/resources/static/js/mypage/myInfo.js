@@ -434,7 +434,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (!PASSWORD_REGEX.test(newPassword)) {
-            return alertAndFocus('새 비밀번호는 영문과 숫자를 포함하여 8~20자로 입력해주세요.', fields.newPassword);
+            return alertAndFocus('새 비밀번호는 영문, 숫자만 사용하여 8~20자로 입력해주세요.', fields.newPassword);
         }
 
         if (newPassword !== newPasswordConfirm) {
