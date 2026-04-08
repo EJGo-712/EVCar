@@ -3,11 +3,12 @@ package com.evcar.controller.vehicle;
 import com.evcar.dto.vehicle.VehicleDetailDto;
 import com.evcar.dto.vehicle.VehicleImageResponseDto;
 import com.evcar.dto.vehicle.VehicleListDto;
-import com.evcar.service.vehicle.VehicleImageService;
 import com.evcar.service.vehicle.VehicleService;
 import com.evcar.service.wishlist.WishlistService;
+import com.evcar.service.vehicle.VehicleImageService;
 
 import java.util.List;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -41,19 +42,20 @@ public class VehicleController {
     public String vehicleList(
             @RequestParam(name = "brand", defaultValue = "전체") String brand,
             @RequestParam(name = "vehicleClass", defaultValue = "전체") String vehicleClass,
-            Model model
-    ) {
-        if ("전체".equals(brand)) {
-            brand = null;
-        }
-        if ("전체".equals(vehicleClass)) {
-            vehicleClass = null;
-        }
+            Model model) {
+
+        String originalBrand = brand;
+
+        if ("전체".equals(brand)) brand = null;
+        if ("전체".equals(vehicleClass)) vehicleClass = null;
+
+        if ("현대".equals(brand)) brand = "HYUNDAI";
+        if ("기아".equals(brand)) brand = "KIA";
 
         List<VehicleListDto> vehicleList = vehicleService.getVehicleList(brand, vehicleClass);
 
         model.addAttribute("vehicleList", vehicleList);
-        model.addAttribute("selectedBrand", brand == null ? "전체" : brand);
+        model.addAttribute("selectedBrand", originalBrand == null ? "전체" : originalBrand);
         model.addAttribute("selectedClass", vehicleClass == null ? "전체" : vehicleClass);
         model.addAttribute("totalCount", vehicleList.size());
 
@@ -62,6 +64,7 @@ public class VehicleController {
 
     @GetMapping("/{id}")
     public String detail(@PathVariable("id") String id, Model model) {
+
         VehicleDetailDto dto = vehicleService.getDetail(id);
         dto.setWished(wishlistService.isWished(id));
 

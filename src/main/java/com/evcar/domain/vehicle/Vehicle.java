@@ -22,8 +22,10 @@ import lombok.NoArgsConstructor;
 @Builder
 public class Vehicle {
 
+
     @Id
     @Column(name = "vehicle_id", nullable = false, length = 20)
+
     private String vehicleId;
 
     @Column(name = "brand", nullable = false, length = 20)
@@ -83,6 +85,7 @@ public class Vehicle {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
 
     @PrePersist
     protected void onCreate() {

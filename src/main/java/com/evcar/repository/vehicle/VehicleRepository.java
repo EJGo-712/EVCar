@@ -48,4 +48,5 @@ public interface VehicleRepository extends JpaRepository<Vehicle, String> {
             limit 1
             """)
     Optional<String> findTopVehicleIdByPrefix(@Param("prefix") String prefix);
+    Optional<Vehicle> findByVehicleId(String vehicleId);
 }

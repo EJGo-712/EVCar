@@ -26,6 +26,7 @@ public class VehicleImageServiceImpl implements VehicleImageService {
                         .imageUrl(image.getImageUrl())
                         .imageOrder(image.getImageOrder())
                         .build())
+
                 .toList();
     }
 }
