@@ -26,7 +26,7 @@
 			<div class="d-flex align-items-center gap-2 flex-wrap">
 				<span class="filter-label">브랜드</span>
 				<button type="button" class="filter-btn"
-					th:each="brand : ${{'전체','현대','기아'}}" th:text="${brand}"
+					th:each="brand : ${ {'전체','현대','기아'} }" th:text="${brand}"
 					th:classappend="${brand == selectedBrand} ? ' active' : ''"
 					th:data-brand="${brand}" th:data-class="${selectedClass}"
 					onclick="filterByData(this)"></button>
