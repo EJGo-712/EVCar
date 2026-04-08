@@ -47,7 +47,7 @@ public class WishlistServiceImpl implements WishlistService {
 
     @Override
     public List<VehicleListDto> getWishlistVehicles(String userId) {
-        List<Wishlist> wishlists = wishlistRepository.findByUserId(userId);
+    	List<Wishlist> wishlists = wishlistRepository.findByUserIdOrderByCreatedAtDesc(userId);
         List<VehicleListDto> result = new ArrayList<>();
 
         for (Wishlist wishlist : wishlists) {
