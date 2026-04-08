@@ -1,21 +1,31 @@
+.ev-consultation-write-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 148px;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
 .ev-consultation-list {
     display: flex;
     flex-direction: column;
-    gap: 18px;
+    gap: 24px;
 }
 
 .ev-consultation-card {
     background: #fff;
     border: 1px solid var(--border);
     border-radius: 24px;
-    padding: 24px 20px;
-    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.04);
+    overflow: hidden;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.05);
 }
 
 .ev-consultation-card__body {
+    padding: 28px 24px 20px;
     display: grid;
-    grid-template-columns: 1fr;
-    gap: 14px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px 24px;
 }
 
 .ev-consultation-card__row {
@@ -30,7 +40,7 @@
 
 .ev-consultation-card__label {
     color: var(--text-secondary);
-    font-size: 0.9rem;
+    font-size: 0.95rem;
     font-weight: 600;
 }
 
@@ -38,11 +48,12 @@
     color: var(--text-primary);
     font-size: 1rem;
     font-weight: 500;
-    word-break: keep-all;
+    word-break: break-word;
 }
 
-.ev-consultation-card__value--multiline {
-    white-space: pre-line;
+.ev-consultation-card__value--multiline,
+.ev-consultation-card__value--reply {
+    white-space: pre-wrap;
     line-height: 1.7;
 }
 
@@ -52,30 +63,38 @@
     border-radius: 12px;
     background: #f8fbff;
     border: 1px solid #dbeafe;
-    white-space: pre-line;
-    line-height: 1.7;
 }
 
 .ev-consultation-card__footer {
-    margin-top: 20px;
-    padding-top: 20px;
-    border-top: 1px solid var(--border);
     display: flex;
     align-items: center;
-    justify-content: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 20px 24px 24px;
+    border-top: 1px solid var(--border);
+}
+
+.ev-consultation-card__actions {
+    display: flex;
     gap: 12px;
+    align-items: center;
+    justify-content: flex-end;
     flex-wrap: wrap;
+}
+
+.ev-consultation-card__actions form {
+    margin: 0;
 }
 
 .ev-consultation-status {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 88px;
-    padding: 8px 14px;
+    min-width: 92px;
+    padding: 8px 16px;
     border-radius: 999px;
-    font-size: 0.88rem;
-    font-weight: 700;
+    font-size: 0.85rem;
+    font-weight: 600;
 }
 
 .ev-consultation-status--progress {
@@ -93,6 +112,10 @@
     color: #991b1b;
 }
 
+.ev-consultation-cancel-form {
+    margin: 0;
+}
+
 .ev-consultation-cancel-btn {
     border-radius: 999px;
     padding: 6px 14px;
@@ -102,52 +125,64 @@
 .ev-consultation-disabled-text {
     color: var(--text-light);
     font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    min-height: 38px;
 }
 
 .ev-consultation-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 280px;
     text-align: center;
 }
 
 .ev-consultation-empty__icon {
     font-size: 2.5rem;
-    margin-bottom: 12px;
+    margin-bottom: 16px;
 }
 
 .ev-consultation-empty__title {
-    margin: 0 0 10px;
-    color: var(--text-primary);
-    font-size: 1.5rem;
+    margin: 0;
+    font-size: 1.8rem;
     font-weight: 700;
+    color: var(--text-primary);
 }
 
 .ev-consultation-empty__text {
-    margin: 0 0 24px;
+    margin: 12px 0 24px;
     color: var(--text-secondary);
 }
 
-.ev-consultation-cancel-form {
-    margin: 0;
-}
-
-@media (min-width: 768px) {
-    .ev-consultation-card {
-        padding: 28px 24px;
-    }
-
-    .ev-consultation-card__body {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-}
-
 @media (max-width: 767px) {
+    .ev-consultation-card__body {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
     .ev-consultation-card__footer {
         flex-direction: column;
         align-items: stretch;
     }
 
-    .ev-consultation-card__footer .btn,
-    .ev-consultation-cancel-form,
-    .ev-consultation-cancel-form .btn {
+    .ev-consultation-write-btn {
         width: 100%;
+    }
+
+    .ev-consultation-card__actions {
+        justify-content: stretch;
+    }
+
+    .ev-consultation-card__actions .btn,
+    .ev-consultation-card__actions form,
+    .ev-consultation-card__actions form button {
+        width: 100%;
+    }
+
+    .ev-consultation-disabled-text {
+        width: 100%;
+        justify-content: center;
     }
 }

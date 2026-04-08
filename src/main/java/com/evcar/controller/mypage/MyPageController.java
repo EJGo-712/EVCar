@@ -34,7 +34,7 @@ public class MyPageController {
 
     private final MyPageService myPageService;
 
-    @GetMapping
+    @GetMapping("")
     public String myPageRedirect() {
         return "redirect:/mypage/main";
     }

@@ -28,6 +28,19 @@
                             상담 신청 내역을 확인하고 진행 상태에 따라 취소할 수 있습니다.
                         </p>
                     </div>
+
+                    <div class="ev-mypage-header__actions"
+                         th:if="${consultations != null and !#lists.isEmpty(consultations)}">
+                        <a class="btn btn-ev-primary ev-consultation-write-btn"
+                           th:href="@{/consultation}">
+                            상담게시판으로 이동
+                        </a>
+                    </div>
+                </div>
+
+                <div class="alert alert-success"
+                     th:if="${message != null}"
+                     th:text="${message}">
                 </div>
 
                 <div class="ev-consultation-list"
@@ -47,26 +60,37 @@
                             <div class="ev-consultation-card__row">
                                 <span class="ev-consultation-card__label">예산</span>
                                 <span class="ev-consultation-card__value"
-                                      th:text="${consultation.budget != null ? consultation.budget + '만원' : '-'}"></span>
+                                      th:text="${consultation.budget != null ? consultation.budget + '만원' : '-'}">
+                                </span>
                             </div>
 
                             <div class="ev-consultation-card__row">
                                 <span class="ev-consultation-card__label">구매 시기</span>
                                 <span class="ev-consultation-card__value"
-                                      th:text="${consultation.purchasePlanLabel != null ? consultation.purchasePlanLabel : '-'}"></span>
+                                      th:text="${consultation.purchasePlanLabel != null ? consultation.purchasePlanLabel : '-'}">
+                                </span>
+                            </div>
+
+                            <div class="ev-consultation-card__row">
+                                <span class="ev-consultation-card__label">상태</span>
+                                <span class="ev-consultation-card__value"
+                                      th:text="${consultation.consultStatusLabel != null ? consultation.consultStatusLabel : '-'}">
+                                </span>
                             </div>
 
                             <div class="ev-consultation-card__row ev-consultation-card__row--full">
                                 <span class="ev-consultation-card__label">상담 내용</span>
                                 <span class="ev-consultation-card__value ev-consultation-card__value--multiline"
-                                      th:text="${consultation.consultContent != null ? consultation.consultContent : '-'}"></span>
+                                      th:text="${consultation.consultContent != null ? consultation.consultContent : '-'}">
+                                </span>
                             </div>
 
                             <div class="ev-consultation-card__row ev-consultation-card__row--full"
                                  th:if="${consultation.adminReply != null and !#strings.isEmpty(consultation.adminReply)}">
                                 <span class="ev-consultation-card__label">관리자 답변</span>
                                 <span class="ev-consultation-card__value ev-consultation-card__value--reply"
-                                      th:text="${consultation.adminReply}"></span>
+                                      th:text="${consultation.adminReply}">
+                                </span>
                             </div>
                         </div>
 
@@ -75,30 +99,34 @@
                                   th:classappend="${consultation.consultStatus == 'COMPLETED'} ? ' ev-consultation-status--done'
                                                   : (${consultation.consultStatus == 'CANCELED' or consultation.consultStatus == 'CANCELLED'} ? ' ev-consultation-status--cancel'
                                                   : ' ev-consultation-status--progress')"
-                                  th:text="${consultation.consultStatusLabel}">
+                                  th:text="${consultation.consultStatusLabel != null ? consultation.consultStatusLabel : '진행중'}">
                             </span>
 
-                            <a class="btn btn-ev-primary"
-                               th:href="@{/mypage/consultation/{id}(id=${consultation.consultId})}">
-                                상세보기
-                            </a>
+                            <div class="ev-consultation-card__actions">
+                                <a class="btn btn-ev-secondary"
+                                   th:href="@{/mypage/consultation/{id}(id=${consultation.consultId})}">
+                                    상세보기
+                                </a>
 
-                            <form th:if="${consultation.cancelable}"
-                                  th:action="@{/mypage/consultation/cancel}"
-                                  method="post"
-                                  class="ev-consultation-cancel-form"
-                                  onsubmit="return confirm('상담을 취소하시겠습니까?');">
-                                <input type="hidden"
-                                       name="consultId"
-                                       th:value="${consultation.consultId}">
-                                <button type="submit"
-                                        class="btn btn-ev-secondary ev-consultation-cancel-btn">
-                                    취소
-                                </button>
-                            </form>
+                                <form th:if="${consultation.cancelable}"
+                                      th:action="@{/mypage/consultation/cancel}"
+                                      method="post"
+                                      class="ev-consultation-cancel-form"
+                                      onsubmit="return confirm('상담을 취소하시겠습니까?');">
+                                    <input type="hidden"
+                                           name="consultId"
+                                           th:value="${consultation.consultId}">
+                                    <button type="submit"
+                                            class="btn btn-ev-secondary ev-consultation-cancel-btn">
+                                        취소
+                                    </button>
+                                </form>
 
-                            <span th:if="${!consultation.cancelable}"
-                                  class="ev-consultation-disabled-text">취소불가</span>
+                                <span th:if="${!consultation.cancelable}"
+                                      class="ev-consultation-disabled-text">
+                                    취소불가
+                                </span>
+                            </div>
                         </div>
                     </article>
                 </div>
@@ -110,7 +138,10 @@
                     <p class="ev-consultation-empty__text">
                         상담게시판에서 상담을 신청하면 이곳에서 내역을 확인할 수 있습니다.
                     </p>
-                    <a class="btn btn-ev-primary" th:href="@{/consultation}">상담게시판으로 이동</a>
+                    <a class="btn btn-ev-primary ev-consultation-write-btn"
+                       th:href="@{/consultation}">
+                        상담게시판으로 이동
+                    </a>
                 </div>
             </div>
         </div>
