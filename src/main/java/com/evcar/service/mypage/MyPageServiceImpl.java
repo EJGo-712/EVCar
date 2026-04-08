@@ -194,7 +194,7 @@ public class MyPageServiceImpl implements MyPageService {
 	public List<MyWishlistResponseDto> getMyWishlist(String userId) {
 		getUserByUserId(userId);
 
-		return wishlistRepository.findByUserId(userId).stream().map(wishlist -> vehicleRepository
+		return wishlistRepository.findByUserIdOrderByCreatedAtDesc(userId).stream().map(wishlist -> vehicleRepository
 				.findById(wishlist.getVehicleId())
 				.map(vehicle -> MyWishlistResponseDto.builder().wishlistId(wishlist.getWishlistId())
 						.brand(vehicle.getBrand()).modelName(vehicle.getModelName())
