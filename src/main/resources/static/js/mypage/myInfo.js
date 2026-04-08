@@ -13,8 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const MIN_VEHICLE_YEAR = 1900;
     const MIN_PHONE_DIGITS = 10;
     const MAX_PHONE_DIGITS = 15;
-    const MAX_PHONE_LENGTH = 16;
-    const PASSWORD_REGEX = /^[A-Za-z0-9]{8,20}$/;
+    const PASSWORD_REGEX = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,20}$/;
 
     const editableInputs = Array.from(form.querySelectorAll('[data-editable="true"]'));
     const genderInputs = Array.from(form.querySelectorAll('input[name="gender"]'));
@@ -40,11 +39,47 @@ document.addEventListener('DOMContentLoaded', () => {
     const phoneInput = document.getElementById('phone');
     const initialValues = new Map();
 
+    const showFormMessage = (message, type = 'error') => {
+        let messageBox = document.getElementById('formMessageBox');
+
+        if (!messageBox) {
+            messageBox = document.createElement('div');
+            messageBox.id = 'formMessageBox';
+            form.prepend(messageBox);
+        }
+
+        messageBox.className = `ev-form-message ev-form-message--${type}`;
+        messageBox.textContent = message;
+    };
+
+    const clearFormMessage = () => {
+        const messageBox = document.getElementById('formMessageBox');
+        if (messageBox) {
+            messageBox.remove();
+        }
+    };
+
+    const showServerMessages = () => {
+        const infoErrorMessage = window.infoErrorMessage ?? null;
+        const message = window.message ?? null;
+
+        if (infoErrorMessage) {
+            showFormMessage(infoErrorMessage, 'error');
+            return;
+        }
+
+        if (message) {
+            showFormMessage(message, 'success');
+        }
+    };
+
     const alertAndFocus = (message, element) => {
-        window.alert(message);
+        showFormMessage(message, 'error');
+
         if (element) {
             element.focus();
         }
+
         return false;
     };
 
@@ -56,10 +91,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (raw.startsWith('+')) {
             const digitsOnly = raw.substring(1).replace(/\D/g, '');
-            return `+${digitsOnly}`.slice(0, MAX_PHONE_LENGTH);
+            return `+${digitsOnly}`;
         }
 
-        return raw.replace(/\D/g, '').slice(0, MAX_PHONE_DIGITS);
+        return raw.replace(/\D/g, '');
     };
 
     const normalizePhoneForValidation = (value) => {
@@ -157,12 +192,31 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         updateOwnedVehicleFieldsState();
+        clearZeroDrivingDistanceWhenEmpty();
     };
 
     const clearOwnedVehicleFields = () => {
         ownedVehicleFields.forEach((field) => {
             field.value = '';
         });
+    };
+
+    const clearPasswordFields = () => {
+        if (fields.currentPassword) fields.currentPassword.value = '';
+        if (fields.newPassword) fields.newPassword.value = '';
+        if (fields.newPasswordConfirm) fields.newPasswordConfirm.value = '';
+    };
+
+    const clearZeroDrivingDistanceWhenEmpty = () => {
+        if (!fields.drivingDistance) {
+            return;
+        }
+
+        const rawValue = getInputValue(fields.drivingDistance);
+
+        if (!isVehicleOwned() && rawValue === '0') {
+            fields.drivingDistance.value = '';
+        }
     };
 
     const updateOwnedVehicleFieldsState = () => {
@@ -222,6 +276,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const setEditMode = (editing) => {
         toggleActionButtons(editing);
         updateEditableFieldsState(editing);
+
+        if (!editing) {
+            clearPasswordFields();
+        }
     };
 
     const validateRequiredField = (input, message) => {
@@ -247,10 +305,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (phoneDigits.length < MIN_PHONE_DIGITS || phoneDigits.length > MAX_PHONE_DIGITS) {
             return alertAndFocus('전화번호는 국가번호 포함 10~15자리 숫자로 입력해주세요.', fields.phone);
-        }
-
-        if (normalizedPhone.length > MAX_PHONE_LENGTH) {
-            return alertAndFocus('전화번호는 최대 16자까지 입력할 수 있습니다.', fields.phone);
         }
 
         return true;
@@ -284,19 +338,19 @@ document.addEventListener('DOMContentLoaded', () => {
         const vehicleYear = getInputValue(fields.vehicleYear);
 
         if (!vehicleYear) {
-            return alertAndFocus('보유차량 연식을 입력해주세요.', fields.vehicleYear);
+            return alertAndFocus('보유차종 연식을 입력해주세요.', fields.vehicleYear);
         }
 
         if (!isValidVehicleYearMonthFormat(vehicleYear)) {
-            return alertAndFocus('보유차량 연식은 YYYY-MM 형식이며, 월은 01~12로 입력해주세요.', fields.vehicleYear);
+            return alertAndFocus('보유차종 연식은 YYYY-MM 형식이며, 월은 01~12로 입력해주세요.', fields.vehicleYear);
         }
 
         if (isTooEarlyVehicleYearMonth(vehicleYear)) {
-            return alertAndFocus('보유차량 연식이 올바르지 않습니다.', fields.vehicleYear);
+            return alertAndFocus('보유차종 연식이 올바르지 않습니다.', fields.vehicleYear);
         }
 
         if (isFutureVehicleYearMonth(vehicleYear)) {
-            return alertAndFocus('보유차량 연식은 현재 연월보다 클 수 없습니다.', fields.vehicleYear);
+            return alertAndFocus('보유차종 연식은 현재 연월보다 클 수 없습니다.', fields.vehicleYear);
         }
 
         return true;
@@ -309,7 +363,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return alertAndFocus('주행거리를 입력해주세요.', fields.drivingDistance);
         }
 
-        const parsedDistance = Number(fields.drivingDistance.value);
+        const parsedDistance = Number(drivingDistance);
 
         if (Number.isNaN(parsedDistance)) {
             return alertAndFocus('주행거리는 숫자로 입력해주세요.', fields.drivingDistance);
@@ -367,10 +421,8 @@ document.addEventListener('DOMContentLoaded', () => {
             return alertAndFocus('변경된 정보가 없습니다.', null);
         }
 
-        if (isPasswordChangeRequested || isInfoChanged) {
-            if (!currentPassword) {
-                return alertAndFocus('현재 비밀번호를 입력해주세요.', fields.currentPassword);
-            }
+        if ((isPasswordChangeRequested || isInfoChanged) && !currentPassword) {
+            return alertAndFocus('현재 비밀번호를 입력해주세요.', fields.currentPassword);
         }
 
         if (!isPasswordChangeRequested) {
@@ -382,7 +434,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (!PASSWORD_REGEX.test(newPassword)) {
-            return alertAndFocus('새 비밀번호는 영문/숫자만 사용하여 8~20자로 입력해주세요.', fields.newPassword);
+            return alertAndFocus('새 비밀번호는 영문과 숫자를 포함하여 8~20자로 입력해주세요.', fields.newPassword);
         }
 
         if (newPassword !== newPasswordConfirm) {
@@ -413,9 +465,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!isVehicleOwned()) {
             clearOwnedVehicleFields();
         }
+
+        clearFormMessage();
     };
 
     const validateForm = () => {
+        clearFormMessage();
+
         if (!validatePasswordChange()) {
             return false;
         }
@@ -445,24 +501,33 @@ document.addEventListener('DOMContentLoaded', () => {
         fields.vehicleYear.addEventListener('input', () => {
             fields.vehicleYear.value = sanitizeVehicleYearInput(fields.vehicleYear.value);
         });
+
+        fields.vehicleYear.addEventListener('blur', () => {
+            fields.vehicleYear.value = sanitizeVehicleYearInput(fields.vehicleYear.value);
+        });
     }
 
     hasVehicleInputs.forEach((input) => {
         input.addEventListener('change', () => {
+            clearFormMessage();
+
             if (!isVehicleOwned()) {
                 clearOwnedVehicleFields();
             }
 
             updateOwnedVehicleFieldsState();
+            clearZeroDrivingDistanceWhenEmpty();
         });
     });
 
     editModeButton.addEventListener('click', () => {
+        clearFormMessage();
         saveInitialValues();
         setEditMode(true);
     });
 
     cancelButton.addEventListener('click', () => {
+        clearFormMessage();
         restoreInitialValues();
         setEditMode(false);
     });
@@ -478,4 +543,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     saveInitialValues();
     setEditMode(false);
+    clearZeroDrivingDistanceWhenEmpty();
+    showServerMessages();
 });
