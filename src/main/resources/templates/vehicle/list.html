@@ -26,8 +26,8 @@
 			<div class="d-flex align-items-center gap-2 flex-wrap">
 				<span class="filter-label">브랜드</span>
 				<button type="button" class="filter-btn"
-					th:each="brand : ${ {'전체','현대','기아'} }" th:text="${brand}"
-					th:classappend="${brand == selectedBrand} ? ' active'"
+					th:each="brand : ${{'전체','현대','기아'}}" th:text="${brand}"
+					th:classappend="${brand == selectedBrand} ? ' active' : ''"
 					th:data-brand="${brand}" th:data-class="${selectedClass}"
 					onclick="filterByData(this)"></button>
 			</div>
@@ -39,42 +39,42 @@
 				<span class="filter-label">차급</span>
 
 				<button type="button" class="filter-btn"
-					th:classappend="${selectedClass == ''} ? ' active'"
+					th:classappend="${selectedClass == ''} ? ' active' : ''"
 					th:data-brand="${selectedBrand}" data-class=""
 					onclick="filterByData(this)">전체</button>
 
 				<button type="button" class="filter-btn"
-					th:classappend="${selectedClass == 'MINI'} ? ' active'"
+					th:classappend="${selectedClass == 'MINI'} ? ' active' : ''" 
 					th:data-brand="${selectedBrand}" data-class="MINI"
 					onclick="filterByData(this)">경형</button>
 
 				<button type="button" class="filter-btn"
-					th:classappend="${selectedClass == 'MINI_SUV'} ? ' active'"
+					th:classappend="${selectedClass == 'MINI_SUV'} ? ' active' : ''" 
 					th:data-brand="${selectedBrand}" data-class="MINI_SUV"
 					onclick="filterByData(this)">경형SUV</button>
 
 				<button type="button" class="filter-btn"
-					th:classappend="${selectedClass == 'SMALL_SUV'} ? ' active'"
+					th:classappend="${selectedClass == 'SMALL_SUV'} ? ' active' : ''" 
 					th:data-brand="${selectedBrand}" data-class="SMALL_SUV"
 					onclick="filterByData(this)">소형SUV</button>
 
 				<button type="button" class="filter-btn"
-					th:classappend="${selectedClass == 'MID_SUV'} ? ' active'"
+					th:classappend="${selectedClass == 'MID_SUV'} ? ' active' : ''" 
 					th:data-brand="${selectedBrand}" data-class="MID_SUV"
 					onclick="filterByData(this)">중형SUV</button>
 
 				<button type="button" class="filter-btn"
-					th:classappend="${selectedClass == 'LARGE_SUV'} ? ' active'"
+					th:classappend="${selectedClass == 'LARGE_SUV'} ? ' active' : ''" 
 					th:data-brand="${selectedBrand}" data-class="LARGE_SUV"
 					onclick="filterByData(this)">대형SUV</button>
 
 				<button type="button" class="filter-btn"
-					th:classappend="${selectedClass == 'MID_SEDAN'} ? ' active'"
+					th:classappend="${selectedClass == 'MID_SEDAN'} ? ' active' : ''" 
 					th:data-brand="${selectedBrand}" data-class="MID_SEDAN"
 					onclick="filterByData(this)">세단</button>
 
 				<button type="button" class="filter-btn"
-					th:classappend="${selectedClass == 'PERFORMANCE'} ? ' active'"
+					th:classappend="${selectedClass == 'PERFORMANCE'} ? ' active' : ''" 
 					th:data-brand="${selectedBrand}" data-class="PERFORMANCE"
 					onclick="filterByData(this)">고성능</button>
 
@@ -122,7 +122,7 @@
 			th:if="${totalPages > 1}">
 			<button type="button" class="filter-btn"
 				th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
-				th:text="${i + 1}" th:classappend="${i == currentPage} ? ' active'"
+				th:text="${i + 1}" th:classappend="${i == currentPage} ? ' active' : ''" 
 				th:data-brand="${selectedBrand}" th:data-class="${selectedClass}"
 				th:data-page="${i}" onclick="goPage(this)"></button>
 		</div>
