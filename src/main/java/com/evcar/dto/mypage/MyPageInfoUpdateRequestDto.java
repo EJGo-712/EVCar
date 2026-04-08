@@ -17,119 +17,125 @@ import lombok.Setter;
 @Builder
 public class MyPageInfoUpdateRequestDto {
 
-    private static final int MIN_PHONE_DIGITS = 10;
-    private static final int MAX_PHONE_DIGITS = 15;
-    private static final int MAX_PHONE_LENGTH = 16;
-    private static final DateTimeFormatter VEHICLE_YEAR_MONTH_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM");
+	private static final int MIN_PHONE_DIGITS = 10;
+	private static final int MAX_PHONE_DIGITS = 15;
+	private static final int MAX_PHONE_LENGTH = 16;
+	private static final DateTimeFormatter VEHICLE_YEAR_MONTH_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM");
 
-    private String name;
-    private LocalDate birthDate;
-    private String gender;
-    private String phone;
-    private String address;
-    private String addressDetail;
-    private String email;
-    private String hasVehicle;
-    private String vehicleModel;
-    private String vehicleYear;
-    private Integer drivingDistance;
+	// 비밀번호: 영문/숫자만, 8~20자
+	private static final String PASSWORD_REGEX = "^[A-Za-z0-9]{8,20}$";
 
-    private String currentPassword;
-    private String newPassword;
-    private String newPasswordConfirm;
+	private String name;
+	private LocalDate birthDate;
+	private String gender;
+	private String phone;
+	private String address;
+	private String addressDetail;
+	private String email;
+	private String hasVehicle;
+	private String vehicleModel;
+	private String vehicleYear;
+	private Integer drivingDistance;
 
-    public boolean isNovehicle() {
-        return hasVehicle == null
-                || "no".equalsIgnoreCase(hasVehicle)
-                || "n".equalsIgnoreCase(hasVehicle);
-    }
+	private String currentPassword;
+	private String newPassword;
+	private String newPasswordConfirm;
 
-    public boolean hasPasswordChangeRequest() {
-        return hasText(currentPassword)
-                || hasText(newPassword)
-                || hasText(newPasswordConfirm);
-    }
+	public boolean isNovehicle() {
+		return hasVehicle == null || "no".equalsIgnoreCase(hasVehicle) || "n".equalsIgnoreCase(hasVehicle);
+	}
 
-    public boolean hasInvalidPasswordChangeInput() {
-        return hasPasswordChangeRequest()
-                && (!hasText(currentPassword)
-                || !hasText(newPassword)
-                || !hasText(newPasswordConfirm));
-    }
+	public boolean hasPasswordChangeRequest() {
+		return hasText(currentPassword) || hasText(newPassword) || hasText(newPasswordConfirm);
+	}
 
-    public boolean isNewPasswordMismatch() {
-        if (!hasText(newPassword) && !hasText(newPasswordConfirm)) {
-            return false;
-        }
+	public boolean hasInvalidPasswordChangeInput() {
+		return hasPasswordChangeRequest()
+				&& (!hasText(currentPassword) || !hasText(newPassword) || !hasText(newPasswordConfirm));
+	}
 
-        if (newPassword == null) {
-            return newPasswordConfirm != null;
-        }
+	public boolean isNewPasswordMismatch() {
+		if (!hasText(newPassword) && !hasText(newPasswordConfirm)) {
+			return false;
+		}
 
-        return !newPassword.equals(newPasswordConfirm);
-    }
+		if (newPassword == null) {
+			return newPasswordConfirm != null;
+		}
 
-    public boolean isInvalidPhone() {
-        if (!hasText(phone)) {
-            return false;
-        }
+		return !newPassword.equals(newPasswordConfirm);
+	}
 
-        String normalizedPhone = normalizePhone(phone);
-        String phoneDigits = extractPhoneDigits(normalizedPhone);
+	// 추가: 새 비밀번호 형식 검사
+	public boolean isInvalidNewPasswordFormat() {
+		if (!hasText(newPassword)) {
+			return false;
+		}
 
-        if (!normalizedPhone.matches("^\\+?\\d+$")) {
-            return true;
-        }
+		return !newPassword.trim().matches(PASSWORD_REGEX);
+	}
 
-        if (phoneDigits.length() < MIN_PHONE_DIGITS || phoneDigits.length() > MAX_PHONE_DIGITS) {
-            return true;
-        }
+	public boolean isInvalidPhone() {
+		if (!hasText(phone)) {
+			return false;
+		}
 
-        return normalizedPhone.length() > MAX_PHONE_LENGTH;
-    }
+		String normalizedPhone = normalizePhone(phone);
+		String phoneDigits = extractPhoneDigits(normalizedPhone);
 
-    public boolean isInvalidVehicleYear() {
-        if (!hasText(vehicleYear)) {
-            return false;
-        }
+		if (!normalizedPhone.matches("^\\+?\\d+$")) {
+			return true;
+		}
 
-        if (!vehicleYear.matches("^\\d{4}-(0[1-9]|1[0-2])$")) {
-            return true;
-        }
+		if (phoneDigits.length() < MIN_PHONE_DIGITS || phoneDigits.length() > MAX_PHONE_DIGITS) {
+			return true;
+		}
 
-        try {
-            YearMonth parsed = YearMonth.parse(vehicleYear, VEHICLE_YEAR_MONTH_FORMATTER);
-            return parsed.getYear() < 1900;
-        } catch (DateTimeParseException e) {
-            return true;
-        }
-    }
+		return normalizedPhone.length() > MAX_PHONE_LENGTH;
+	}
 
-    public String getNormalizedPhone() {
-        return normalizePhone(phone);
-    }
+	public boolean isInvalidVehicleYear() {
+		if (!hasText(vehicleYear)) {
+			return false;
+		}
 
-    private String normalizePhone(String value) {
-        if (!hasText(value)) {
-            return "";
-        }
+		if (!vehicleYear.matches("^\\d{4}-(0[1-9]|1[0-2])$")) {
+			return true;
+		}
 
-        String trimmed = value.trim();
-        boolean hasPlusPrefix = trimmed.startsWith("+");
-        String digitsOnly = trimmed.replaceAll("\\D", "");
+		try {
+			YearMonth parsed = YearMonth.parse(vehicleYear, VEHICLE_YEAR_MONTH_FORMATTER);
+			return parsed.getYear() < 1900;
+		} catch (DateTimeParseException e) {
+			return true;
+		}
+	}
 
-        return hasPlusPrefix ? "+" + digitsOnly : digitsOnly;
-    }
+	public String getNormalizedPhone() {
+		return normalizePhone(phone);
+	}
 
-    private String extractPhoneDigits(String value) {
-        if (value == null) {
-            return "";
-        }
+	private String normalizePhone(String value) {
+		if (!hasText(value)) {
+			return "";
+		}
 
-        return value.replaceAll("\\D", "");
-    }
+		String trimmed = value.trim();
+		boolean hasPlusPrefix = trimmed.startsWith("+");
+		String digitsOnly = trimmed.replaceAll("\\D", "");
 
-    private boolean hasText(String value) {
-        return value != null && !value.trim().isEmpty();
-    }
+		return hasPlusPrefix ? "+" + digitsOnly : digitsOnly;
+	}
+
+	private String extractPhoneDigits(String value) {
+		if (value == null) {
+			return "";
+		}
+
+		return value.replaceAll("\\D", "");
+	}
+
+	private boolean hasText(String value) {
+		return value != null && !value.trim().isEmpty();
+	}
 }

@@ -13,35 +13,35 @@ import lombok.Setter;
 @Builder
 public class WithdrawRequestDto {
 
-    private String password;
-    private String withdrawReason;
-    private String withdrawReasonDetail;
-    private Boolean agreeWithdraw;
+	private String password;
+	private String withdrawReason;
+	private String withdrawReasonDetail;
+	private Boolean agreeWithdraw;
 
-    public boolean isInvalid() {
-        if (password == null || password.isBlank()) {
-            return true;
-        }
+	public boolean isInvalid() {
+		if (password == null || password.isBlank()) {
+			return true;
+		}
 
-        if (withdrawReason == null || withdrawReason.isBlank()) {
-            return true;
-        }
+		if (withdrawReason == null || withdrawReason.isBlank()) {
+			return true;
+		}
 
-        if (isOtherReason() && (withdrawReasonDetail == null || withdrawReasonDetail.isBlank())) {
-            return true;
-        }
+		if (isOtherReason() && (withdrawReasonDetail == null || withdrawReasonDetail.isBlank())) {
+			return true;
+		}
 
-        return !Boolean.TRUE.equals(agreeWithdraw);
-    }
+		return !Boolean.TRUE.equals(agreeWithdraw);
+	}
 
-    public boolean isOtherReason() {
-        return "기타".equals(withdrawReason);
-    }
+	public boolean isOtherReason() {
+		return "기타".equals(withdrawReason);
+	}
 
-    public String getFinalWithdrawReason() {
-        if (isOtherReason()) {
-            return withdrawReasonDetail != null ? withdrawReasonDetail.trim() : "";
-        }
-        return withdrawReason != null ? withdrawReason.trim() : "";
-    }
+	public String getFinalWithdrawReason() {
+		if (isOtherReason()) {
+			return withdrawReasonDetail != null ? withdrawReasonDetail.trim() : "";
+		}
+		return withdrawReason != null ? withdrawReason.trim() : "";
+	}
 }

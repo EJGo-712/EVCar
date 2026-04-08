@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const MIN_PHONE_DIGITS = 10;
     const MAX_PHONE_DIGITS = 15;
     const MAX_PHONE_LENGTH = 16;
+    const PASSWORD_REGEX = /^[A-Za-z0-9]{8,20}$/;
 
     const editableInputs = Array.from(form.querySelectorAll('[data-editable="true"]'));
     const genderInputs = Array.from(form.querySelectorAll('input[name="gender"]'));
@@ -103,19 +104,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         return `${digitsOnly.slice(0, 4)}-${digitsOnly.slice(4, 6)}`;
-    };
-
-    const clampVehicleYearToCurrentMonth = () => {
-        if (!fields.vehicleYear) {
-            return;
-        }
-
-        const currentYearMonth = getCurrentYearMonth();
-        const value = getInputValue(fields.vehicleYear);
-
-        if (isValidVehicleYearMonthFormat(value) && value > currentYearMonth) {
-            fields.vehicleYear.value = currentYearMonth;
-        }
     };
 
     const isFutureVehicleYearMonth = (value) => {
@@ -300,7 +288,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (!isValidVehicleYearMonthFormat(vehicleYear)) {
-            return alertAndFocus('보유차량 연식은 YYYY-MM 형식으로 입력해주세요.', fields.vehicleYear);
+            return alertAndFocus('보유차량 연식은 YYYY-MM 형식이며, 월은 01~12로 입력해주세요.', fields.vehicleYear);
         }
 
         if (isTooEarlyVehicleYearMonth(vehicleYear)) {
@@ -393,6 +381,10 @@ document.addEventListener('DOMContentLoaded', () => {
             return alertAndFocus('새 비밀번호와 새 비밀번호 확인을 모두 입력해주세요.', fields.newPassword);
         }
 
+        if (!PASSWORD_REGEX.test(newPassword)) {
+            return alertAndFocus('새 비밀번호는 영문/숫자만 사용하여 8~20자로 입력해주세요.', fields.newPassword);
+        }
+
         if (newPassword !== newPasswordConfirm) {
             return alertAndFocus('새 비밀번호와 새 비밀번호 확인이 일치하지 않습니다.', fields.newPasswordConfirm);
         }
@@ -452,18 +444,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (fields.vehicleYear) {
         fields.vehicleYear.addEventListener('input', () => {
             fields.vehicleYear.value = sanitizeVehicleYearInput(fields.vehicleYear.value);
-        });
-
-        fields.vehicleYear.addEventListener('blur', () => {
-            const value = getInputValue(fields.vehicleYear);
-
-            if (!value) {
-                return;
-            }
-
-            if (isValidVehicleYearMonthFormat(value)) {
-                clampVehicleYearToCurrentMonth();
-            }
         });
     }
 
