@@ -133,6 +133,18 @@ public class MyPageController {
         });
     }
 
+    @GetMapping("/consultation/{id}")
+    public String myConsultationDetail(@PathVariable("id") String id,
+                                       HttpSession session,
+                                       Model model) {
+
+        return handlePage(session, model, userId -> {
+            MyConsultationResponseDto consultation = myPageService.getMyConsultationDetail(userId, id);
+            model.addAttribute("consultation", consultation);
+            return "mypage/myConsultationDetail";
+        });
+    }
+
     @PostMapping("/consultation/cancel")
     public String cancelConsult(HttpSession session,
                                 @RequestParam("consultId") String consultId,

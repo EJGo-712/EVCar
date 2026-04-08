@@ -40,7 +40,8 @@
                             <div class="ev-consultation-card__row">
                                 <span class="ev-consultation-card__label">희망 상담일시</span>
                                 <span class="ev-consultation-card__value"
-                                      th:text="${consultation.preferredDatetime != null ? #temporals.format(consultation.preferredDatetime, 'yyyy-MM-dd HH:mm') : '-'}"></span>
+                                      th:text="${consultation.preferredDatetime != null ? consultation.preferredDatetime : '-'}">
+                                </span>
                             </div>
 
                             <div class="ev-consultation-card__row">
@@ -78,7 +79,7 @@
                             </span>
 
                             <a class="btn btn-ev-primary"
-                               th:href="@{/consultation/{id}(id=${consultation.consultId})}">
+                               th:href="@{/mypage/consultation/{id}(id=${consultation.consultId})}">
                                 상세보기
                             </a>
 
@@ -103,14 +104,14 @@
                 </div>
 
                 <div class="ev-consultation-empty ev-mypage-empty-card"
-     th:if="${consultations == null or #lists.isEmpty(consultations)}">
-    <div class="ev-consultation-empty__icon">📄</div>
-    <h2 class="ev-consultation-empty__title">상담 이력이 없습니다</h2>
-    <p class="ev-consultation-empty__text">
-        상담게시판에서 상담을 신청하면 이곳에서 내역을 확인할 수 있습니다.
-    </p>
-    <a class="btn btn-ev-primary" th:href="@{/consultation}">상담게시판으로 이동</a>
-</div>
+                     th:if="${consultations == null or #lists.isEmpty(consultations)}">
+                    <div class="ev-consultation-empty__icon">📄</div>
+                    <h2 class="ev-consultation-empty__title">상담 이력이 없습니다</h2>
+                    <p class="ev-consultation-empty__text">
+                        상담게시판에서 상담을 신청하면 이곳에서 내역을 확인할 수 있습니다.
+                    </p>
+                    <a class="btn btn-ev-primary" th:href="@{/consultation}">상담게시판으로 이동</a>
+                </div>
             </div>
         </div>
     </section>

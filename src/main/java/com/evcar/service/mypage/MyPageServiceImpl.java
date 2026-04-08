@@ -118,7 +118,19 @@ public class MyPageServiceImpl implements MyPageService {
 
 		consultation.cancel();
 	}
+	@Override
+	public MyConsultationResponseDto getMyConsultationDetail(String userId, String consultId) {
+	    User user = getUserByUserId(userId);
 
+	    Consultation consultation = consultationRepository.findById(consultId)
+	            .orElseThrow(() -> new IllegalArgumentException("상담 정보를 찾을 수 없습니다."));
+
+	    if (!consultation.getUser().getUserId().equals(user.getUserId())) {
+	        throw new IllegalArgumentException("본인의 상담만 조회할 수 있습니다.");
+	    }
+
+	    return MyConsultationResponseDto.from(consultation);
+	}
 	@Override
 	public List<MyInquiryResponseDto> getMyInquiries(String userId) {
 		User user = getUserByUserId(userId);
