@@ -205,34 +205,35 @@
                                             </div>
 
                                             <div class="ev-myinfo-field">
-                                                <label class="ev-myinfo-label">보유차종 연식</label>
-                                                <input type="text"
-                                                       class="ev-input ev-myinfo-input ev-vehicle-owned-field"
-                                                       th:field="*{vehicleYear}"
-                                                       data-editable="true"
-                                                       readonly
-                                                       inputmode="numeric"
-                                                       maxlength="7"
-                                                       placeholder="숫자만 입력 (예: 202305)">
-                                            </div>
+    <label class="ev-myinfo-label">보유차종 연식</label>
+    <input type="text"
+           class="ev-input ev-myinfo-input ev-vehicle-owned-field"
+           th:field="*{vehicleYear}"
+           data-editable="true"
+           readonly
+           inputmode="numeric"
+           maxlength="7"
+           placeholder="숫자만 입력 (예: 202305)">
 
-                                            <div class="ev-myinfo-field ev-myinfo-field--full">
-                                                <label class="ev-myinfo-label">주행거리</label>
-                                                <div class="ev-myinfo-input-with-unit">
-                                                    <input type="number"
-                                                           class="ev-input ev-myinfo-input ev-vehicle-owned-field"
-                                                           th:field="*{drivingDistance}"
-                                                           data-editable="true"
-                                                           readonly
-                                                           placeholder="예: 15000">
-                                                    <span class="ev-myinfo-input-unit">km</span>
-                                                </div>
-                                            </div>
-                                        </div>
+    <!-- 🔥 여기로 이동 -->
+    <p class="ev-myinfo-help">
+        숫자만 입력하면 YYYY-MM 형식으로 표시됩니다.<br>
+        월은 01~12, 미래 연월은 입력할 수 없습니다.
+    </p>
+</div>
 
-                                        <p class="ev-myinfo-help">
-                                            숫자만 입력하면 YYYY-MM 형식으로 자동 표시됩니다. 월은 01~12로 입력해주세요. 현재 연월보다 미래는 입력할 수 없습니다.
-                                        </p>
+<div class="ev-myinfo-field ev-myinfo-field--full">
+    <label class="ev-myinfo-label">주행거리</label>
+    <div class="ev-myinfo-input-with-unit">
+        <input type="number"
+               class="ev-input ev-myinfo-input ev-vehicle-owned-field"
+               th:field="*{drivingDistance}"
+               data-editable="true"
+               readonly
+               placeholder="예: 15000">
+        <span class="ev-myinfo-input-unit">km</span>
+    </div>
+</div>
                                     </div>
                                 </div>
                             </div>
