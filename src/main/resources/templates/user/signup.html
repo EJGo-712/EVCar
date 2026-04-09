@@ -395,10 +395,10 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         if (!password) return alert('비밀번호를 입력하세요.');
-        const pwRegex = /^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[!@#$%^&*()_+|\-=\[\]{};:'"\\,\/?.]).{8,20}$/;
+        const pwRegex = /^(?=.*[a-zA-Z])(?=.*[0-9])[a-zA-Z0-9]{8,20}$/;
 
         if (!pwRegex.test(password)) {
-            alert('비밀번호는 영문, 숫자, 특수문자를 모두 포함한 8~20자로 입력하세요.');
+            alert('비밀번호는 영문, 숫자를 포함한 8~20자로 입력하세요.');
             document.getElementById('password').focus();
             return;
         }
