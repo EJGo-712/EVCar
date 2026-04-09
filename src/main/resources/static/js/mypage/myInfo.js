@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const MIN_VEHICLE_YEAR = 1900;
     const MIN_PHONE_DIGITS = 10;
     const MAX_PHONE_DIGITS = 15;
-	const PASSWORD_REGEX = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+|\-=\[\]{};:'"\\,\/?.]).{8,20}$/;
+    const PASSWORD_REGEX = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,20}$/;
 
     const editableInputs = Array.from(form.querySelectorAll('[data-editable="true"]'));
     const genderInputs = Array.from(form.querySelectorAll('input[name="gender"]'));
@@ -433,9 +433,9 @@ document.addEventListener('DOMContentLoaded', () => {
             return alertAndFocus('새 비밀번호와 새 비밀번호 확인을 모두 입력해주세요.', fields.newPassword);
         }
 
-		if (!PASSWORD_REGEX.test(newPassword)) {
-		    return alertAndFocus('새 비밀번호는 영문, 숫자, 특수문자를 모두 포함한 8~20자로 입력해주세요.', fields.newPassword);
-		}
+        if (!PASSWORD_REGEX.test(newPassword)) {
+            return alertAndFocus('새 비밀번호는 영문, 숫자를 포함하여 8~20자로 입력해주세요.', fields.newPassword);
+        }
 
         if (newPassword !== newPasswordConfirm) {
             return alertAndFocus('새 비밀번호와 새 비밀번호 확인이 일치하지 않습니다.', fields.newPasswordConfirm);

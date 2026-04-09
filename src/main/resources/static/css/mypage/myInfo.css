@@ -197,3 +197,27 @@
         gap: 24px;
     }
 }
+
+
+.ev-myinfo-help--password {
+    margin-top: 10px;
+}
+.ev-myinfo-subsection--password {
+    margin-top: 4px;
+    padding: 0;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+}
+
+.ev-myinfo-subsection--password .ev-myinfo-subsection__title {
+    margin-bottom: 8px;
+}
+
+.ev-myinfo-subsection--password .ev-myinfo-subsection__description {
+    margin-bottom: 16px;
+}
+
+.ev-myinfo-subsection--password .ev-myinfo-help--password {
+    margin-top: 8px;
+}

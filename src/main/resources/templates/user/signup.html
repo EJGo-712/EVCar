@@ -146,7 +146,7 @@ font-size:13px;
 }
 
 </style>
-   <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+	<link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
     <link rel="stylesheet" th:href="@{/css/common/common.css}">
     <link rel="stylesheet" th:href="@{/css/common/main.css}">
 </head>
@@ -183,11 +183,11 @@ font-size:13px;
 <div class="label">비밀번호(필수) *</div>
 <div class="input-box">
 <input type="password"
-      name="password"
-      id="password"
-      pattern="^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[!@#$%^&*()_+|\-=\[\]{};:'&quot;\\,\/?.]).{8,20}$"
-      placeholder="영문/숫자/특수문자 1개 이상 포함 8~20자(필수)"
-        required />
+    name="password"
+    id="password"
+    pattern="^(?=.*[a-zA-Z])(?=.*[0-9])[a-zA-Z0-9]{8,20}$"
+    placeholder="영문/숫자 포함 8~20자(필수)"
+    required />
 
 </div>
 </div>
@@ -350,17 +350,17 @@ let isIdChecked = false;
 let isEmailChecked = false;
 
 document.addEventListener('DOMContentLoaded', function() {
-   const countrySelect = document.getElementById("countryCode");
+	const countrySelect = document.getElementById("countryCode");
 
-   countryCodes.forEach(c => {
-       const option = document.createElement("option");
-       option.value = c.code;
-       option.textContent = `${c.name} (+${c.code})`;
-       countrySelect.appendChild(option);
-   });
+	countryCodes.forEach(c => {
+	    const option = document.createElement("option");
+	    option.value = c.code;
+	    option.textContent = `${c.name} (+${c.code})`;
+	    countrySelect.appendChild(option);
+	});
 
-   countrySelect.value = "82";
-   
+	countrySelect.value = "82";
+	
     const form = document.querySelector('form');
     
     const today = new Date().toISOString().split('T')[0];
@@ -395,10 +395,10 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         if (!password) return alert('비밀번호를 입력하세요.');
-        const pwRegex = /^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[!@#$%^&*()_+|\-=\[\]{};:'"\\,\/?.]).{8,20}$/;
+        const pwRegex = /^(?=.*[a-zA-Z])(?=.*[0-9])[a-zA-Z0-9]{8,20}$/;
 
         if (!pwRegex.test(password)) {
-            alert('비밀번호는 영문, 숫자, 특수문자를 모두 포함한 8~20자로 입력하세요.');
+            alert('비밀번호는 영문, 숫자를 포함한 8~20자로 입력하세요.');
             document.getElementById('password').focus();
             return;
         }
@@ -415,7 +415,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!birthDate) return alert('생년월일을 입력하세요.');
         const todayDate = new Date().toISOString().split('T')[0];
         if (birthDate > todayDate) {
-           return alert('생년월일은 미래 날짜를 선택할 수 없습니다.');
+        	return alert('생년월일은 미래 날짜를 선택할 수 없습니다.');
         }
         if (!gender) return alert('성별을 선택하세요.');
         if (!phone) return alert('전화번호를 입력하세요.');
@@ -553,20 +553,20 @@ carYear.disabled = true;
 mileage.disabled = true;
 
 carName.addEventListener("input", function () {
-   const hasValue = this.value.trim() !== "";
+	const hasValue = this.value.trim() !== "";
 
-   // 활성화/비활성화
-   carYear.disabled = !hasValue;
-   mileage.disabled = !hasValue;
+	// 활성화/비활성화
+	carYear.disabled = !hasValue;
+	mileage.disabled = !hasValue;
 
-   if (hasValue) {
-       // 활성화될 때 값 초기화 (핵심)
-       carYear.value = "";
-   } else {
-       // 비활성화 시 초기화
-       carYear.value = "";
-       mileage.value = "";
-   }
+	if (hasValue) {
+	    // 활성화될 때 값 초기화 (핵심)
+	    carYear.value = "";
+	} else {
+	    // 비활성화 시 초기화
+	    carYear.value = "";
+	    mileage.value = "";
+	}
 });
 
 }); 

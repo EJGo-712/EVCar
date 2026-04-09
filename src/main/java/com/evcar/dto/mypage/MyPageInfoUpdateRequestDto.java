@@ -22,8 +22,8 @@ public class MyPageInfoUpdateRequestDto {
 	private static final int MAX_PHONE_LENGTH = 16;
 	private static final DateTimeFormatter VEHICLE_YEAR_MONTH_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM");
 
-	private static final String PASSWORD_REGEX =
-			"^(?=.*[A-Za-z])(?=.*\\d)(?=.*[!@#$%^&*()_+|\\-=\\[\\]{};:'\"\\\\,./?]).{8,20}$";
+	// 비밀번호: 영문/숫자만, 8~20자
+	private static final String PASSWORD_REGEX = "^[A-Za-z0-9]{8,20}$";
 
 	private String name;
 	private LocalDate birthDate;

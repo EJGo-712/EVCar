@@ -209,13 +209,17 @@ public class MyPageController {
         try {
             myPageService.withdraw(userId, dto);
             session.invalidate();
-            redirectAttributes.addFlashAttribute("message", "회원탈퇴가 완료되었습니다.");
-            return "redirect:/login";
+            return "redirect:/mypage/withdraw/success";
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute("withdrawErrorMessage", e.getMessage());
             redirectAttributes.addFlashAttribute("withdrawRequestDto", dto);
             return "redirect:/mypage/withdraw";
         }
+    }
+
+    @GetMapping("/withdraw/success")
+    public String withdrawSuccess() {
+        return "mypage/withdrawSuccess";
     }
 
     private String handlePage(HttpSession session, Model model, PageHandler handler) {
