@@ -1,0 +1,223 @@
+.ev-inquiry-page {
+    background: linear-gradient(180deg, #071225 0%, #0b162a 260px, #f7f8fb 260px, #f7f8fb 100%);
+    min-height: 100vh;
+}
+
+.ev-inquiry-hero {
+    padding: 96px 20px 56px;
+    color: #ffffff;
+}
+
+.ev-inquiry-hero__inner,
+.ev-inquiry-section {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.ev-inquiry-hero__eyebrow {
+    margin: 0 0 12px;
+    color: #9fb5d9;
+    font-size: 0.95rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.ev-inquiry-hero__title {
+    margin: 0;
+    font-size: 2.4rem;
+    font-weight: 700;
+}
+
+.ev-inquiry-hero__desc {
+    margin: 16px 0 0;
+    max-width: 620px;
+    color: #d7e3f8;
+}
+
+.ev-inquiry-section {
+    padding: 0 20px 80px;
+}
+
+.ev-inquiry-section__top {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 28px;
+}
+
+.ev-inquiry-search {
+    display: flex;
+    gap: 12px;
+}
+
+.ev-inquiry-search__input,
+.ev-inquiry-form__input,
+.ev-inquiry-form__textarea {
+    width: 100%;
+    border: 1px solid #d8dfeb;
+    border-radius: 14px;
+    padding: 14px 16px;
+    background: #ffffff;
+    outline: none;
+}
+
+.ev-inquiry-search__button,
+.ev-inquiry-write,
+.ev-inquiry-form__primary,
+.ev-inquiry-form__secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 14px;
+    padding: 14px 22px;
+    font-weight: 600;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+}
+
+.ev-inquiry-search__button,
+.ev-inquiry-write,
+.ev-inquiry-form__primary {
+    background: #0d6efd;
+    color: #ffffff;
+}
+
+.ev-inquiry-form__secondary {
+    background: #ffffff;
+    color: #16253d;
+    border: 1px solid #d8dfeb;
+}
+
+.ev-inquiry-table-wrap,
+.ev-inquiry-form-wrap,
+.ev-inquiry-detail {
+    background: #ffffff;
+    border: 1px solid #e7edf5;
+    border-radius: 28px;
+    padding: 28px;
+    box-shadow: 0 18px 40px rgba(10, 25, 47, 0.06);
+}
+
+.ev-inquiry-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.ev-inquiry-table th,
+.ev-inquiry-table td {
+    padding: 18px 12px;
+    border-bottom: 1px solid #edf1f7;
+    text-align: left;
+}
+
+.ev-inquiry-table th {
+    font-size: 0.92rem;
+    color: #6f7c90;
+    font-weight: 600;
+}
+
+.ev-inquiry-table__link {
+    color: #16253d;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.ev-inquiry-table__status,
+.ev-inquiry-detail__status {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: #fff4dc;
+    color: #9a6800;
+    font-size: 0.84rem;
+    font-weight: 700;
+}
+
+.ev-inquiry-form {
+    display: grid;
+    gap: 20px;
+}
+
+.ev-inquiry-form__label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: 600;
+    color: #16253d;
+}
+
+.ev-inquiry-form__textarea {
+    min-height: 220px;
+    resize: vertical;
+}
+
+.ev-inquiry-form__actions,
+.ev-inquiry-detail__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.ev-inquiry-detail__header {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    align-items: flex-start;
+    margin-bottom: 20px;
+}
+
+.ev-inquiry-detail__title {
+    margin: 0;
+    font-size: 1.9rem;
+    font-weight: 700;
+}
+
+.ev-inquiry-detail__meta {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 28px;
+    color: #6b7688;
+    font-size: 0.95rem;
+}
+
+.ev-inquiry-detail__content,
+.ev-inquiry-detail__reply {
+    padding: 24px;
+    border: 1px solid #e7edf5;
+    border-radius: 20px;
+    margin-bottom: 20px;
+}
+
+.ev-inquiry-detail__reply--waiting {
+    background: #fffdf7;
+}
+
+.ev-inquiry-detail__content h3,
+.ev-inquiry-detail__reply h3 {
+    margin: 0 0 12px;
+    font-size: 1.08rem;
+}
+
+.ev-inquiry-detail__content p,
+.ev-inquiry-detail__reply p {
+    margin: 0;
+    color: #546174;
+    line-height: 1.8;
+    white-space: pre-wrap;
+}
+
+@media (min-width: 768px) {
+    .ev-inquiry-section__top {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .ev-inquiry-search {
+        max-width: 460px;
+        width: 100%;
+    }
+}

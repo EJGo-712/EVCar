@@ -8,7 +8,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -44,14 +44,14 @@ public class Inquiry {
     private String replyStatus;
 
     @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDate createdAt;
+    private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
-    private LocalDate updatedAt;
+    private LocalDateTime updatedAt;
 
     @PrePersist
     protected void onCreate() {
-        LocalDate now = LocalDate.now();
+    	LocalDateTime now = LocalDateTime.now();
         this.createdAt = now;
         this.updatedAt = now;
         if (this.replyStatus == null || this.replyStatus.trim().isEmpty()) {
@@ -61,7 +61,7 @@ public class Inquiry {
 
     @PreUpdate
     protected void onUpdate() {
-        this.updatedAt = LocalDate.now();
+        this.updatedAt = LocalDateTime.now();
     }
 
     public void updateReply(String replyContent, String replyStatus) {

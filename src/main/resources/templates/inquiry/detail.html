@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/mainLayout :: head('문의상세', ~{::link})}">
+    <link rel="stylesheet" th:href="@{/css/inquiry/inquiry.css}">
+</head>
+<body>
+<div th:replace="~{layout/header :: header}"></div>
+
+<main class="ev-inquiry-page">
+    <section class="ev-inquiry-section ev-inquiry-section--detail">
+        <div class="ev-inquiry-detail">
+            <div class="ev-inquiry-detail__header">
+                <h2 class="ev-inquiry-detail__title" th:text="${inquiry.title}">문의 제목</h2>
+                <span class="ev-inquiry-detail__status" th:text="${inquiry.replyStatus}">WAITING</span>
+            </div>
+
+            <div class="ev-inquiry-detail__meta">
+                <span><strong>문의번호</strong> <span th:text="${inquiry.inquiryId}">IQ0001</span></span>
+                <span><strong>작성자</strong> <span th:text="${inquiry.userName}">홍길동</span></span>
+                <span><strong>작성일</strong> <span th:text="${#temporals.format(inquiry.createdAt, 'yyyy.MM.dd')}">2026.04.09</span></span>
+            </div>
+
+            <div class="ev-inquiry-detail__content">
+                <h3>문의 내용</h3>
+                <p th:text="${inquiry.content}">문의 내용</p>
+            </div>
+
+            <div class="ev-inquiry-detail__reply" th:if="${inquiry.replyContent != null and !#strings.isEmpty(inquiry.replyContent)}">
+                <h3>답변 내용</h3>
+                <p th:text="${inquiry.replyContent}">답변 내용</p>
+            </div>
+
+            <div class="ev-inquiry-detail__reply ev-inquiry-detail__reply--waiting"
+                 th:if="${inquiry.replyContent == null or #strings.isEmpty(inquiry.replyContent)}">
+                <h3>답변 상태</h3>
+                <p>현재 답변 대기 중입니다. 조금만 기다려 주세요.</p>
+            </div>
+
+            <div class="ev-inquiry-detail__actions">
+                <a th:href="@{/inquiry}" class="ev-inquiry-form__secondary">목록으로</a>
+            </div>
+        </div>
+    </section>
+</main>
+
+<div th:replace="~{layout/footer :: footer}"></div>
+
+<script th:src="@{/js/inquiry/inquiry.js}"></script>
+</body>
+</html>

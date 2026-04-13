@@ -9,7 +9,9 @@ import org.springframework.data.repository.query.Param;
 
 public interface VehicleRepository extends JpaRepository<Vehicle, String> {
 
-    List<Vehicle> findByVehicleStatusOrderByCreatedAtDesc(String vehicleStatus);
+	List<Vehicle> findAllByOrderByBrandAscModelNameAsc();
+	
+	List<Vehicle> findByVehicleStatusOrderByCreatedAtDesc(String vehicleStatus);
 
     List<Vehicle> findByVehicleStatusAndBrandOrderByCreatedAtDesc(String vehicleStatus, String brand);
 

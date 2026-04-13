@@ -7,7 +7,6 @@ import com.evcar.repository.wishlist.WishlistRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -30,11 +29,11 @@ public class WishlistServiceImpl implements WishlistService {
             return;
         }
 
-        Wishlist wishlist = new Wishlist();
-        wishlist.setWishlistId(UUID.randomUUID().toString());
-        wishlist.setUserId(userId);
-        wishlist.setVehicleId(vehicleId);
-        wishlist.setCreatedAt(LocalDateTime.now());
+        Wishlist wishlist = Wishlist.builder()
+                .wishlistId(UUID.randomUUID().toString().substring(0, 20))
+                .userId(userId)
+                .vehicleId(vehicleId)
+                .build(); // createdAt은 @PrePersist가 처리
 
         wishlistRepository.save(wishlist);
     }
@@ -47,23 +46,24 @@ public class WishlistServiceImpl implements WishlistService {
 
     @Override
     public List<VehicleListDto> getWishlistVehicles(String userId) {
-    	List<Wishlist> wishlists = wishlistRepository.findByUserIdOrderByCreatedAtDesc(userId);
+        List<Wishlist> wishlists = wishlistRepository.findByUserIdOrderByCreatedAtDesc(userId);
         List<VehicleListDto> result = new ArrayList<>();
 
         for (Wishlist wishlist : wishlists) {
             vehicleRepository.findById(wishlist.getVehicleId()).ifPresent(vehicle -> {
-                VehicleListDto dto = new VehicleListDto(
-                        vehicle.getVehicleId(),
-                        vehicle.getBrand(),
-                        vehicle.getModelName(),
-                        vehicle.getVehicleClass(),
-                        vehicle.getPriceBasic(),
-                        vehicle.getPricePremium(),
-                        vehicle.getDrivingRange(),
-                        vehicle.getImageUrl(),
-                        vehicle.getCatalogUrl()
-                );
-                dto.setWished(true);
+                VehicleListDto dto = VehicleListDto.builder()
+                        .vehicleId(vehicle.getVehicleId())
+                        .brand(vehicle.getBrand())
+                        .modelName(vehicle.getModelName())
+                        .vehicleClass(vehicle.getVehicleClass())
+                        .priceBasic(vehicle.getPriceBasic())
+                        .pricePremium(vehicle.getPricePremium())
+                        .drivingRange(vehicle.getDrivingRange())
+                        .imageUrl(vehicle.getImageUrl())
+                        .catalogUrl(vehicle.getCatalogUrl())
+                        .wished(true)
+                        .build();
+
                 result.add(dto);
             });
         }

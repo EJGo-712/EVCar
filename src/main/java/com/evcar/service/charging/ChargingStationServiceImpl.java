@@ -1,13 +1,18 @@
 package com.evcar.service.charging;
 
 import com.evcar.domain.charging.ChargingStation;
+import com.evcar.dto.charging.ChargingRegionResponseDto;
 import com.evcar.dto.charging.ChargingStationResponseDto;
+import com.evcar.dto.charging.SigunguResponseDto;
 import com.evcar.repository.charging.ChargingStationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -15,117 +20,131 @@ import java.util.*;
 public class ChargingStationServiceImpl implements ChargingStationService {
 
     private final ChargingStationRepository chargingStationRepository;
+    private final ChargingStationValidator chargingStationValidator;
 
     @Override
-    public List<ChargingStation> findByMapBounds(double swLat, double neLat, double swLng, double neLng) {
-        return List.of();
-    }
+    public List<ChargingRegionResponseDto> getAllRegions() {
+        List<ChargingStation> stations = chargingStationRepository.findAllByOrderByZcodeAscZscodeAscStationNameAsc();
 
-    @Override
-    public List<ChargingStation> findByRegion(String sido, String sigungu) {
-        return List.of();
-    }
+        Map<String, RegionAccumulator> regionMap = new LinkedHashMap<>();
 
-    // 🔥 공통 변환 메서드 (핵심)
-    private ChargingStationResponseDto toDto(ChargingStation c) {
-        return ChargingStationResponseDto.builder()
-                .stationId(c.getStationId())
-                .stationName(c.getStationName())
-                .address(c.getAddress())
-                .lat(c.getLat())
-                .lng(c.getLng())
-                .operatorName(c.getOperatorName())
-                .operatorCall(c.getOperatorCall())
-                .useTime(c.getUseTime())
-                .parkingFree(
-                        c.getParkingFree() != null && c.getParkingFree().equalsIgnoreCase("Y")
-                                ? "무료"
-                                : "유료"
-                )
-                .note(
-                        (c.getNote() == null || c.getNote().isBlank())
-                                ? "이용 안내 없음"   // 🔥 핵심 수정
-                                : c.getNote()
-                )
-                .build();
-    }
-
-    // 🔥 지역 검색
-    @Override
-    public List<ChargingStationResponseDto> getStationsByRegion(String sido, String sigungu) {
-
-        String keyword = sido + " " + sigungu;
-
-        List<ChargingStation> list = chargingStationRepository.findByAddressContaining(keyword);
-
-        return list.stream()
-                .map(this::toDto)
-                .toList();
-    }
-
-    // 🔥 zcode 검색
-    @Override
-    public List<ChargingStationResponseDto> getStationsByZcode(String zcode) {
-
-        List<ChargingStation> list = chargingStationRepository.findByZcodeWithChargers(zcode);
-
-        return list.stream()
-                .map(this::toDto)
-                .toList();
-    }
-
-    // 🔥 지역 목록
-    @Override
-    public Map<String, List<String>> getAllRegions() {
-
-        List<ChargingStation> list = chargingStationRepository.findAll();
-
-        Map<String, Set<String>> temp = new HashMap<>();
-
-        for (ChargingStation s : list) {
-
-            if (s.getAddress() == null) continue;
-
-            String addr = s.getAddress().trim().replaceAll("\\s+", " ");
-
-            if (addr.length() < 5) continue;
-
-            String[] parts = addr.split(" ");
-
-            String sido;
-            String sigungu;
-
-            if (parts.length >= 2) {
-                sido = parts[0];
-                sigungu = parts[1];
-            } else {
-                if (addr.startsWith("서울")) {
-                    sido = "서울특별시";
-                    sigungu = addr.substring(5, Math.min(8, addr.length()));
-                } else if (addr.startsWith("경기")) {
-                    sido = "경기도";
-                    sigungu = addr.substring(3, Math.min(6, addr.length()));
-                } else if (addr.startsWith("인천")) {
-                    sido = "인천광역시";
-                    sigungu = addr.substring(5, Math.min(8, addr.length()));
-                } else if (addr.startsWith("부산")) {
-                    sido = "부산광역시";
-                    sigungu = addr.substring(5, Math.min(8, addr.length()));
-                } else {
-                    continue;
-                }
+        for (ChargingStation station : stations) {
+            if (!chargingStationValidator.isValidStation(station)) {
+                continue;
             }
 
-            temp.putIfAbsent(sido, new HashSet<>());
-            temp.get(sido).add(sigungu);
+            String zcode = normalize(station.getZcode());
+            String zscode = normalize(station.getZscode());
+            String sido = extractSido(station.getAddress());
+            String sigungu = extractSigungu(station.getAddress());
+
+            if (zcode.isBlank() || zscode.isBlank() || sido.isBlank() || sigungu.isBlank()) {
+                continue;
+            }
+
+            RegionAccumulator accumulator = regionMap.computeIfAbsent(
+                    zcode,
+                    key -> new RegionAccumulator(sido)
+            );
+
+            accumulator.sigunguMap.putIfAbsent(
+                    zscode,
+                    SigunguResponseDto.builder()
+                            .zscode(zscode)
+                            .sigungu(sigungu)
+                            .build()
+            );
         }
 
-        Map<String, List<String>> result = new HashMap<>();
-
-        for (String key : temp.keySet()) {
-            result.put(key, new ArrayList<>(temp.get(key)));
+        List<ChargingRegionResponseDto> result = new ArrayList<>();
+        for (Map.Entry<String, RegionAccumulator> entry : regionMap.entrySet()) {
+            result.add(ChargingRegionResponseDto.builder()
+                    .zcode(entry.getKey())
+                    .sido(entry.getValue().sido)
+                    .sigunguList(new ArrayList<>(entry.getValue().sigunguMap.values()))
+                    .build());
         }
 
         return result;
+    }
+
+    @Override
+    public List<ChargingStationResponseDto> getStations(String zcode, String zscode) {
+        String normalizedZcode = normalize(zcode);
+        String normalizedZscode = normalize(zscode);
+
+        if (normalizedZcode.isBlank()) {
+            return List.of();
+        }
+
+        List<ChargingStation> stations = normalizedZscode.isBlank()
+                ? chargingStationRepository.findByZcodeOrderByStationNameAsc(normalizedZcode)
+                : chargingStationRepository.findByZcodeAndZscodeOrderByStationNameAsc(normalizedZcode, normalizedZscode);
+
+        return stations.stream()
+                .filter(chargingStationValidator::isValidStation)
+                .map(this::toResponseDto)
+                .toList();
+    }
+
+    private ChargingStationResponseDto toResponseDto(ChargingStation station) {
+        return ChargingStationResponseDto.builder()
+                .stationId(station.getStationId())
+                .stationName(station.getStationName())
+                .address(station.getAddress())
+                .lat(station.getLat())
+                .lng(station.getLng())
+                .operatorName(station.getOperatorName())
+                .operatorCall(station.getOperatorCall())
+                .useTime(station.getUseTime())
+                .parkingFree(toParkingFreeText(station.getParkingFree()))
+                .note(toNoteText(station.getNote()))
+                .build();
+    }
+
+    private String extractSido(String address) {
+        String[] parts = splitAddress(address);
+        return parts.length > 0 ? parts[0] : "";
+    }
+
+    private String extractSigungu(String address) {
+        String[] parts = splitAddress(address);
+        return parts.length > 1 ? parts[1] : "";
+    }
+
+    private String[] splitAddress(String address) {
+        String normalized = normalize(address);
+        return normalized.isBlank() ? new String[0] : normalized.split("\\s+");
+    }
+
+    private String toParkingFreeText(String parkingFree) {
+        return "Y".equalsIgnoreCase(normalize(parkingFree)) ? "무료" : "유료";
+    }
+
+    private String toNoteText(String note) {
+        String normalized = normalize(note);
+        return normalized.isBlank() ? "이용 안내 없음" : normalized;
+    }
+
+    private String normalize(String value) {
+        if (value == null) {
+            return "";
+        }
+
+        String normalized = value.trim();
+        if ("null".equalsIgnoreCase(normalized)) {
+            return "";
+        }
+
+        return normalized;
+    }
+
+    private static final class RegionAccumulator {
+        private final String sido;
+        private final Map<String, SigunguResponseDto> sigunguMap = new LinkedHashMap<>();
+
+        private RegionAccumulator(String sido) {
+            this.sido = sido;
+        }
     }
 }

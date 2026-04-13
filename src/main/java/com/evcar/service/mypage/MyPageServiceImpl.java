@@ -3,6 +3,7 @@ package com.evcar.service.mypage;
 import com.evcar.domain.consultation.Consultation;
 import com.evcar.domain.inquiry.Inquiry;
 import com.evcar.domain.user.User;
+import com.evcar.domain.user.UserStatus;
 import com.evcar.domain.wishlist.Wishlist;
 import com.evcar.dto.mypage.MyConsultationResponseDto;
 import com.evcar.dto.mypage.MyInquiryResponseDto;
@@ -94,7 +95,8 @@ public class MyPageServiceImpl implements MyPageService {
 		    user.changePassword(passwordEncoder.encode(requestDto.getNewPassword().trim()));
 		}
 
-		user.updateMyPageInfo(name, birthDate, gender, phone, address, addressDetail, email, vehicleInfo.hasVehicle(),
+		// ← hasVehicle 제거: User.updateMyPageInfo는 10개 파라미터
+		user.updateMyPageInfo(name, birthDate, gender, phone, address, addressDetail, email,
 				vehicleInfo.vehicleModel(), vehicleInfo.vehicleYear(), vehicleInfo.drivingDistance());
 
 		userRepository.saveAndFlush(user);
@@ -104,7 +106,8 @@ public class MyPageServiceImpl implements MyPageService {
 	public List<MyConsultationResponseDto> getMyConsultations(String userId) {
 		User user = getUserByUserId(userId);
 
-		return consultationRepository.findByUserUserIdOrderByCreatedAtDesc(user.getUserId()).stream()
+		// ← findByUserIdOrderByCreatedAtDesc (관계 매핑 아님, String userId 필드)
+		return consultationRepository.findByUserIdOrderByCreatedAtDesc(user.getUserId()).stream()
 				.map(MyConsultationResponseDto::from).toList();
 	}
 
@@ -116,12 +119,14 @@ public class MyPageServiceImpl implements MyPageService {
 		Consultation consultation = consultationRepository.findById(consultId)
 				.orElseThrow(() -> new IllegalArgumentException("상담 정보를 찾을 수 없습니다."));
 
-		if (!consultation.getUser().getUserId().equals(user.getUserId())) {
+		// ← getUser() → getUserId()
+		if (!consultation.getUserId().equals(user.getUserId())) {
 			throw new IllegalArgumentException("본인의 상담만 취소할 수 있습니다.");
 		}
 
 		consultation.cancel();
 	}
+
 	@Override
 	public MyConsultationResponseDto getMyConsultationDetail(String userId, String consultId) {
 	    User user = getUserByUserId(userId);
@@ -129,17 +134,20 @@ public class MyPageServiceImpl implements MyPageService {
 	    Consultation consultation = consultationRepository.findById(consultId)
 	            .orElseThrow(() -> new IllegalArgumentException("상담 정보를 찾을 수 없습니다."));
 
-	    if (!consultation.getUser().getUserId().equals(user.getUserId())) {
+	    // ← getUser() → getUserId()
+	    if (!consultation.getUserId().equals(user.getUserId())) {
 	        throw new IllegalArgumentException("본인의 상담만 조회할 수 있습니다.");
 	    }
 
 	    return MyConsultationResponseDto.from(consultation);
 	}
+
 	@Override
 	public List<MyInquiryResponseDto> getMyInquiries(String userId) {
 		User user = getUserByUserId(userId);
 
-		return inquiryRepository.findByUserUserIdOrderByCreatedAtDesc(user.getUserId()).stream()
+		// ← findByUserIdOrderByCreatedAtDesc (관계 매핑 아님)
+		return inquiryRepository.findByUserIdOrderByCreatedAtDesc(user.getUserId()).stream()
 				.map(MyInquiryResponseDto::from).toList();
 	}
 
@@ -150,7 +158,8 @@ public class MyPageServiceImpl implements MyPageService {
 		Inquiry inquiry = inquiryRepository.findById(inquiryId)
 				.orElseThrow(() -> new IllegalArgumentException("문의 정보를 찾을 수 없습니다."));
 
-		if (!inquiry.getUser().getUserId().equals(user.getUserId())) {
+		// ← getUser() → getUserId()
+		if (!inquiry.getUserId().equals(user.getUserId())) {
 			throw new IllegalArgumentException("본인의 문의만 조회할 수 있습니다.");
 		}
 
@@ -166,7 +175,8 @@ public class MyPageServiceImpl implements MyPageService {
 
 		User user = getUserByUserId(userId);
 
-		if ("WITHDRAWN".equalsIgnoreCase(user.getUserStatus())) {
+		// ← getUserStatus()는 enum → enum 비교로 변경
+		if (UserStatus.WITHDRAWN == user.getUserStatus()) {
 			throw new IllegalArgumentException("이미 탈퇴 처리된 회원입니다.");
 		}
 
@@ -174,14 +184,15 @@ public class MyPageServiceImpl implements MyPageService {
 			throw new IllegalArgumentException("비밀번호를 확인하세요.");
 		}
 
+		// ← findByUserUserId... → findByUserId...
 		boolean hasPendingOrInProgressConsultation = consultationRepository
-				.existsByUserUserIdAndConsultStatusIn(user.getUserId(), List.of("PENDING", "IN_PROGRESS"));
+				.existsByUserIdAndConsultStatusIn(user.getUserId(), List.of("PENDING", "IN_PROGRESS"));
 
 		if (hasPendingOrInProgressConsultation) {
 			throw new IllegalArgumentException("대기중 또는 진행중인 상담이 있어 탈퇴가 불가능합니다. 상담 완료 또는 취소 후 다시 시도해주세요.");
 		}
 
-		boolean hasWaitingInquiry = inquiryRepository.existsByUserUserIdAndReplyStatus(user.getUserId(), "WAITING");
+		boolean hasWaitingInquiry = inquiryRepository.existsByUserIdAndReplyStatus(user.getUserId(), "WAITING");
 
 		if (hasWaitingInquiry) {
 			throw new IllegalArgumentException("답변 대기 중인 문의가 있어 탈퇴가 불가능합니다.");

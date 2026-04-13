@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "wishlist")
 @Getter
 
-public @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 
 @Builder

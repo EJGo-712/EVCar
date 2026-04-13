@@ -1,7 +1,16 @@
 package com.evcar.domain.charging;
 
-import jakarta.persistence.*;
-import lombok.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
@@ -35,6 +44,9 @@ public class ChargingStation {
     @Column(name = "zcode", length = 20)
     private String zcode;
 
+    @Column(name = "zscode", length = 20)
+    private String zscode;
+
     @Column(name = "operator_name", length = 100)
     private String operatorName;
 
@@ -44,11 +56,9 @@ public class ChargingStation {
     @Column(name = "parking_free", length = 20)
     private String parkingFree;
 
-    // 🔥 핵심: 비고 컬럼 (NULL 허용)
     @Column(name = "note", columnDefinition = "TEXT")
     private String note;
 
-    // 🔥 충전기 목록 (양방향 관계)
     @OneToMany(mappedBy = "chargingStation", fetch = FetchType.LAZY)
     private List<Charger> chargers;
 }

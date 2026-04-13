@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/mainLayout :: head('문의게시판', ~{::link})}">
+    <link rel="stylesheet" th:href="@{/css/inquiry/inquiry.css}">
+</head>
+<body>
+<div th:replace="~{layout/header :: header}"></div>
+
+<main class="ev-inquiry-page">
+    <section class="ev-inquiry-hero">
+        <div class="ev-inquiry-hero__inner">
+            <p class="ev-inquiry-hero__eyebrow">Customer Center</p>
+            <h2 class="ev-inquiry-hero__title">문의게시판</h2>
+            <p class="ev-inquiry-hero__desc">서비스 이용 중 궁금한 내용을 남겨주시면 빠르게 안내해드리겠습니다.</p>
+        </div>
+    </section>
+
+    <section class="ev-inquiry-section">
+        <div class="ev-inquiry-section__top">
+            <form class="ev-inquiry-search" th:action="@{/inquiry}" method="get">
+                <input type="text"
+                       name="keyword"
+                       class="ev-inquiry-search__input"
+                       placeholder="제목으로 검색하세요."
+                       th:value="${keyword}">
+                <button type="submit" class="ev-inquiry-search__button">검색</button>
+            </form>
+
+            <a th:href="@{/inquiry/form}" class="ev-inquiry-write">문의 작성</a>
+        </div>
+
+        <div class="ev-inquiry-table-wrap" th:if="${!#lists.isEmpty(inquiryList)}">
+            <table class="ev-inquiry-table">
+                <thead>
+                <tr>
+                    <th>문의번호</th>
+                    <th>제목</th>
+                    <th>작성자</th>
+                    <th>답변상태</th>
+                    <th>작성일</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="inquiry : ${inquiryList}">
+                    <td th:text="${inquiry.inquiryId}">IQ0001</td>
+                    <td>
+                        <a th:href="@{|/inquiry/${inquiry.inquiryId}|}"
+                           class="ev-inquiry-table__link"
+                           th:text="${inquiry.title}">문의 제목</a>
+                    </td>
+                    <td th:text="${inquiry.userName}">홍길동</td>
+                    <td>
+                        <span class="ev-inquiry-table__status"
+                              th:text="${inquiry.replyStatus}">WAITING</span>
+                    </td>
+                    <td th:text="${#temporals.format(inquiry.createdAt, 'yyyy.MM.dd')}">2026.04.09</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="ev-inquiry-empty" th:if="${#lists.isEmpty(inquiryList)}">
+            등록된 문의글이 없습니다.
+        </div>
+    </section>
+</main>
+
+<div th:replace="~{layout/footer :: footer}"></div>
+
+<script th:src="@{/js/inquiry/inquiry.js}"></script>
+</body>
+</html>

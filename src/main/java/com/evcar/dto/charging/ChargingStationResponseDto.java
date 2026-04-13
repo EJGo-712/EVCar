@@ -1,6 +1,9 @@
 package com.evcar.dto.charging;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
@@ -13,8 +16,6 @@ public class ChargingStationResponseDto {
     private String address;
     private double lat;
     private double lng;
-
-    // 🔥 추가
     private String operatorName;
     private String operatorCall;
     private String useTime;

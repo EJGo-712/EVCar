@@ -20,23 +20,28 @@ public class ChargerResponseDto {
 
     private static String convertType(String type) {
         return switch (type) {
-            case "01" -> "완속";
-            case "02" -> "급속";
-            case "03" -> "급속(차데모)";
-            case "04" -> "급속(AC3상)";
-            case "05" -> "급속(DC콤보)";
-            case "06" -> "급속(콤보)";
+            case "01" -> "DC차데모";
+            case "02" -> "AC완속";
+            case "03" -> "DC차데모+AC3상";
+            case "04" -> "DC콤보";
+            case "05" -> "DC차데모+DC콤보";
+            case "06" -> "DC차데모+AC3상+DC콤보";
+            case "07" -> "AC3상";
+            case "08" -> "DC콤보(완속)";
+            case "09" -> "NACS";
+            case "10" -> "DC콤보+NACS";
+            case "11" -> "DC콤보2(버스전용)";
             default -> "기타";
         };
     }
 
-    // 🔥 여기 추가된 핵심
     private static String convertStatus(String status) {
         return switch (status) {
-            case "1", "01" -> "사용가능";
-            case "2", "02" -> "충전중";
-            case "3", "03" -> "고장";
-            case "4", "04" -> "통신장애";
+            case "0", "00" -> "알수없음";
+            case "1", "01" -> "통신이상";
+            case "2", "02" -> "사용가능";
+            case "3", "03" -> "충전중";
+            case "4", "04" -> "운영중지";
             case "5", "05" -> "점검중";
             default -> "알수없음";
         };
