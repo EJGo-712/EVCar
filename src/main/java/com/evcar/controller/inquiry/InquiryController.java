@@ -1,11 +1,11 @@
 package com.evcar.controller.inquiry;
 
+import com.evcar.domain.user.User;
 import com.evcar.dto.inquiry.InquiryCreateRequestDto;
 import com.evcar.dto.inquiry.InquiryResponseDto;
 import com.evcar.service.inquiry.InquiryService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
-import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/inquiry")
@@ -49,13 +50,19 @@ public class InquiryController {
 
     @GetMapping("/form")
     public String inquiryForm(HttpSession session,
-                              Model model) {
-        String loginId = extractLoginId(session);
+                              Model model,
+                              RedirectAttributes redirectAttributes) {
+        String userId = extractUserId(session);
+
+        if (userId == null) {
+            redirectAttributes.addFlashAttribute("message", "로그인 후 이용 가능합니다.");
+            return "redirect:/login";
+        }
 
         model.addAttribute("inquiryCreateRequestDto", InquiryCreateRequestDto.builder()
-                .userId(loginId)
+                .userId(userId)
                 .build());
-        model.addAttribute("loginId", loginId);
+        model.addAttribute("loginId", userId);
         return "inquiry/form";
     }
 
@@ -63,21 +70,28 @@ public class InquiryController {
     public String createInquiry(@Valid @ModelAttribute InquiryCreateRequestDto inquiryCreateRequestDto,
                                 BindingResult bindingResult,
                                 HttpSession session,
-                                Model model) {
-        String loginId = extractLoginId(session);
+                                Model model,
+                                RedirectAttributes redirectAttributes) {
+        String userId = extractUserId(session);
+
+        if (userId == null) {
+            redirectAttributes.addFlashAttribute("message", "로그인 후 이용 가능합니다.");
+            return "redirect:/login";
+        }
 
         if (bindingResult.hasErrors()) {
-            model.addAttribute("loginId", loginId);
+            model.addAttribute("loginId", userId);
             return "inquiry/form";
         }
 
         InquiryCreateRequestDto requestDto = InquiryCreateRequestDto.builder()
-                .userId(loginId)
+                .userId(userId)
                 .title(inquiryCreateRequestDto.getTitle())
                 .content(inquiryCreateRequestDto.getContent())
                 .build();
 
         inquiryService.createInquiry(requestDto);
+        redirectAttributes.addFlashAttribute("message", "문의가 등록되었습니다.");
         return "redirect:/inquiry";
     }
 
@@ -88,38 +102,18 @@ public class InquiryController {
         return "inquiry/detail";
     }
 
-    private String extractLoginId(HttpSession session) {
+    private String extractUserId(HttpSession session) {
         Object loginUser = session.getAttribute("loginUser");
 
         if (loginUser == null) {
-            throw new IllegalStateException("로그인 후 이용 가능합니다.");
+            return null;
         }
 
-        try {
-            Method getLoginIdMethod = loginUser.getClass().getMethod("getLoginId");
-            Object loginId = getLoginIdMethod.invoke(loginUser);
-
-            if (loginId == null || String.valueOf(loginId).isBlank()) {
-                throw new IllegalStateException("세션 로그인 아이디가 없습니다.");
-            }
-
-            return String.valueOf(loginId);
-        } catch (NoSuchMethodException exception) {
-            try {
-                Method getUserIdMethod = loginUser.getClass().getMethod("getUserId");
-                Object userId = getUserIdMethod.invoke(loginUser);
-
-                if (userId == null || String.valueOf(userId).isBlank()) {
-                    throw new IllegalStateException("세션 사용자 아이디가 없습니다.");
-                }
-
-                return String.valueOf(userId);
-            } catch (ReflectiveOperationException innerException) {
-                throw new IllegalStateException("loginUser 세션 객체에서 로그인 아이디를 찾을 수 없습니다.", innerException);
-            }
-        } catch (ReflectiveOperationException exception) {
-            throw new IllegalStateException("세션 사용자 정보를 읽는 중 오류가 발생했습니다.", exception);
+        if (loginUser instanceof User user) {
+            return user.getUserId();
         }
+
+        return null;
     }
 
     private <T> PaginationResult<T> paginate(List<T> source, int page) {

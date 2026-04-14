@@ -63,17 +63,17 @@
                            placeholder="예: 4500">
                 </div>
 
-                <div class="ev-consultation-form__field ev-consultation-form__field--full">
-                    <label for="purchasePlan" class="ev-consultation-form__label">구매 계획</label>
-                    <select id="purchasePlan" th:field="*{purchasePlan}" class="ev-consultation-form__select">
-                        <option value="UNDECIDED">미정</option>
-                        <option value="IMMEDIATELY">즉시 구매</option>
-                        <option value="ONE_MONTH">1개월 이내</option>
-                        <option value="THREE_MONTH">3개월 이내</option>
-                        <option value="SIX_MONTH">6개월 이내</option>
-                    </select>
-                </div>
-
+				<div class="ev-consultation-form__field ev-consultation-form__field--full">
+				    <label for="purchasePlan" class="ev-consultation-form__label">구매 계획</label>
+				    <select id="purchasePlan" th:field="*{purchasePlan}" class="ev-consultation-form__select">
+				        <option value="">선택해주세요</option>
+				        <option value="1_MONTH">1개월 이내</option>
+				        <option value="3_MONTH">3개월 이내</option>
+				        <option value="6_MONTH">6개월 이내</option>
+				        <option value="UNDECIDED">미정</option>
+				    </select>
+				</div>
+				
                 <div class="ev-consultation-form__field ev-consultation-form__field--full">
                     <label for="consultContent" class="ev-consultation-form__label">상담 내용</label>
                     <textarea id="consultContent"

@@ -102,7 +102,7 @@ public class ConsultationController {
 
         consultationService.createConsultation(requestDto);
         redirectAttributes.addFlashAttribute("message", "상담 신청이 정상적으로 등록되었습니다.");
-        return "redirect:/mypage/consultation";
+        return "redirect:/consultation";
     }
 
     @GetMapping("/{id}")
