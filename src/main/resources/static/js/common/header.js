@@ -4,7 +4,6 @@ document.addEventListener('DOMContentLoaded', () => {
     initBoardMenu();
     initMobileMenu();
     initModal();
-    initDisabledMenu();
     initAuthRequiredMenu();
 });
 
@@ -145,17 +144,6 @@ function initModal() {
     });
 }
 
-function initDisabledMenu() {
-    const disabledLinks = document.querySelectorAll('.ev-header__dropdown-link--disabled');
-
-    disabledLinks.forEach((link) => {
-        link.addEventListener('click', (event) => {
-            event.preventDefault();
-            alert('서비스 준비중입니다.');
-        });
-    });
-}
-
 function initAuthRequiredMenu() {
     const authRequiredLinks = document.querySelectorAll('[data-auth-required="true"]');
 
@@ -163,7 +151,7 @@ function initAuthRequiredMenu() {
         link.addEventListener('click', (event) => {
             event.preventDefault();
 
-            const moveToSignup = confirm('회원가입이 필요한 서비스입니다.\n회원가입 페이지로 이동하시겠습니까?');
+            const moveToSignup = window.confirm('회원가입이 필요한 서비스입니다.\n회원가입 페이지로 이동하시겠습니까?');
 
             if (moveToSignup) {
                 window.location.href = '/signup/term';

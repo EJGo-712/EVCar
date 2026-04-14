@@ -1,5 +1,6 @@
 package com.evcar.controller.vehicle;
 
+import com.evcar.domain.user.User;
 import com.evcar.dto.vehicle.VehicleDetailDto;
 import com.evcar.dto.vehicle.VehicleImageResponseDto;
 import com.evcar.dto.vehicle.VehicleListDto;
@@ -63,11 +64,12 @@ public class VehicleController {
     public String detail(@PathVariable("id") String id,
                          HttpSession session,
                          Model model) {
+
         VehicleDetailDto dto = vehicleService.getDetail(id);
 
-        Object userId = session.getAttribute("userId");
+        String userId = getUserId(session);
         if (userId != null) {
-            dto.setWished(wishlistService.isWished(String.valueOf(userId), id));
+            dto.setWished(wishlistService.isWished(userId, id));
         } else {
             dto.setWished(false);
         }
@@ -78,6 +80,20 @@ public class VehicleController {
         model.addAttribute("images", images);
 
         return "vehicle/detail";
+    }
+
+    private String getUserId(HttpSession session) {
+        Object userId = session.getAttribute("userId");
+        if (userId != null) {
+            return String.valueOf(userId);
+        }
+
+        Object loginUser = session.getAttribute("loginUser");
+        if (loginUser instanceof User user) {
+            return user.getUserId();
+        }
+
+        return null;
     }
 
     private String convertBrandToCode(String brand) {

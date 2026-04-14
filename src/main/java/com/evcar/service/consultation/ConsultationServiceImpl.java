@@ -52,10 +52,10 @@ public class ConsultationServiceImpl implements ConsultationService {
     @Transactional
     public void createConsultation(ConsultationCreateRequestDto requestDto) {
         User user = userRepository.findById(requestDto.getUserId())
-                .orElseThrow(() -> new IllegalArgumentException("사용자 정보를 찾을 수 없습니다."));
+                .orElseThrow(() -> new IllegalArgumentException("회원 PK(userId)를 찾을 수 없습니다: " + requestDto.getUserId()));
 
         Vehicle vehicle = vehicleRepository.findById(requestDto.getVehicleId())
-                .orElseThrow(() -> new IllegalArgumentException("차량 정보를 찾을 수 없습니다."));
+                .orElseThrow(() -> new IllegalArgumentException("차량 정보를 찾을 수 없습니다: " + requestDto.getVehicleId()));
 
         Consultation consultation = Consultation.builder()
                 .consultId(generateNextConsultId())

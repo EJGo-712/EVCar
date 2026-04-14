@@ -22,7 +22,12 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .formLogin(form -> form.disable())
                 .httpBasic(basic -> basic.disable())
-                .logout(logout -> logout.disable())
+                .logout(logout -> logout
+                       .logoutUrl("/logout")
+                       .logoutSuccessUrl("/login")
+                       .invalidateHttpSession(true)
+                       .deleteCookies("JSESSIONID")
+                   )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/",

@@ -1,12 +1,12 @@
 package com.evcar.controller.consultation;
 
+import com.evcar.domain.user.User;
 import com.evcar.dto.consultation.ConsultationCreateRequestDto;
 import com.evcar.dto.consultation.ConsultationResponseDto;
 import com.evcar.repository.vehicle.VehicleRepository;
 import com.evcar.service.consultation.ConsultationService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
-import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/consultation")
@@ -51,13 +52,22 @@ public class ConsultationController {
 
     @GetMapping("/form")
     public String consultationForm(HttpSession session,
-                                   Model model) {
-        String loginId = extractLoginId(session);
+                                   Model model,
+                                   RedirectAttributes redirectAttributes) {
+        String userId = getUserId(session);
 
-        model.addAttribute("consultationCreateRequestDto", ConsultationCreateRequestDto.builder()
-                .userId(loginId)
-                .build());
-        model.addAttribute("loginId", loginId);
+        if (userId == null) {
+            redirectAttributes.addFlashAttribute("message", "로그인 후 이용 가능합니다.");
+            return "redirect:/login";
+        }
+
+        if (!model.containsAttribute("consultationCreateRequestDto")) {
+            model.addAttribute("consultationCreateRequestDto", ConsultationCreateRequestDto.builder()
+                    .userId(userId)
+                    .build());
+        }
+
+        model.addAttribute("loginId", userId);
         model.addAttribute("vehicleList", vehicleRepository.findAllByOrderByBrandAscModelNameAsc());
         return "consultation/form";
     }
@@ -66,17 +76,23 @@ public class ConsultationController {
     public String createConsultation(@Valid @ModelAttribute ConsultationCreateRequestDto consultationCreateRequestDto,
                                      BindingResult bindingResult,
                                      HttpSession session,
-                                     Model model) {
-        String loginId = extractLoginId(session);
+                                     Model model,
+                                     RedirectAttributes redirectAttributes) {
+        String userId = getUserId(session);
+
+        if (userId == null) {
+            redirectAttributes.addFlashAttribute("message", "로그인 후 이용 가능합니다.");
+            return "redirect:/login";
+        }
 
         if (bindingResult.hasErrors()) {
-            model.addAttribute("loginId", loginId);
+            model.addAttribute("loginId", userId);
             model.addAttribute("vehicleList", vehicleRepository.findAllByOrderByBrandAscModelNameAsc());
             return "consultation/form";
         }
 
         ConsultationCreateRequestDto requestDto = ConsultationCreateRequestDto.builder()
-                .userId(loginId)
+                .userId(userId)
                 .vehicleId(consultationCreateRequestDto.getVehicleId())
                 .preferredDatetime(consultationCreateRequestDto.getPreferredDatetime())
                 .budget(consultationCreateRequestDto.getBudget())
@@ -85,7 +101,8 @@ public class ConsultationController {
                 .build();
 
         consultationService.createConsultation(requestDto);
-        return "redirect:/consultation";
+        redirectAttributes.addFlashAttribute("message", "상담 신청이 정상적으로 등록되었습니다.");
+        return "redirect:/mypage/consultation";
     }
 
     @GetMapping("/{id}")
@@ -95,38 +112,18 @@ public class ConsultationController {
         return "consultation/detail";
     }
 
-    private String extractLoginId(HttpSession session) {
+    private String getUserId(HttpSession session) {
+        Object userId = session.getAttribute("userId");
+        if (userId != null) {
+            return String.valueOf(userId);
+        }
+
         Object loginUser = session.getAttribute("loginUser");
-
-        if (loginUser == null) {
-            throw new IllegalStateException("로그인 후 이용 가능합니다.");
+        if (loginUser instanceof User user) {
+            return user.getUserId();
         }
 
-        try {
-            Method getLoginIdMethod = loginUser.getClass().getMethod("getLoginId");
-            Object loginId = getLoginIdMethod.invoke(loginUser);
-
-            if (loginId == null || String.valueOf(loginId).isBlank()) {
-                throw new IllegalStateException("세션 로그인 아이디가 없습니다.");
-            }
-
-            return String.valueOf(loginId);
-        } catch (NoSuchMethodException exception) {
-            try {
-                Method getUserIdMethod = loginUser.getClass().getMethod("getUserId");
-                Object userId = getUserIdMethod.invoke(loginUser);
-
-                if (userId == null || String.valueOf(userId).isBlank()) {
-                    throw new IllegalStateException("세션 사용자 아이디가 없습니다.");
-                }
-
-                return String.valueOf(userId);
-            } catch (ReflectiveOperationException innerException) {
-                throw new IllegalStateException("loginUser 세션 객체에서 로그인 아이디를 찾을 수 없습니다.", innerException);
-            }
-        } catch (ReflectiveOperationException exception) {
-            throw new IllegalStateException("세션 사용자 정보를 읽는 중 오류가 발생했습니다.", exception);
-        }
+        return null;
     }
 
     private <T> PaginationResult<T> paginate(List<T> source, int page) {

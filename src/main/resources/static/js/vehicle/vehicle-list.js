@@ -1,29 +1,50 @@
 'use strict';
 
 function filterByData(button) {
-    const brand = button.getAttribute('data-brand') || '전체';
-    const vehicleClass = button.getAttribute('data-class') || '전체';
+    if (!button) {
+        return;
+    }
 
-    location.href = '/vehicle/list?brand=' + encodeURIComponent(brand)
-        + '&vehicleClass=' + encodeURIComponent(vehicleClass);
+    const brand = button.dataset.brand || '전체';
+    const vehicleClass = button.dataset.class || '전체';
+
+    moveVehicleList(brand, vehicleClass, 0);
 }
 
-function goDetail(card) {
-    const vehicleId = card.getAttribute('data-id');
+function goPage(button) {
+    if (!button) {
+        return;
+    }
 
+    const brand = button.dataset.brand || '전체';
+    const vehicleClass = button.dataset.class || '전체';
+    const page = Number(button.dataset.page || 0);
+
+    moveVehicleList(brand, vehicleClass, page);
+}
+
+function goDetail(element) {
+    if (!element) {
+        return;
+    }
+
+    const vehicleId = element.dataset.id;
     if (!vehicleId) {
         return;
     }
 
-    location.href = '/vehicle/' + vehicleId;
+    window.location.href = `/vehicle/${encodeURIComponent(vehicleId)}`;
 }
 
-function goPage(button) {
-    const brand = button.getAttribute('data-brand') || '전체';
-    const vehicleClass = button.getAttribute('data-class') || '전체';
-    const page = button.getAttribute('data-page') || '0';
+function moveVehicleList(brand, vehicleClass, page) {
+    const params = new URLSearchParams();
 
-    location.href = '/vehicle/list?brand=' + encodeURIComponent(brand)
-        + '&vehicleClass=' + encodeURIComponent(vehicleClass)
-        + '&page=' + encodeURIComponent(page);
+    params.set('brand', brand || '전체');
+    params.set('vehicleClass', vehicleClass || '전체');
+
+    if (page && page > 0) {
+        params.set('page', String(page));
+    }
+
+    window.location.href = `/vehicle?${params.toString()}`;
 }
