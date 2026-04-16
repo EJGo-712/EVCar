@@ -21,7 +21,11 @@ public class AdminDashboardResponseDto {
     private List<MonthlyConsultationStatDto> monthlyConsultationStats;
     private List<TopVehicleStatDto> topVehicleStats;
     private List<RegionConsultationStatDto> regionConsultationStats;
+
     private String aiSummary;
+    private String aiTrend;
+    private String aiVehicle;
+    private String aiRegion;
 
     @Getter
     @NoArgsConstructor

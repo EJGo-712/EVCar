@@ -75,32 +75,34 @@
                     <div class="ev-dashboard-ai-box">
                         <div class="ev-dashboard-ai-badge">AI INSIGHT</div>
 
-						<div class="ev-dashboard-ai-summary"
-						     th:text="${dashboard.aiSummary}">
-						    AI 분석 결과가 표시됩니다.
-						</div>
+                        <div class="ev-dashboard-ai-summary"
+                             th:text="${dashboard.aiSummary}">
+                            AI 분석 결과가 표시됩니다.
+                        </div>
 
                         <ul class="ev-dashboard-ai-list">
                             <li>
                                 <span class="ev-dashboard-ai-list__label">상담 추이</span>
-                                <span class="ev-dashboard-ai-list__value">
-                                    최근 3개월 상담 증감 흐름을 분석하여 추세를 안내합니다.
+                                <span class="ev-dashboard-ai-list__value"
+                                      th:text="${dashboard.aiTrend}">
+                                    최근 3개월 상담 증감 흐름 분석 결과가 표시됩니다.
                                 </span>
                             </li>
                             <li>
                                 <span class="ev-dashboard-ai-list__label">차량 관심도</span>
-                                <span class="ev-dashboard-ai-list__value">
-                                    인기 차량 TOP 데이터를 바탕으로 현재 선호 모델을 요약합니다.
+                                <span class="ev-dashboard-ai-list__value"
+                                      th:text="${dashboard.aiVehicle}">
+                                    인기 차량 TOP 분석 결과가 표시됩니다.
                                 </span>
                             </li>
                             <li>
                                 <span class="ev-dashboard-ai-list__label">지역 분포</span>
-                                <span class="ev-dashboard-ai-list__value">
-                                    지역별 상담 집중도를 분석해 운영 우선순위 판단을 돕습니다.
+                                <span class="ev-dashboard-ai-list__value"
+                                      th:text="${dashboard.aiRegion}">
+                                    지역별 상담 분포 분석 결과가 표시됩니다.
                                 </span>
                             </li>
                         </ul>
-
                     </div>
                 </div>
             </section>
@@ -119,7 +121,7 @@
                         <div class="ev-dashboard-ranking-item"
                              th:each="vehicle, stat : ${dashboard.topVehicleStats}">
                             <div class="ev-dashboard-ranking-item__order"
-                                 th:text="${stat.count}">1</div>
+                                 th:text="${stat.count + 1}">1</div>
                             <div class="ev-dashboard-ranking-item__content">
                                 <div class="ev-dashboard-ranking-item__name"
                                      th:text="${vehicle.modelNameLabel}">아이오닉 5</div>

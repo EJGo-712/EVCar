@@ -1,6 +1,7 @@
 package com.evcar.service.admin;
 
 import com.evcar.dto.admin.AdminDashboardResponseDto;
+import com.evcar.dto.chatbot.AdminDashboardAiResponseDto;
 import com.evcar.repository.admin.AdminDashboardQueryRepository;
 import com.evcar.service.chatbot.FastApiDashboardAnalysisService;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +32,8 @@ public class AdminDashboardServiceImpl implements AdminDashboardService {
                 .regionConsultationStats(adminDashboardQueryRepository.findRegionConsultationStats())
                 .build();
 
-        String aiSummary = fastApiDashboardAnalysisService.analyzeDashboard(dashboardResponseDto);
+        AdminDashboardAiResponseDto aiResponseDto =
+                fastApiDashboardAnalysisService.analyzeDashboard(dashboardResponseDto);
 
         return AdminDashboardResponseDto.builder()
                 .todayReservationCount(dashboardResponseDto.getTodayReservationCount())
@@ -40,7 +42,10 @@ public class AdminDashboardServiceImpl implements AdminDashboardService {
                 .monthlyConsultationStats(dashboardResponseDto.getMonthlyConsultationStats())
                 .topVehicleStats(dashboardResponseDto.getTopVehicleStats())
                 .regionConsultationStats(dashboardResponseDto.getRegionConsultationStats())
-                .aiSummary(aiSummary)
+                .aiSummary(aiResponseDto.getSummary())
+                .aiTrend(aiResponseDto.getTrend())
+                .aiVehicle(aiResponseDto.getVehicle())
+                .aiRegion(aiResponseDto.getRegion())
                 .build();
     }
 }

@@ -1,12 +1,13 @@
 package com.evcar.service.chatbot;
 
+import com.evcar.domain.consultation.Consultation;
 import com.evcar.domain.vehicle.Vehicle;
 import com.evcar.dto.chatbot.ConsultationChatbotDto;
 import com.evcar.dto.chatbot.FastApiChatRequestDto;
 import com.evcar.dto.chatbot.FastApiChatResponseDto;
 import com.evcar.dto.chatbot.VehicleChatbotDto;
+import com.evcar.repository.consultation.ConsultationRepository;
 import com.evcar.repository.vehicle.VehicleRepository;
-import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,7 @@ public class FastApiChatbotServiceImpl implements FastApiChatbotService {
 
     private final WebClient fastApiWebClient;
     private final VehicleRepository vehicleRepository;
+    private final ConsultationRepository consultationRepository;
 
     @Override
     public String getReply(String userId, String userMessage) {
@@ -30,7 +32,10 @@ public class FastApiChatbotServiceImpl implements FastApiChatbotService {
                 .map(this::toVehicleChatbotDto)
                 .toList();
 
-        List<ConsultationChatbotDto> consultations = Collections.emptyList();
+        List<ConsultationChatbotDto> consultations = consultationRepository.findByUserIdOrderByCreatedAtDesc(userId)
+                .stream()
+                .map(this::toConsultationChatbotDto)
+                .toList();
 
         FastApiChatRequestDto requestDto = FastApiChatRequestDto.builder()
                 .userMessage(userMessage)
@@ -68,6 +73,16 @@ public class FastApiChatbotServiceImpl implements FastApiChatbotService {
                 .imageUrl(vehicle.getImageUrl())
                 .catalogUrl(vehicle.getCatalogUrl())
                 .vehicleUrl(vehicle.getVehicleUrl())
+                .build();
+    }
+
+    private ConsultationChatbotDto toConsultationChatbotDto(Consultation consultation) {
+        return ConsultationChatbotDto.builder()
+                .consultId(consultation.getConsultId())
+                .consultContent(consultation.getConsultContent())
+                .consultStatus(consultation.getConsultStatus())
+                .consultResult(consultation.getConsultResult())
+                .adminReply(consultation.getAdminReply())
                 .build();
     }
 }
